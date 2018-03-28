@@ -54,7 +54,7 @@ hydpar_hypres <- function(clay, silt, bd, oc.pct=0.1, topsoil=TRUE, humconv=1.72
                    0.1482 * log(100 * h) - 0.004546 * bd * silt - 0.04852 * bd * h +
                    0.673 * topsoil * clay )
 
-    n <- exp(-25.23 - 2.195 * clay + 0.74 * silt - 19.4 * h +
+    npar <- exp(-25.23 - 2.195 * clay + 0.74 * silt - 19.4 * h +
                    0.0455 * bd - 0.00000724 * bd * bd + 3.658 * clay * clay +
                    28.85 * h * h - 12810 / bd - 0.001524 / silt -
                    0.0001958 / h - 0.2876 * log(silt * 100) - 0.0709 * log(100 * h) -
@@ -69,7 +69,8 @@ hydpar_hypres <- function(clay, silt, bd, oc.pct=0.1, topsoil=TRUE, humconv=1.72
       0.000283 * bd * silt + 0.00488 * bd * h
   })
   out$tort <-  10 * (exp(out$tort) - 1) / (exp(out$tort) + 1)
-  out$m <- 1-1/out$n
+  out$mpar <- 1-1/out$n
   out[,c(1,2)] <- out[,c(1,2)]*100
-  out[,c("ths","thr", "alpha","n","m","ksat","tort")]
+  out$alpha <- out$alpha*100
+  out[,c("ths","thr", "alpha","npar","mpar","ksat","tort")]
 }

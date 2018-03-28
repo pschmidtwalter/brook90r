@@ -43,8 +43,8 @@ hydpar_puh2 <- function(clay, silt, sand, bd, oc.pct=0.5){
     ths <- 0.015362*(oc.pct^0.5) - 0.2513*bd - 0.026836*log(clay+1) - 0.0055404*(sand^0.5) + 0.8648
     thr <- 0.069 #konstant
     alpha  <- exp( -1.187*(bd^2) - 0.031899*sand - 0.58805*log(oc.pct+0.1) - 0.00032963*(silt^2) - 0.016267*silt*bd + 2.021 )
-    n <- exp( 0.0003758*(sand^2) + 0.004751*silt + 0.017826*(silt/bd)  -2.9804) +1
-    m <- 1-1/n
+    npar <- exp( 0.0003758*(sand^2) + 0.004751*silt + 0.017826*(silt/bd)  -2.9804) +1
+    mpar <- 1-1/npar
     ksat <- 10^( -1.2491*(bd^2) - 0.00087388*(clay^2) - 1.10316 ) *10*86400   # mm/d
     #KSat <-  -1.2491*(bd^2) - 0.00087388*(clay^2) - 1.10316
     tort <- -0.98063*log(sand+0.1) - 0.004075*(clay^2) + 0.030022*clay*oc.pct -0.00457*(sand/oc.pct) +4.4304
@@ -56,6 +56,6 @@ hydpar_puh2 <- function(clay, silt, sand, bd, oc.pct=0.5){
     # AC <- ( -0.38372*bd +1.0082 )*100 -FC #Porosit?t - FK
     # PWP <- FC-AWC
   })
-
-  return(out[order(out$id),c("ths", "thr", "alpha", "n","m", "ksat", "tort")])
+  out$alpha <- out$alpha*100
+  return(out[order(out$id),c("ths", "thr", "alpha", "npar","mpar", "ksat", "tort")])
 }

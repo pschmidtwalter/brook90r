@@ -2,14 +2,14 @@ options(stringsAsFactors = F)
 
 #Wessolek-MVG
 wessolek_mvg_tab10 <- read.csv("data-raw/wessolek_MVG_tab10.csv")
-wessolek_mvg_tab10$m <- 1-1/wessolek_mvg_tab10$n
+wessolek_mvg_tab10$mpar <- 1-1/wessolek_mvg_tab10$n
 # wessolek_mvg_tab10$PV <- wessolek_mvg_tab10$ths*100
 # wessolek_mvg_tab10$FC <- with(wessolek_mvg_tab10, brook90r::MvG.swc(10^1.8, alpha,n,ths, thr,m))*100
 # wessolek_mvg_tab10$PWP <- with(wessolek_mvg_tab10, brook90r::MvG.swc(10^4.2, alpha,n,ths, thr,m))*100
 # wessolek_mvg_tab10$AWC <- with(wessolek_mvg_tab10,FC-PWP)
 # wessolek_mvg_tab10$AC <- with(wessolek_mvg_tab10,PV-FC)
 wessolek_mvg_tab10$ksat <- wessolek_mvg_tab10$ksat*10
-
+names(wessolek_mvg_tab10)[5] <- "npar"
 
 # # DIN4220
 # din4220_tabA1 <- read.csv("H:/RProjects/PTF-Validierung/RESULTS1/PTF_tables&functions/DIN_RengerTexTRD_MvG_final.csv", stringsAsFactors=F)
@@ -29,13 +29,13 @@ wessolek_mvg_tab10$ksat <- wessolek_mvg_tab10$ksat*10
 # hypres_tab4 <- rbind(hypres_tab4, hypres_tab4[hypres_tab4$tex.hypres=="Org",])
 # hypres_tab4$topsoil[11] <- TRUE
 
-hydpar_forestfloor <- data.frame(ths = 0.848, thr = 0, alpha = 0.98, n = 1.191,
-                         m=0.1603694, ksat = 98000,tort = 0.5, stringsAsFactors = F)
+hydpar_forestfloor <- data.frame(ths = 0.848, thr = 0, alpha = 98, npar = 1.191,
+                         mpar=0.1603694, ksat = 98000,tort = 0.5, stringsAsFactors = F)
 
 
 # # hypres tab
 hypres_tab4 <- read.csv("H:/RProjects/PTF-Validierung/RESULTS1/PTF_tables&functions/HypresKlassPTF.csv", stringsAsFactor=F)
-names(hypres_tab4) <- c("tex.hypres", "topsoil", "ths", "thr", "alpha", "n","m","ksat", "tort")
+names(hypres_tab4) <- c("tex.hypres", "topsoil", "ths", "thr", "alpha", "npar","mpar","ksat", "tort")
 hypres_tab4$topsoil <- as.logical(hypres_tab4$topsoil)
 # hypres_tab4$PV <- hypres_tab4$ths*100
 # hypres_tab4$FC <- with(hypres_tab4, brook90r::MvG.swc(10^1.8, alpha,n,ths, thr,m))*100

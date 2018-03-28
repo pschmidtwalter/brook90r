@@ -10,7 +10,6 @@ setDT(meteo_slb1)
 soil_slb1 <- read.csv("data-raw/soil_slb1.csv", stringsAsFactors = F)
 names(soil_slb1)[c(2,3)] <- c("upper", "lower")
 soil_slb1 <- soil_slb1[,-which(names(soil_slb1) =="rel_rootlength_density")]
-soil_slb1$ksat <- soil_slb1$ksat*10
 soil_slb1$gravel <- soil_slb1$gravel/100
 setDT(soil_slb1)
 soil_slb1 <- soil_slb1[-c(1:3,20),]

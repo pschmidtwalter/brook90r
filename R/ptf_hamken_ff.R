@@ -25,6 +25,7 @@ hydpar_wessolek_mvg <- function(n=1) {
   if (length(n) > 1) {
     warning("Only the first element of the supplied vector will be used." )
   }
-  brook90r:::hydpar_forestfloor[rep(1,n[1]),]
+  out <- brook90r:::hydpar_forestfloor[rep(1,n[1]),]
+  out$alpha <- out$alpha*100
 }
 

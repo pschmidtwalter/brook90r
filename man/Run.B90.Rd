@@ -80,14 +80,20 @@ Set start and end Dates for the simulation
 options.b90$startdate <- as.Date("2000-01-01")
 options.b90$enddate <- as.Date("2004-12-31")
 
-# Derive soil hydaulic properties from soil physical properties
-# using pedotransferfunctions
+# Derive soil hydraulic properties from soil physical properties
+# using pedotransfer functions
 
 soil <- cbind(soil_slb1[-c(1:3),], hydpar_wessolek_mvg(soil_slb1$texture[-c(1:3)]))
 
 Run LWF-Brook90
-b90.result <- Run.B90()
 
-
+names(soil) <- tolower(names(soil))
+names(soil)[c(14,15)] <- c("npar", "mpar")
+b90.result <- Run.B90(directory = "example_run_b90",
+                      inicontrol = options.b90,
+                      param = param.b90,
+                      climate = meteo_slb1,
+                      soil = soil,
+                      path_b90.exe = "H:/B90/MultiControl/b90.exe")
 }
 
