@@ -1,0 +1,13 @@
+brook90r v0.0.9000 (Release date: 2016-07-15)
+==============
+
+  Changes:
+
+  * Changes to defaults in plot.pkgDepGraph() to move legend to left of plot area.
+
+brook90r v0.0-20 (Release date: 2014-08-18)
+==============
+
+  Changes:
+
+  * Modified examples to reduce running time, mostly using \dontrun{} sections
