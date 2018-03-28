@@ -24,3 +24,5 @@ Suggests:
     knitr,
     rmarkdown
 VignetteBuilder: knitr
+URL: http://github.com/pschmidtwalter/brook90r
+BugReports: http://github.com/pschmidtwalter/brook90r
