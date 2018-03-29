@@ -11,8 +11,9 @@
 #'   \item{tex.KA5}{soil texture according to KA5 }
 #'   \item{thr}{Residual water content fraction}
 #'   \item{ths}{Saturation water content fraction}
-#'   \item{alpha}{Alpha parameter of van Genuchten water retention function, hPa-1}
-#'   \item{n}{N parameter of van Genuchten water retention parameter}
+#'   \item{alpha}{Alpha parameter of van Genuchten water retention function, m-1}
+#'   \item{npar}{N parameter of van Genuchten water retention parameter}
+#'   \item{mpar}{M parameter of van Genuchten water retention parameter}
 #'   \item{tort}{Tortuosity parameter of Mualem hydraulic conductivity function}
 #'   \item{ksat}{Saturated hyraulic conductivity parameter of Mualem hydraulic conductivity function, mm d-1}
 

@@ -9,36 +9,40 @@
 #' \code{\link{MakeInicontrol.B90}} to generate a list with default model control options.
 #' @param param Named list of model input parameters. Use
 #' \code{\link{MakeParam.B90}} to generate a list with default model parameters.
-#' @param climate Data.frame with daily climate data. All names(climate) should be
-#' found in and corrrespond to arguments dates, tmax, tmin, wind, prec, vappres,
-#' globrad, sunhours) of \code{\link{writeClimate.in}}.
+#' @param climate Data.frame with daily climate data. The names of climate have to
+#' corrrespond to arguments \emph{dates}, \emph{tmax}, \emph{tmin}, \emph{wind}, \emph{prec}, \emph{vappres},
+#' \emph{globrad}, \emph{sunhours}) of \code{\link{writeClimate.in}}.
 #' @param soil Data.frame containing the hydraulic properties of the soil layers.
-#' Each row represents one layer, containing the layer's boundaries
-#' ['upper' and 'lower' negative downwards, m], van Genuchten retention parameters 'alpha' [m-1], 'n', 'ths',
-#' 'thr', Mualem conductivity function parameters ksat [mm d-1] and t, and the volume fraction
-#' of gravel content.
+#' Each row represents one layer, containing the layer's boundaries and soil hydraulic parameters.
+#' The columns names for the upper and lower layer boundaries are \emph{upper} and \emph{lower} [m, negative downwards],
+#' the parameters of the van Genuchten retention functions are \emph{ths}, \emph{thr},
+#'  \emph{alpha} [m-1], \emph{npar}, and the parameters of the Mualem conductivity function
+#'  \emph{ksat} [mm d-1] and \emph{tort}. The volume fraction of stones has to be called \emph{gravel}.
 #' @param longtermdev Data.frame with yearly values of vegetation properties
-#' (years, age, lai, sai, height, densef) that are passed to \code{\link{MakeStand}}.
-#' @param outputmat A [10,5]-matrix marking the desired model-output. Use
+#' (named \emph{years}, \emph{age}, \emph{lai}, \emph{sai}, \emph{height}, \emph{densef})
+#' that are passed to \code{\link{MakeStand}}.
+#' @param outputmat A [10,5]-matrix flagging the desired model-output. Use
 #' \code{\link{Choose_output.B90}} to generate and edit it.
 #' @param write.climate.in  Should the climate file be written? Ignored if no
-#' Climate.in is found in directory, Climate.in is written anyway.
-#' @param write.param.in Should the climate file be written? Ignored if
-#' write.climate.in == TRUE and written anyway.
+#' Climate.in is found in "directory/in".
+#' @param write.param.in Should the parameter file be written? Ignored if
+#' write.climate.in == TRUE.
 #' @param output.plant.devt Return daily values of aboveground plant properties?
-#' @param output_log Logical or name where stdout from \code{\link[base]{system2}}-call
-#' is sent. The default output_log = FALSE discards stdout and slightly reduces execution
-#' time of LWF Brook90. output_log = "" sents all command-line model-output to the R
-#' console, all other names will create a text file containing the model runtime output.
-#' @param keepoutputfiles Keep the model output files after running and
-#' returning output? Default is TRUE.
-#' @param verbose Print messages to screen? Default is TRUE.
+#' @param output_log Logical or filename where stdout from \code{\link[base]{system2}}-call
+#' is sent. The default \emph{output_log} = FALSE discards stdout. \emph{output_log} = ""
+#' sents all command-line model-output to the R console, all other names will create
+#' a text file containing the model runtime output.
+#' @param keep_log_on_success Keep the file 'output_log' after a successful simulation?
+#' In case of simulation errors the 'output_log' file (if specified) is kept anyway for inspection purposes.
+#' @param keepoutputfiles Keep the model .asc output files after running and
+#' returning the output?.
+#' @param verbose Print messages to the console? Default is TRUE.
 #' @param path_b90.exe Filename of the executable. The default setting looks for the
 #' executable 'b90.exe' within 'directory'.
 #' @param run.model Run the model or only create input files? Default is TRUE.
 #'
-#' @return Returns a list of data.frames (data.tables) containing the model results
-#' and some additional informations including the execution time.
+#' @return Returns a list of data.frames (data.tables) containing the model results,
+#' control options and parameters and the execution time.
 #'
 #' @export
 #'
@@ -57,18 +61,16 @@
 #' # Derive soil hydraulic properties from soil physical properties
 #' # using pedotransfer functions
 #'
-#' soil <- cbind(soil_slb1[-c(1:3),], hydpar_wessolek_mvg(soil_slb1$texture[-c(1:3)]))
+#' soil <- cbind(soil_slb1, hydpar_wessolek_mvg(soil_slb1$texture))
 #'
 #' Run LWF-Brook90
 #'
-#' names(soil) <- tolower(names(soil))
-#' names(soil)[c(14,15)] <- c("npar", "mpar")
 #' b90.result <- Run.B90(directory = "example_run_b90",
 #'                       inicontrol = options.b90,
 #'                       param = param.b90,
 #'                       climate = meteo_slb1,
 #'                       soil = soil,
-#'                       path_b90.exe = "H:/B90/MultiControl/b90.exe")
+#'                       path_b90.exe = "b90.exe")
 
 
 Run.B90 <- function(directory,
@@ -82,6 +84,7 @@ Run.B90 <- function(directory,
                     write.param.in = TRUE,
                     output.plant.devt = TRUE,
                     output_log = "",
+                    keep_log_on_success = TRUE,
                     keepoutputfiles = TRUE,
                     verbose = TRUE,
                     path_b90.exe = "b90.exe",
@@ -119,7 +122,7 @@ Run.B90 <- function(directory,
     stop("Missing argument: 'longtermdev'")}
   if (missing(soil) & write.param.in == T) {
     stop("Missing argument: 'soil'")}
-  if (!file.exists(path_b90.exe)) {
+  if (!file.exists(file.path(directory, path_b90.exe))) {
     stop("Invalid argument: Executable file '",path_b90.exe, "' doesn't exist! Check argument 'path_b90.exe'")}
   if (!inherits(inicontrol$startdate, "Date")) {
     stop("Invalid argument: 'inicontrol$startdate'")}
@@ -356,7 +359,9 @@ Run.B90 <- function(directory,
       #remove output
       if (!keepoutputfiles) { try(file.remove(list.files(outpath, pattern = ".ASC", full.names = T))) }
       #remove log-file (only if simulation had no errors)
-      if (output_log != "" & output_log != FALSE) { try(file.remove(output_log))}
+      if (output_log != "" & output_log != FALSE & keep_log_on_success == F) {
+        try(file.remove(output_log))
+        }
 
       if (verbose == T) {
         print("Finished!")

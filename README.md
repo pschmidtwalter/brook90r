@@ -5,15 +5,15 @@ brook90r: run the LWF-BROOK90 hydrological model from within R
 Motivation
 ==========
 
-In hydrology, many R-packages exist that deal with pre- and post-processing of input data and results of hydrological process models. In addition, many ready-to-use algorithms exist in R that provide automatic calibration, sensitivity analysis, and parallelisation techniques. In order to make the vast resources of R directly available to the widely used 1D-SVAT model [LWF-BROOK90](https://www.lwf.bayern.de/boden-klima/wasserhaushalt/index.php), *brook90r* was developed to serve as an interface to the LWF-BROOK90 executable commandline program.
+In hydrology, many R-packages exist that deal with pre- and post-processing of input data and results of hydrological process models. In addition, many ready-to-use algorithms exist in R providing automatic calibration, sensitivity analysis, and parallelisation techniques. In order to make the vast resources of R directly available to the 1D-SVAT model [LWF-BROOK90](https://www.lwf.bayern.de/boden-klima/wasserhaushalt/index.php), *brook90r* was developed to serve as an interface to the LWF-BROOK90 executable commandline program.
 
 Basicly, brook90r features the following functionality in one function call:
 
 -   write input files from climate driving data, model control options and parameters,
--   start the commandline-program LWF-BROOK90,
+-   start the commandline-tool LWF-BROOK90,
 -   read and return the created output files.
 
-The model control options thereby let you select different functions for defining aboveground stand dynamics, phenology, root length density distributions and soil hydraulic properties, just like the original MS Access GUI, which is distributed with the commandline tool.
+The model control options thereby let you select different functions for defining aboveground stand dynamics, phenology, and root length density depth distributions. Additionally, a set of pedotransfer functions is provided to derive hydraulic parameters from soil physical properties.
 
 Example
 =======
@@ -32,7 +32,7 @@ data("meteo_slb1")
 data("soil_slb1")
 ```
 
-Set up lists containing model control options and model parameters
+Set up lists containing default model control options and model parameters
 
 ``` r
 param.b90 <- MakeParam.B90()

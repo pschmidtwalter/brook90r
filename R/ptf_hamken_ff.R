@@ -11,9 +11,9 @@
 #' \describe{
 #'   \item{ths}{Saturation water content fraction}
 #'   \item{thr}{Residual water content fraction}
-#'   \item{alpha}{Alpha parameter of van Genuchten water retention function, hPa-1}
-#'   \item{n}{N parameter of van Genuchten water retention function}
-#'   \item{m}{M parameter of van Genuchten water retention function}
+#'   \item{alpha}{Alpha parameter of van Genuchten water retention function, m-1 }
+#'   \item{npar}{N parameter of van Genuchten water retention function}
+#'   \item{mpar}{M parameter of van Genuchten water retention function}
 #'   \item{ksat}{Saturated hyraulic conductivity parameter of Mualem hydraulic conductivity function, mm d-1}
 #'   \item{tort}{Tortuosity parameter of Mualem hydraulic conductivity function}
 #' }
@@ -27,5 +27,6 @@ hydpar_wessolek_mvg <- function(n=1) {
   }
   out <- brook90r:::hydpar_forestfloor[rep(1,n[1]),]
   out$alpha <- out$alpha*100
+  out
 }
 
