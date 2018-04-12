@@ -83,7 +83,7 @@ install.packages("data.table", repos="https://cran.rstudio.com/")
 ```
 
 # Requirements
-You can use the built-in functions without carrying out any water balance simulations. However, the central function *Run.B90* will only work with the small windows commandline tool 'b90.exe' which is not publicly available. However, the interested user can obtain 'b90.exe' directly from the [Bavarian State Institute of Forestry (LWF)](http://www.lwf.bayern.de/), [Departement Soil and Climate.](https://www.lwf.bayern.de/boden-klima/wasserhaushalt/index.php)
+You can use the built-in functions without carrying out any water balance simulations. However, the central function *Run.B90* will only work with the small windows commandline tool 'b90.exe' which is not publicly available. The interested user can obtain 'b90.exe' directly from the [Bavarian State Institute of Forestry (LWF)](http://www.lwf.bayern.de/), [Departement Soil and Climate.](https://www.lwf.bayern.de/boden-klima/wasserhaushalt/index.php)
 
 # Author
 Paul Schmidt-Walter

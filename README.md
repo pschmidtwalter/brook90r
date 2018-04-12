@@ -59,19 +59,19 @@ soil <- cbind(soil_slb1, hydpar_puh2(clay = soil_slb1$clay,
 Run LWF-Brook90 and store the results in b90.results.slb1
 
 ``` r
-b90.results.slb1 <- Run.B90(directory = "/example_run_b90/",
+b90.results.slb1 <- Run.B90(directory = "example_run_b90/",
                             param = param.b90,
                             inicontrol = options.b90,
                             soil = soil,
                             climate = meteo_slb1,
-                            path_b90.exe = "H:/B90/b90.exe"
+                            path_b90.exe = "b90.exe"
                             )
 ```
 
 Status
 ======
 
-The package works as intended and is sufficiently documented, but needs testing and a detailed user manual (vignette).
+The package works as intended and is sufficiently documented, but needs a better test coverage and a detailed user manual (vignette).
 
 Usage
 =====

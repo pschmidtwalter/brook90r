@@ -21,7 +21,7 @@
 #'                 und des Wasserhaushalts von Waldstandorten in Bayern mit dem Simulationsmodell BROOK90,
 #'                 Forstliche Forschungsberichte München 185
 #' @export
-hydpar_wessolek_mvg <- function(n=1) {
+hydpar_forestfloor_hamken <- function(n=1) {
   if (length(n) > 1) {
     warning("Only the first element of the supplied vector will be used." )
   }
