@@ -22,7 +22,6 @@ Load brook90r
 
 ``` r
 library(brook90r)
-#> Warning: package 'data.table' was built under R version 3.2.5
 ```
 
 Load sample meteo and soil data
@@ -76,7 +75,7 @@ The package works as intended and is sufficiently documented, but needs a better
 Usage
 =====
 
-The package is not on CRAN, so use the devtools-package to install directly from github.com:
+The package is not on CRAN, so please use the devtools-package to install directly from github.com:
 
 ``` r
 devtools::install_github("pschmidtwalter/brook90r")
@@ -92,7 +91,7 @@ install.packages("data.table", repos="https://cran.rstudio.com/")
 Requirements
 ============
 
-You can use the built-in functions without carrying out any water balance simulations. However, the central function *Run.B90* will only work with the small windows commandline tool 'b90.exe' which is not publicly available. However, the interested user can obtain 'b90.exe' directly from the [Bavarian State Institute of Forestry (LWF)](http://www.lwf.bayern.de/), [Departement Soil and Climate.](https://www.lwf.bayern.de/boden-klima/wasserhaushalt/index.php)
+You can use the built-in functions without carrying out any water balance simulations. However, the central function *Run.B90* will only work with the small windows commandline tool 'b90.exe' which is not publicly available. The interested user can obtain 'b90.exe' directly from the [Bavarian State Institute of Forestry (LWF)](http://www.lwf.bayern.de/), [Departement Soil and Climate.](https://www.lwf.bayern.de/boden-klima/wasserhaushalt/index.php)
 
 Author
 ======

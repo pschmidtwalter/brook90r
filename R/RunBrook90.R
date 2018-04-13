@@ -122,8 +122,8 @@ Run.B90 <- function(directory,
     stop("Missing argument: 'longtermdev'")}
   if (missing(soil) & write.param.in == T) {
     stop("Missing argument: 'soil'")}
-  if (!file.exists(file.path(directory, path_b90.exe))) {
-    stop("Invalid argument: Executable file '",path_b90.exe, "' doesn't exist! Check argument 'path_b90.exe'")}
+  if (!file.exists(file.path(path_b90.exe))) {
+    stop("Invalid argument: Executable file '",file.path(path_b90.exe), "' doesn't exist! Check argument 'path_b90.exe'")}
   if (!inherits(inicontrol$startdate, "Date")) {
     stop("Invalid argument: 'inicontrol$startdate'")}
   if (!inherits(inicontrol$startdate, "Date")) {

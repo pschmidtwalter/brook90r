@@ -26,7 +26,7 @@ The model control options thereby let you select different functions for definin
 
 # Example
 Load brook90r
-```{r, message=FALSE, results = 'hide'}
+```{r, eval=FALSE}
 library(brook90r)
 ```
 
@@ -37,19 +37,19 @@ data("soil_slb1")
 ```
 
 Set up lists containing default model control options and model parameters
-```{r}
+```{r, eval=FALSE}
 param.b90 <- MakeParam.B90()
 options.b90 <- MakeIniControl.B90()
 ```
 
 Set new start and end dates in model control options
-```{r}
+```{r, eval=FALSE}
 options.b90$startdate <- as.Date("2002-01-01")
 options.b90$enddate <- as.Date("2004-12-31")
 ```
 
 Derive soil hydraulic properties from soil physical properties using a pedotransfer function
-```{r}
+```{r, eval=FALSE}
 soil <- cbind(soil_slb1, hydpar_puh2(clay = soil_slb1$clay,
                                      silt = soil_slb1$silt,
                                      sand = soil_slb1$sand,
@@ -58,7 +58,7 @@ soil <- cbind(soil_slb1, hydpar_puh2(clay = soil_slb1$clay,
 ```
 
 Run LWF-Brook90 and store the results in b90.results.slb1
-```{r, results='hide', eval =F}
+```{r, eval =F}
 b90.results.slb1 <- Run.B90(directory = "example_run_b90/",
                             param = param.b90,
                             inicontrol = options.b90,
@@ -72,7 +72,7 @@ b90.results.slb1 <- Run.B90(directory = "example_run_b90/",
 The package works as intended and is sufficiently documented, but needs a better test coverage and a detailed user manual (vignette).
 
 # Usage
-The package is not on CRAN, so use the devtools-package to install directly from github.com:
+The package is not on CRAN, so please use the devtools-package to install directly from github.com:
 ```{r, eval = F}
 devtools::install_github("pschmidtwalter/brook90r")
 ```

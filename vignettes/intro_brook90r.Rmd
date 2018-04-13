@@ -28,7 +28,7 @@ The model control options thereby let you select different functions for definin
 
 Before installing the *brook90r* R-package, be sure to to download and install the following packages, as *brook90r* depends on them:
 
-```{r, eval=FALSE}
+```{r, eval = F}
 install.packages("vegperiod", repos="https://www.nw-fva.de/r-pkgs")
 install.packages("data.table", repos="https://cran.rstudio.com/")
 ```
@@ -37,7 +37,7 @@ As *brook90r* is not available on CRAN, you have to install it directly from Git
 devtools::install_github("pschmidtwalter/brook90r")
 ```
 Now load the *brook90r* package:
-```{r}
+```{r, warning = FALSE}
 library(brook90r)
 ```
 
@@ -45,12 +45,12 @@ library(brook90r)
 In this vignette, we will use meteorological and soil data from the longterm monitoring beech forest site SLB1 in the Solling mountains, Germany. The datasets are directly available after loading the package, use ?soil_slb1 and ?meteo_slb1 to see the meaning of the variables and their units.
 
 # Basics
-The central function to run LWF-BROOK90 from within R is *Run.B90()*. Before we use it, we need to set up the required input objects that are passed as arguments. Aside from meteorological and soil data, we need to define lists containing the model control options and model parameters. The model control list contains basic information about the simulation (e.g. the start and end dates of the simulation, the phenology model, root length density depth distribution model, etc). The parameter list contains about 100 parameters, of which most are required to run the model, but some only take effect if certain model control options are chosen. Two functions are defined in *brook90r* that can be used to generate default model options and parameters:
+The central function to run LWF-BROOK90 from within R is *Run.B90()*. Before we use it, we need to set up the required input objects that are passed as arguments. Aside from meteorological and soil data, we need to define lists containing the model control options and model parameters. The model control list contains basic information about the simulation (e.g. the start and end dates of the simulation, the phenology model, root length density depth distribution function, etc). The parameter list contains about 100 parameters, of which most are required to run the model, but some only take effect if certain model control options are chosen. Two functions are defined in *brook90r* that can be used to generate default model options and parameters:
 ```{r}
 options.b90 <- MakeIniControl.B90()
 param.b90 <- MakeParam.B90()
 ```
-The created lists can be easily manipulated by reference, and you can use the help pages of the functions to look up the meanings of the various options and parameters. The meaning and context of most parameters can also be looked up in the documentation of the original Brook90 model version on [Tony Federer's webpages](http://www.ecoshift.net/brook/b90doc.html), which is always a recommended source of information for working with any Brook90 version.
+The created lists can be easily manipulated by reference, and you can use the help pages of the functions to look up the meanings of the various options and parameters. The meaning and context of most parameters can also be looked up in the documentation of the original Brook90 model version on [Tony Federer's webpages](http://www.ecoshift.net/brook/b90doc.html), which are always a recommended source of information for working with any Brook90 version.
 
 We want to run LWF-Brook90 using the sample data from the Solling site and we need to prepare the datasets for LWF-Brook90. *soil_slb1* contains soil physical data, but not yet the hydraulic parameters that LWF-BROOK90 requires. Fortunately, *brook90r* comes with a set of pedotransfer functions to derive the Mualem/van Genuchten parameters of the soil water retention and hydraulic conductivity functions. Here we use the equations of Puhlmann & von Wilpert (-@puhlmann_test_2011) and create a data.frame containing the required MvG-parameters along with the soil physical data:
 ```{r}
@@ -68,15 +68,15 @@ meteo_slb1$globrad <- meteo_slb1$globrad*0.0864
 
 Now we are ready to start the simulation using the central function *Run.B90()* and save the returned simulation results in an object: 
 
-```{r}
-b90.results.slb1 <- Run.B90(directory = "example_run_b90",
+```{r, eval=FALSE}
+b90.results.slb1 <- Run.B90(directory = paste("example_run_b90/"),
                             param = param.b90,
                             inicontrol = options.b90,
                             soil = soil,
                             climate = meteo_slb1,
-                            path_b90.exe = "b90.exe")
+                            path_b90.exe = "H:/R-Packages/brook90r/b90.exe")
 ```
-*Run.B90* thereby creates the "in" and "out" folders within the "directroy" folder, derives the daily stand properties (densef, height, lai, sai, age) and writes climate, vegetation properties and parameters to the climate.in and param.in files in the "in" folder. It then starts the commandline tool "b90.exe" which stores its output as .asc-files in the "out"-folder, and then returns the contents of the ou 
+*Run.B90* thereby creates the "in" and "out" folders within the "directroy" folder, derives the daily stand properties (densef, height, lai, sai, age) and writes climate, vegetation properties and parameters to the climate.in and param.in files in the "in" folder. It then starts the commandline tool "b90.exe" which stores its output as .asc-files in the "out"-folder, and then returns the contents of the output files.
 
 
 
