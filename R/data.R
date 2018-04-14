@@ -11,7 +11,7 @@
 #'   \item{prec}{daily sum of precipitation, mm}
 #'   \item{rh}{daily mean relative humidity, }
 #'   \item{globrad}{daily mean global radiation, W m-2}
-#'   \item{windspeed}{daily mean wind speed measured at 10 m above ground, m s-2}
+#'   \item{wind}{daily mean wind speed measured at 10 m above ground, m s-2}
 #' }
 "meteo_slb1"
 

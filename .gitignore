@@ -4,3 +4,8 @@
 inst/doc
 data-raw
 example_run_b90
+<<<<<<< HEAD
+=======
+b90.exe
+scratch.R
+>>>>>>> a4c2a3ff48d68c6e024813607fa15c547e57487c

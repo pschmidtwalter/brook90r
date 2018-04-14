@@ -5,15 +5,15 @@ brook90r: run the LWF-BROOK90 hydrological model from within R
 Motivation
 ==========
 
-In hydrology, many R-packages exist that deal with pre- and post-processing of input data and results of hydrological process models. In addition, many ready-to-use algorithms exist in R that provide automatic calibration, sensitivity analysis, and parallelisation techniques. In order to make the vast resources of R directly available to the widely used 1D-SVAT model [LWF-BROOK90](https://www.lwf.bayern.de/boden-klima/wasserhaushalt/index.php), *brook90r* was developed to serve as an interface to the LWF-BROOK90 executable commandline program.
+In hydrology, many R-packages exist that deal with pre- and post-processing of input data and results of hydrological process models. In addition, many ready-to-use algorithms exist in R providing automatic calibration, sensitivity analysis, and parallelisation techniques. In order to make the vast resources of R directly available to the 1D-SVAT model [LWF-BROOK90](https://www.lwf.bayern.de/boden-klima/wasserhaushalt/index.php), *brook90r* was developed to serve as an interface to the LWF-BROOK90 executable commandline program.
 
 Basicly, brook90r features the following functionality in one function call:
 
 -   write input files from climate driving data, model control options and parameters,
--   start the commandline-program LWF-BROOK90,
+-   start the commandline-tool LWF-BROOK90,
 -   read and return the created output files.
 
-The model control options thereby let you select different functions for defining aboveground stand dynamics, phenology, root length density distributions and soil hydraulic properties, just like the original MS Access GUI, which is distributed with the commandline tool.
+The model control options thereby let you select different functions for defining aboveground stand dynamics, phenology, and root length density depth distributions. Additionally, a set of pedotransfer functions is provided to derive hydraulic parameters from soil physical properties.
 
 Example
 =======
@@ -22,7 +22,6 @@ Load brook90r
 
 ``` r
 library(brook90r)
-#> Warning: package 'data.table' was built under R version 3.2.5
 ```
 
 Load sample meteo and soil data
@@ -32,7 +31,7 @@ data("meteo_slb1")
 data("soil_slb1")
 ```
 
-Set up lists containing model control options and model parameters
+Set up lists containing default model control options and model parameters
 
 ``` r
 param.b90 <- MakeParam.B90()
@@ -59,24 +58,24 @@ soil <- cbind(soil_slb1, hydpar_puh2(clay = soil_slb1$clay,
 Run LWF-Brook90 and store the results in b90.results.slb1
 
 ``` r
-b90.results.slb1 <- Run.B90(directory = "/example_run_b90/",
+b90.results.slb1 <- Run.B90(directory = "example_run_b90/",
                             param = param.b90,
                             inicontrol = options.b90,
                             soil = soil,
                             climate = meteo_slb1,
-                            path_b90.exe = "H:/B90/b90.exe"
+                            path_b90.exe = "b90.exe"
                             )
 ```
 
 Status
 ======
 
-The package works as intended and is sufficiently documented, but needs testing and a detailed user manual (vignette).
+The package works as intended and is sufficiently documented, but needs a better test coverage and a detailed user manual (vignette).
 
 Usage
 =====
 
-The package is not on CRAN, so use the devtools-package to install directly from github.com:
+The package is not on CRAN, so please use the devtools-package to install directly from github.com:
 
 ``` r
 devtools::install_github("pschmidtwalter/brook90r")
@@ -92,7 +91,7 @@ install.packages("data.table", repos="https://cran.rstudio.com/")
 Requirements
 ============
 
-You can use the built-in functions without carrying out any water balance simulations. However, the central function *Run.B90* will only work with the small windows commandline tool 'b90.exe' which is not publicly available. However, the interested user can obtain 'b90.exe' directly from the [Bavarian State Institute of Forestry (LWF)](http://www.lwf.bayern.de/), [Departement Soil and Climate.](https://www.lwf.bayern.de/boden-klima/wasserhaushalt/index.php)
+You can use the built-in functions without carrying out any water balance simulations. However, the central function *Run.B90* will only work with the small windows commandline tool 'b90.exe' which is not publicly available. The interested user can obtain 'b90.exe' directly from the [Bavarian State Institute of Forestry (LWF)](http://www.lwf.bayern.de/), [Departement Soil and Climate.](https://www.lwf.bayern.de/boden-klima/wasserhaushalt/index.php)
 
 Author
 ======
