@@ -111,7 +111,7 @@ legend("bottom",inset = -0.4,
 
 # Vegetation characteristics
 ## Intrannual variation of leaf index
-In the simulation, we used the default parameters representing a deciduous forest stand, with dynamic dates of budburst and beginning of leaffall as controlled by `options.b90$budburst = "dynamic"` and `options.b90$leaffall = "dynamic"`. The models for calculating 
+In the simulation, we used the default parameters representing a deciduous forest stand, with dynamic dates of budburst and beginning of leaffall as controlled by `options.b90$budburst = "dynamic"` and `options.b90$leaffall = "dynamic"`. The models for calculating budburst and leaffall are set in the options with `options.b90$budburst.method = "Menzel"`,`options.b90$species_dynbudburst = "Fagus sylvatica"` and `options$leaffall.method = "vonWilpert"`. With these options, the parameters `parameters$budburstdoy` and `param.b90$leaffalldoy` become obsolete as these are calculated dynamically from air temperature and daylength.
 
 
 
