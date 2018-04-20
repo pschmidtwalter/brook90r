@@ -34,4 +34,3 @@ vector of relative rootlength, corresponding to soilnodes
 \description{
 Generates a root density depth function for the soil nodes
 }
-

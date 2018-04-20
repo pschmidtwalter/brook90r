@@ -6,7 +6,7 @@
 #' @param directory Directoryname of the project where the input and output files
 #' are located. Will be created, if not existing.
 #' @param inicontrol Named list of model control options. Use
-#' \code{\link{MakeInicontrol.B90}} to generate a list with default model control options.
+#' \code{\link{MakeIniControl.B90}} to generate a list with default model control options.
 #' @param param Named list of model input parameters. Use
 #' \code{\link{MakeParam.B90}} to generate a list with default model parameters.
 #' @param climate Data.frame with daily climate data. The names of climate have to
@@ -22,7 +22,7 @@
 #' (named \emph{years}, \emph{age}, \emph{lai}, \emph{sai}, \emph{height}, \emph{densef})
 #' that are passed to \code{\link{MakeStand}}.
 #' @param outputmat A [10,5]-matrix flagging the desired model-output. Use
-#' \code{\link{Choose_output.B90}} to generate and edit it.
+#' \code{\link{choose_output.B90}} to generate and edit it.
 #' @param write.climate.in  Should the climate file be written? Ignored if no
 #' Climate.in is found in "directory/in".
 #' @param write.param.in Should the parameter file be written? Ignored if
@@ -317,7 +317,7 @@ Run.B90 <- function(directory,
                   filename = file.path(inpath, "Param.in"))
   }
   if (verbose == T) {
-    print("Param.in created succesfully!")
+    print("'Param.in' created succesfully!")
   }
   # run, if required ################################################################
   if (run.model == T) {
@@ -340,7 +340,7 @@ Run.B90 <- function(directory,
 
     #check for errors :
     if (inherits(simres, "warning")) {
-      print("Simulation Error, check input and log file!")
+      print("Simulation Error, check input and/or log file!")
     } else {
 
       if (verbose == T) {

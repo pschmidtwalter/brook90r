@@ -17,7 +17,7 @@ LazyData: true
 Imports:
  vegperiod (>= 0.2.1),
  data.table (>= 1.9.6)
-RoxygenNote: 5.0.1
+RoxygenNote: 6.0.1
 Suggests:
  sirad,
  testthat,

@@ -7,7 +7,7 @@
 extract_from_swatday.asc(dat, layers = NULL, vars = NULL)
 }
 \arguments{
-\item{dat}{swatday.asc data.table as returned from \code{\link{readOutput.B90 }}:}
+\item{dat}{swatday.asc data.table as returned from \code{\link{readOutput.B90}}:}
 
 \item{layers}{integer vector addressing the layer numbers (nl) to be extracted
 from dat. If not supplied, values from all layers will be returned}
@@ -38,4 +38,3 @@ swati_wide <- extract_from_swatday.asc(output$swatday.asc,
                                        vars = c("swat", "psim", "theta"))
 
 }
-

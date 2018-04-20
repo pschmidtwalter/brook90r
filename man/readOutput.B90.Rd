@@ -16,4 +16,3 @@ to one file.
 \description{
 Reads all files in LWF-Brook90 output directory and returns them as a list of data.frames
 }
-

@@ -15,7 +15,7 @@ Run.B90(directory, inicontrol, param, climate, soil, longtermdev,
 are located. Will be created, if not existing.}
 
 \item{inicontrol}{Named list of model control options. Use
-\code{\link{MakeInicontrol.B90}} to generate a list with default model control options.}
+\code{\link{MakeIniControl.B90}} to generate a list with default model control options.}
 
 \item{param}{Named list of model input parameters. Use
 \code{\link{MakeParam.B90}} to generate a list with default model parameters.}
@@ -36,7 +36,7 @@ the parameters of the van Genuchten retention functions are \emph{ths}, \emph{th
 that are passed to \code{\link{MakeStand}}.}
 
 \item{outputmat}{A [10,5]-matrix flagging the desired model-output. Use
-\code{\link{Choose_output.B90}} to generate and edit it.}
+\code{\link{choose_output.B90}} to generate and edit it.}
 
 \item{write.climate.in}{Should the climate file be written? Ignored if no
 Climate.in is found in "directory/in".}
@@ -99,4 +99,3 @@ b90.result <- Run.B90(directory = "example_run_b90",
                       soil = soil,
                       path_b90.exe = "b90.exe")
 }
-

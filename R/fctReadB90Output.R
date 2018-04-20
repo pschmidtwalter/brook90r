@@ -25,6 +25,7 @@ readOutput.B90 <- function(outpath){
              data.table::fread(file.path(outpath,outfilenames[i]),sep = ";",
                                header = T, showProgress = F)
       )
+
     }
 
     # 'special' reading: SWAT
@@ -37,15 +38,15 @@ readOutput.B90 <- function(outpath){
       if (outfilenames[i] == "SWATDAY.ASC")
         data.table::setnames(get(tolower(outfilenames[i])),
                  paste("V",1:10,sep = ""),
-                 tolower(c("YR",  "MO","DA","DOY","NL","SWATI", "THETA","WETNES","PSIMI","PSITI")))
+                 c("YR",  "MO","DA","DOY","NL","SWATI", "THETA","WETNES","PSIMI","PSITI"))
       if (outfilenames[i] == "SWATMON.ASC")
         data.table::setnames(get(tolower(outfilenames[i])),
                  paste("V",1:8,sep = ""),
-                 tolower(c("YR",  "MO","NL","SWATI", "THETA","WETNES","PSIMI","PSITI")))
+                 c("YR",  "MO","NL","SWATI", "THETA","WETNES","PSIMI","PSITI"))
       if (outfilenames[i] == "SWATANN.ASC")
         data.table::setnames(get(tolower(outfilenames[i])),
                  paste("V",1:7,sep = ""),
-                 tolower(c("YR",  "NL","SWATI", "THETA","WETNES","PSIMI","PSITI")))
+                 c("YR",  "NL","SWATI", "THETA","WETNES","PSIMI","PSITI"))
     }
 
     # 'special' reading: PSIT
@@ -96,6 +97,12 @@ readOutput.B90 <- function(outpath){
       )
 
     }
+
+    # everything lower case
+    data.table::setnames(get(tolower(outfilenames[i])),
+                         names(get(tolower(outfilenames[i]))),
+                         tolower(names(get(tolower(outfilenames[i]))))
+    )
 
   }
 

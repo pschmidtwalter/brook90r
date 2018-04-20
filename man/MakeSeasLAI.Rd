@@ -46,4 +46,3 @@ on minimum lai, maximum lai, budburst and leaffall day of year (doy) and shape
 parameters.
 Sollte Vielleicht noch etwas genereller gehalten werden, nicht von LAI reden in den Parameters!
 }
-

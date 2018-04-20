@@ -10,7 +10,7 @@ MakeParam.B90(...)
 \item{...}{named arguments to be included in return value}
 }
 \value{
-returns a list with model parameters to use as input for Run.B90
+returns a list with model parameters to use as param-argument in \code{\link[Run.B90]{Run.B90}}.
 }
 \description{
 Create the list of model parameters
@@ -118,4 +118,3 @@ Create the list of model parameters
  rrad         \tab Average radius of the fine or water-absorbing roots. Default: 0.35 \tab mm                \tab Water supply
 }
 }
-

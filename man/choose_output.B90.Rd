@@ -8,18 +8,17 @@ choose_output.B90(outputmat = NULL, edit = T)
 }
 \arguments{
 \item{outputmat}{optional [5,10]-matrix, opened for editing.
-If no matrix is passed, a default selection of output values is opened in the data editor or returned
-instantly, if edit=FALSE)}
+If no matrix is passed, a default selection of output values is opened in R's data-editor or returned
+instantly, if edit=FALSE}
 
-\item{edit}{open R's data editor ?}
+\item{edit}{open R's data-editor ?}
 }
 \value{
-a [5,10]-matrix containing 0 and 1, marking the selected output
+a [5,10]-matrix containing 0 and 1.
 }
 \description{
-Opens the data editor with a [5,10] matrix for selecting the LWF-Brook90-output,
-by marking cells with 1. Assign a name to the returned matrix and use it as
+Opens the data editor with a [5,10] matrix for selecting the LWF-Brook90-output
+by flagging cells with 1. Assign a name to the returned matrix and use it as
 'outputmat'-argument in \code{\link{Run.B90}}. A default output-matrix is returned
-when without editing when edit = FALSE.
+without opening the data-editor when edit = FALSE.
 }
-

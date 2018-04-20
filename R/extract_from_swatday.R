@@ -1,6 +1,6 @@
 #'  Extract variables from swatday.asc data.tables and organize layer-wise values in columns
 #'
-#' @param dat swatday.asc data.table as returned from \code{\link{readOutput.B90 }}:
+#' @param dat swatday.asc data.table as returned from \code{\link{readOutput.B90}}:
 #' @param layers integer vector addressing the layer numbers (nl) to be extracted
 #'                   from dat. If not supplied, values from all layers will be returned
 #' @param vars character vector containing variable names (out of "swati","theta",

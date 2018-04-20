@@ -24,4 +24,3 @@ soil_slb1
 A dataset containing the soil horizons' physical properties
 }
 \keyword{datasets}
-
