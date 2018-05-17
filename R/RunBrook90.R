@@ -32,6 +32,7 @@
 #' is sent. The default \emph{output_log} = FALSE discards stdout. \emph{output_log} = ""
 #' sents all command-line model-output to the R console, all other names will create
 #' a text file containing the model runtime output.
+#' @param out.dir directory name
 #' @param keep_log_on_success Keep the file 'output_log' after a successful simulation?
 #' In case of simulation errors the 'output_log' file (if specified) is kept anyway for inspection purposes.
 #' @param keepoutputfiles Keep the model .asc output files after running and
@@ -84,6 +85,7 @@ Run.B90 <- function(directory,
                     write.param.in = TRUE,
                     output.plant.devt = TRUE,
                     output_log = "",
+                    out.dir = "out/",
                     keep_log_on_success = TRUE,
                     keepoutputfiles = TRUE,
                     verbose = TRUE,
@@ -93,7 +95,6 @@ Run.B90 <- function(directory,
 
   oldWD <- getwd()
   on.exit(setwd(oldWD))
-
 
   #name-checks
   names(inicontrol) <- tolower(names(inicontrol))
@@ -107,9 +108,9 @@ Run.B90 <- function(directory,
                                           choices = c(c("Menzel","StdMeteo", "ETCCDI", "Ribes uva-crispa")))
   inicontrol$leaffall <- match.arg(inicontrol$leaffall, choices = c("fixed", "dynamic"))
   inicontrol$longtermdyn <- match.arg(inicontrol$longtermdyn, choices = c("constant", "table"))
-  inicontrol$annuallaidyn <- match.arg(inicontrol$annuallaidyn, choices =c("b90", "linear", "Coupmodel"))
-  # Input checks +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+  inicontrol$annuallaidyn <- match.arg(inicontrol$annuallaidyn, choices = c("b90", "linear", "Coupmodel"))
 
+  # Input checks +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
   if (missing(directory)) {
     stop("Missing argument: 'directory'")}
   if (missing(param)) {
@@ -134,13 +135,53 @@ Run.B90 <- function(directory,
     stop("No writing of inputfiles and no simulation?? Won't do anything, alright.")
   }
 
+  path_b90.exe <- normalizePath(path_b90.exe, mustWork = TRUE)
+  directory <- normalizePath(directory, mustWork = FALSE)
 
   # create project-directory
   if (!dir.exists(directory)) {
     if (verbose == TRUE) {print("Creating project-directory...")}
-    dir.create(directory)
+    tryCatch( {
+      dir.create(directory)
+    }, warning = function(wrn){
+      stop(paste0("The specified project directory (",
+                  directory,
+                  ") could not be created.)"))
+    },
+    error = function(err){
+      return(err)
+    })
   }
-  setwd(directory)
+
+  setwd(directory) # set the working directory to the project folder
+
+  in.dir <- normalizePath(file.path(getwd(),"in"), mustWork = FALSE)
+  inicontrol$out.dir <- normalizePath(out.dir, mustWork = FALSE)
+
+  if (!dir.exists(in.dir)) {
+    dir.create(in.dir)
+  }
+
+  if (!dir.exists(inicontrol$out.dir)) {
+    tryCatch( {
+      dir.create(inicontrol$out.dir)
+    }, warning = function(wrn){
+      warning(paste0("The specified output directory (",
+                     inicontrol$out.dir,
+                     ") could not be created. Writing results to '",directory, "/out' instead."))
+    },
+    error = function(err){
+      inicontrol$out.dir <- "out"
+      dir.create(inicontrol$out.dir)
+      warning(paste0("The specified output directory (",
+                     inicontrol$out.dir,
+                     ") could not be created. Writing results to '",directory, "/out' instead."))
+
+    })
+  }
+
+  #clear output and log
+  try(file.remove(list.files(inicontrol$out.dir, pattern = ".ASC", full.names = T)))
 
 
   #Simulation period
@@ -158,24 +199,13 @@ Run.B90 <- function(directory,
   }
 
   #input und output directories +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-  inpath <- file.path(getwd(),"in")
-  outpath <- file.path(getwd(),"out")
 
-  if (file.exists(inpath) == FALSE) {
-    dir.create(inpath)
-  }
-  if (file.exists(outpath) == FALSE) {
-    dir.create(outpath)
-  }
-
-  #clear output and log
-  try(file.remove(list.files(outpath, pattern = ".ASC", full.names = T)))
   #+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
   #Climate.in
   # check ob climate.in vorhanden und mit start und end kompatibel  :
-  if (!write.climate.in & file.exists(file.path(inpath, "Climate.in"))) {
+  if (!write.climate.in & file.exists(file.path(in.dir, "Climate.in"))) {
 
-    climate.in <- read.table(file.path(inpath, "Climate.in"), sep = "\t", skip = 3, header = F)[2:16]
+    climate.in <- read.table(file.path(in.dir, "Climate.in"), sep = "\t", skip = 3, header = F)[2:16]
     names(climate.in) <- c("year","month","mday","globrad","tmax","tmin","vap","wind","prec","mesfl","densef","height","lai","sai","age")
 
     if (inicontrol$startdate != with(climate.in[1,], as.Date(paste(year, month, mday,sep = "-")))) {
@@ -220,7 +250,7 @@ Run.B90 <- function(directory,
     } else {
       stand <- data.frame(year = simyears[1], age = param$age, height = param$height,
                           maxlai = param$maxlai, sai = param$sai,densef = param$densef)
-        if (verbose == T) {print("Creating constant stand properties from parameters...")}
+      if (verbose == T) {print("Creating constant stand properties from parameters...")}
     }
 
     stand <- MakeStand(stand.years = stand$year,
@@ -276,11 +306,11 @@ Run.B90 <- function(directory,
 
   #+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
   # Wurzeln dran mergen, wenn nicht aus soil-data.frame
-  if( inicontrol$rootmodel != "soilvar"){
-  soil$relrootlength <- MakeRelRootDens(soil$lower * (-100), param$maxrootdepth,
-                                        method = inicontrol$rootmodel, param = param$betaroot,
-                                        humusroots = inicontrol$humusroots
-  )}
+  if (inicontrol$rootmodel != "soilvar") {
+    soil$relrootlength <- MakeRelRootDens(soil$lower * (-100), param$maxrootdepth,
+                                          method = inicontrol$rootmodel, param = param$betaroot,
+                                          humusroots = inicontrol$humusroots
+    )}
 
 
   #  Create materials for writeparam.in aus Soil-Table
@@ -314,7 +344,7 @@ Run.B90 <- function(directory,
                   materials = materials,
                   soil = soil,
                   outmat = outputmat,
-                  filename = file.path(inpath, "Param.in"))
+                  filename = file.path(in.dir, "Param.in"))
   }
   if (verbose == T) {
     print("'Param.in' created succesfully!")
@@ -327,18 +357,32 @@ Run.B90 <- function(directory,
     }
     start <- Sys.time()
     simres <- tryCatch( {
-      system2(path_b90.exe,
-              stdout = output_log,
-              invisible = TRUE,
-              wait = TRUE)
+      if (tolower(Sys.info()[["sysname"]]) == "windows") {
+        system2(path_b90.exe,
+                stdout = output_log,
+                invisible = TRUE,
+                wait = TRUE)
+      } else {
+        system2(path_b90.exe,
+                stdout = output_log,
+                wait = TRUE)
+      }
     }, warning = function(wrn){
       return(wrn)
+    },
+    error = function(err){
+      return(err)
     })
 
     simtime <- Sys.time() - start
     units(simtime) <- "secs"
 
-    #check for errors :
+    # Unix uses shell for system2 and which not returning errors, so we create one in case simres != 0
+    if (is.integer(simres) & simres != 0) {
+      stop("Execution of b90.exe gave an error.")
+    }
+
+    #check for errors
     if (inherits(simres, "warning")) {
       print("Simulation Error, check input and/or log file!")
     } else {
@@ -348,7 +392,7 @@ Run.B90 <- function(directory,
         print("Reading output...")
       }
 
-      simres <- readOutput.B90(outpath)
+      simres <- readOutput.B90(inicontrol$out.dir)
       simres$param <- param
       simres$inicontrol <- inicontrol
       simres$soil <- soil
@@ -357,22 +401,26 @@ Run.B90 <- function(directory,
       }
 
       #remove output
-      if (!keepoutputfiles) { try(file.remove(list.files(outpath, pattern = ".ASC", full.names = T))) }
+      if (!keepoutputfiles) { try(file.remove(list.files(inicontrol$out.dir, pattern = ".ASC", full.names = T))) }
       #remove log-file (only if simulation had no errors)
       if (output_log != "" & output_log != FALSE & keep_log_on_success == F) {
         try(file.remove(output_log))
-        }
+      }
 
       if (verbose == T) {
         print("Finished!")
       }
+      simres$finishing.time <- Sys.time()
+      simres$sim_time <- simtime
     }
-    simres$finishing.time <- Sys.time()
-    simres$sim_time <- simtime
+
     return(simres)
   }
 
 }
+
+
+
 
 
 

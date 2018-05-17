@@ -31,7 +31,7 @@
 MakeIniControl.B90 <- function(...) {
   ctrl <- list(startdate = as.Date("2001-1-1"),
                enddate = as.Date("2003-12-31"),
-               fornetrad = as.character("globrad") , #"sunhour"
+               fornetrad = "globrad", #"sunhour"
                prec.interval = 1,
                richter.corr. = FALSE,
                coords_x = as.numeric(9.9095),
@@ -39,12 +39,12 @@ MakeIniControl.B90 <- function(...) {
                budburst = "dynamic", #fixed
                budburst.method = "Menzel", #any of the names accepted by 'start.method'-argument of vegperiod::vegperiod()
                leaffall = "dynamic", #fixed
-               leaffall.method = ("vonWilpert"), #any of the names accepted by 'start.method'-argument of vegperiod::vegperiod()
-               species_dynbudburst = ("Fagus sylvatica"), # any of the names accepted by 'species'-argument in vegperiod::vegperiod()
+               leaffall.method = "vonWilpert", #any of the names accepted by 'start.method'-argument of vegperiod::vegperiod()
+               species_dynbudburst = "Fagus sylvatica", # any of the names accepted by 'species'-argument in vegperiod::vegperiod()
                longtermdyn = "const", #table
                annuallaidyn = "b90", #any of the names accepted by 'method'-argument of MakeSeasLAI()
                imodel = "MvG", # the parameterization of rentention & conductivity function. CH = Clapp-Hornberger, MvG: Mualem van Genuchten
-               rootmodel = as.character("betamodel"), #any of the names accepted by the MakeRoots()
+               rootmodel = "betamodel", #any of the names accepted by the MakeRoots()
                humusroots = FALSE #parameter of MakeRoots()
                )
   dots <- list(...)

@@ -13,13 +13,17 @@
 #' @export
 writeParam.in <- function(b90ini, parameters, materials, soil, outmat, filename){
 
-  #ToDo: Check names of parameters...
+  # concat "/" or "\\" at the end of out.dir, depending on OS. The path was normalized in Run.B90
+  if (!substr(b90ini$out.dir, nchar(b90ini$out.dir), nchar(b90ini$out.dir)) %in% c("/", "\\")) {
+    b90ini$out.dir <- paste0(b90ini$out.dir,
+                             ifelse(grepl("\\", b90ini$out.dir, fixed = TRUE),"\\","/"))
+  }
 
-
-  #average duration of precipitation events by month, hours
+  # average duration of precipitation events by month, hours
   PDurs <- paste(parameters$pdur, collapse =  "\t")
 
 
+  # construct character vectors to be written line by line
   lines.sec1 <-   c(
     "''",
     "''",
@@ -31,7 +35,7 @@ writeParam.in <- function(b90ini, parameters, materials, soil, outmat, filename)
     paste("0","''"),
     paste("0","''"),
     paste("0    0","''"),
-    paste("'out\\'", " ''", sep  =  ""),
+    paste("'",b90ini$out.dir,"'", " ''", sep  =  ""),
     "''",
     "''")
 
@@ -148,7 +152,7 @@ writeParam.in <- function(b90ini, parameters, materials, soil, outmat, filename)
     "'End of in\\Param.in'")
 
   # Param.in schreiebn--------------------------------------------------------------------------------
-   #open file for writing
+  #open file for writing
   p.in <- file(filename, open  =  "wt")
 
   #lines.sec1

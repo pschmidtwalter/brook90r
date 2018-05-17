@@ -62,7 +62,7 @@ Before we run the simulation, we need to select the LWF-BROOK90 output variables
 output <- choose_output.B90()
 ```
 Now we are ready to start the simulation using the central function `Run.B90` and save the returned simulation results in an object:
-```{r, eval = F}
+```{r, eval = T}
 b90.results.slb1 <- Run.B90(directory = "example_run_b90/",
                             param = param.b90,
                             inicontrol = options.b90,
