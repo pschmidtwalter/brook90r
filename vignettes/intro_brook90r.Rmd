@@ -63,7 +63,7 @@ output <- choose_output.B90()
 ```
 Now we are ready to start the simulation using the central function `Run.B90` and save the returned simulation results in an object:
 ```{r, eval = T}
-b90.results.slb1 <- Run.B90(directory = "example_run_b90/",
+b90.results.slb1 <- Run.B90(directory = "/example_run_b90/",
                             param = param.b90,
                             inicontrol = options.b90,
                             soil = soil,

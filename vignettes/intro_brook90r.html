@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="pandoc" />
+
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<meta name="author" content="Paul Schmidt-Walter" />
+
+<meta name="date" content="2018-05-22" />
+
+<title>Introduction to brook90r</title>
+
+
+
+<style type="text/css">code{white-space: pre;}</style>
+<style type="text/css">
+div.sourceCode { overflow-x: auto; }
+table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode {
+  margin: 0; padding: 0; vertical-align: baseline; border: none; }
+table.sourceCode { width: 100%; line-height: 100%; }
+td.lineNumbers { text-align: right; padding-right: 4px; padding-left: 4px; color: #aaaaaa; border-right: 1px solid #aaaaaa; }
+td.sourceCode { padding-left: 5px; }
+code > span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code > span.dt { color: #902000; } /* DataType */
+code > span.dv { color: #40a070; } /* DecVal */
+code > span.bn { color: #40a070; } /* BaseN */
+code > span.fl { color: #40a070; } /* Float */
+code > span.ch { color: #4070a0; } /* Char */
+code > span.st { color: #4070a0; } /* String */
+code > span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code > span.ot { color: #007020; } /* Other */
+code > span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code > span.fu { color: #06287e; } /* Function */
+code > span.er { color: #ff0000; font-weight: bold; } /* Error */
+code > span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+code > span.cn { color: #880000; } /* Constant */
+code > span.sc { color: #4070a0; } /* SpecialChar */
+code > span.vs { color: #4070a0; } /* VerbatimString */
+code > span.ss { color: #bb6688; } /* SpecialString */
+code > span.im { } /* Import */
+code > span.va { color: #19177c; } /* Variable */
+code > span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code > span.op { color: #666666; } /* Operator */
+code > span.bu { } /* BuiltIn */
+code > span.ex { } /* Extension */
+code > span.pp { color: #bc7a00; } /* Preprocessor */
+code > span.at { color: #7d9029; } /* Attribute */
+code > span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code > span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code > span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+</style>
+
+
+
+<link href="data:text/css;charset=utf-8,body%20%7B%0Abackground%2Dcolor%3A%20%23fff%3B%0Amargin%3A%201em%20auto%3B%0Amax%2Dwidth%3A%20700px%3B%0Aoverflow%3A%20visible%3B%0Apadding%2Dleft%3A%202em%3B%0Apadding%2Dright%3A%202em%3B%0Afont%2Dfamily%3A%20%22Open%20Sans%22%2C%20%22Helvetica%20Neue%22%2C%20Helvetica%2C%20Arial%2C%20sans%2Dserif%3B%0Afont%2Dsize%3A%2014px%3B%0Aline%2Dheight%3A%201%2E35%3B%0A%7D%0A%23header%20%7B%0Atext%2Dalign%3A%20center%3B%0A%7D%0A%23TOC%20%7B%0Aclear%3A%20both%3B%0Amargin%3A%200%200%2010px%2010px%3B%0Apadding%3A%204px%3B%0Awidth%3A%20400px%3B%0Aborder%3A%201px%20solid%20%23CCCCCC%3B%0Aborder%2Dradius%3A%205px%3B%0Abackground%2Dcolor%3A%20%23f6f6f6%3B%0Afont%2Dsize%3A%2013px%3B%0Aline%2Dheight%3A%201%2E3%3B%0A%7D%0A%23TOC%20%2Etoctitle%20%7B%0Afont%2Dweight%3A%20bold%3B%0Afont%2Dsize%3A%2015px%3B%0Amargin%2Dleft%3A%205px%3B%0A%7D%0A%23TOC%20ul%20%7B%0Apadding%2Dleft%3A%2040px%3B%0Amargin%2Dleft%3A%20%2D1%2E5em%3B%0Amargin%2Dtop%3A%205px%3B%0Amargin%2Dbottom%3A%205px%3B%0A%7D%0A%23TOC%20ul%20ul%20%7B%0Amargin%2Dleft%3A%20%2D2em%3B%0A%7D%0A%23TOC%20li%20%7B%0Aline%2Dheight%3A%2016px%3B%0A%7D%0Atable%20%7B%0Amargin%3A%201em%20auto%3B%0Aborder%2Dwidth%3A%201px%3B%0Aborder%2Dcolor%3A%20%23DDDDDD%3B%0Aborder%2Dstyle%3A%20outset%3B%0Aborder%2Dcollapse%3A%20collapse%3B%0A%7D%0Atable%20th%20%7B%0Aborder%2Dwidth%3A%202px%3B%0Apadding%3A%205px%3B%0Aborder%2Dstyle%3A%20inset%3B%0A%7D%0Atable%20td%20%7B%0Aborder%2Dwidth%3A%201px%3B%0Aborder%2Dstyle%3A%20inset%3B%0Aline%2Dheight%3A%2018px%3B%0Apadding%3A%205px%205px%3B%0A%7D%0Atable%2C%20table%20th%2C%20table%20td%20%7B%0Aborder%2Dleft%2Dstyle%3A%20none%3B%0Aborder%2Dright%2Dstyle%3A%20none%3B%0A%7D%0Atable%20thead%2C%20table%20tr%2Eeven%20%7B%0Abackground%2Dcolor%3A%20%23f7f7f7%3B%0A%7D%0Ap%20%7B%0Amargin%3A%200%2E5em%200%3B%0A%7D%0Ablockquote%20%7B%0Abackground%2Dcolor%3A%20%23f6f6f6%3B%0Apadding%3A%200%2E25em%200%2E75em%3B%0A%7D%0Ahr%20%7B%0Aborder%2Dstyle%3A%20solid%3B%0Aborder%3A%20none%3B%0Aborder%2Dtop%3A%201px%20solid%20%23777%3B%0Amargin%3A%2028px%200%3B%0A%7D%0Adl%20%7B%0Amargin%2Dleft%3A%200%3B%0A%7D%0Adl%20dd%20%7B%0Amargin%2Dbottom%3A%2013px%3B%0Amargin%2Dleft%3A%2013px%3B%0A%7D%0Adl%20dt%20%7B%0Afont%2Dweight%3A%20bold%3B%0A%7D%0Aul%20%7B%0Amargin%2Dtop%3A%200%3B%0A%7D%0Aul%20li%20%7B%0Alist%2Dstyle%3A%20circle%20outside%3B%0A%7D%0Aul%20ul%20%7B%0Amargin%2Dbottom%3A%200%3B%0A%7D%0Apre%2C%20code%20%7B%0Abackground%2Dcolor%3A%20%23f7f7f7%3B%0Aborder%2Dradius%3A%203px%3B%0Acolor%3A%20%23333%3B%0Awhite%2Dspace%3A%20pre%2Dwrap%3B%20%0A%7D%0Apre%20%7B%0Aborder%2Dradius%3A%203px%3B%0Amargin%3A%205px%200px%2010px%200px%3B%0Apadding%3A%2010px%3B%0A%7D%0Apre%3Anot%28%5Bclass%5D%29%20%7B%0Abackground%2Dcolor%3A%20%23f7f7f7%3B%0A%7D%0Acode%20%7B%0Afont%2Dfamily%3A%20Consolas%2C%20Monaco%2C%20%27Courier%20New%27%2C%20monospace%3B%0Afont%2Dsize%3A%2085%25%3B%0A%7D%0Ap%20%3E%20code%2C%20li%20%3E%20code%20%7B%0Apadding%3A%202px%200px%3B%0A%7D%0Adiv%2Efigure%20%7B%0Atext%2Dalign%3A%20center%3B%0A%7D%0Aimg%20%7B%0Abackground%2Dcolor%3A%20%23FFFFFF%3B%0Apadding%3A%202px%3B%0Aborder%3A%201px%20solid%20%23DDDDDD%3B%0Aborder%2Dradius%3A%203px%3B%0Aborder%3A%201px%20solid%20%23CCCCCC%3B%0Amargin%3A%200%205px%3B%0A%7D%0Ah1%20%7B%0Amargin%2Dtop%3A%200%3B%0Afont%2Dsize%3A%2035px%3B%0Aline%2Dheight%3A%2040px%3B%0A%7D%0Ah2%20%7B%0Aborder%2Dbottom%3A%204px%20solid%20%23f7f7f7%3B%0Apadding%2Dtop%3A%2010px%3B%0Apadding%2Dbottom%3A%202px%3B%0Afont%2Dsize%3A%20145%25%3B%0A%7D%0Ah3%20%7B%0Aborder%2Dbottom%3A%202px%20solid%20%23f7f7f7%3B%0Apadding%2Dtop%3A%2010px%3B%0Afont%2Dsize%3A%20120%25%3B%0A%7D%0Ah4%20%7B%0Aborder%2Dbottom%3A%201px%20solid%20%23f7f7f7%3B%0Amargin%2Dleft%3A%208px%3B%0Afont%2Dsize%3A%20105%25%3B%0A%7D%0Ah5%2C%20h6%20%7B%0Aborder%2Dbottom%3A%201px%20solid%20%23ccc%3B%0Afont%2Dsize%3A%20105%25%3B%0A%7D%0Aa%20%7B%0Acolor%3A%20%230033dd%3B%0Atext%2Ddecoration%3A%20none%3B%0A%7D%0Aa%3Ahover%20%7B%0Acolor%3A%20%236666ff%3B%20%7D%0Aa%3Avisited%20%7B%0Acolor%3A%20%23800080%3B%20%7D%0Aa%3Avisited%3Ahover%20%7B%0Acolor%3A%20%23BB00BB%3B%20%7D%0Aa%5Bhref%5E%3D%22http%3A%22%5D%20%7B%0Atext%2Ddecoration%3A%20underline%3B%20%7D%0Aa%5Bhref%5E%3D%22https%3A%22%5D%20%7B%0Atext%2Ddecoration%3A%20underline%3B%20%7D%0A%0Acode%20%3E%20span%2Ekw%20%7B%20color%3A%20%23555%3B%20font%2Dweight%3A%20bold%3B%20%7D%20%0Acode%20%3E%20span%2Edt%20%7B%20color%3A%20%23902000%3B%20%7D%20%0Acode%20%3E%20span%2Edv%20%7B%20color%3A%20%2340a070%3B%20%7D%20%0Acode%20%3E%20span%2Ebn%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Efl%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Ech%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Est%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Eco%20%7B%20color%3A%20%23888888%3B%20font%2Dstyle%3A%20italic%3B%20%7D%20%0Acode%20%3E%20span%2Eot%20%7B%20color%3A%20%23007020%3B%20%7D%20%0Acode%20%3E%20span%2Eal%20%7B%20color%3A%20%23ff0000%3B%20font%2Dweight%3A%20bold%3B%20%7D%20%0Acode%20%3E%20span%2Efu%20%7B%20color%3A%20%23900%3B%20font%2Dweight%3A%20bold%3B%20%7D%20%20code%20%3E%20span%2Eer%20%7B%20color%3A%20%23a61717%3B%20background%2Dcolor%3A%20%23e3d2d2%3B%20%7D%20%0A" rel="stylesheet" type="text/css" />
+
+</head>
+
+<body>
+
+
+
+
+<h1 class="title toc-ignore">Introduction to brook90r</h1>
+<h4 class="author"><em>Paul Schmidt-Walter</em></h4>
+<h4 class="date"><em>2018-05-22</em></h4>
+
+
+
+<p>This vignette gives a brief introduction to the usage of the <em>brook90r</em> R-package. The package serves as an interface between R and the executable code of the hydrological model LWF-BROOK90 <span class="citation">(Hammel and Kennel 2001)</span>. The executable file <em>b90.exe</em> is available at the <a href="https://www.lwf.bayern.de/boden-klima/wasserhaushalt/index.php">Bavarian State Institute of Forestry</a>. The functionnality is presented on a working example.</p>
+<hr />
+<div id="introduction" class="section level1">
+<h1>Introduction</h1>
+<p>LWF-BROOK90 <span class="citation">(Hammel and Kennel 2001)</span> is a hydrological model to calculate daily evaporation (transpiration, interception, and soil evaporation) and soil water fluxes, along with soil water contents and pressure heads of a soil profile covered with vegetation. It is an upgraded version of the original BROOK90 hydrological model <span class="citation">(C. A. Federer, Vörösmarty, and Fekete 2003; C. Federer 2002)</span>, featuring additional parameterizations of the soil water retention and conductivity functions (<span class="citation">Genuchten (1980)</span>; <span class="citation">Mualem (1976)</span>), and the option to take interannual variations of aboveground vegetation characteristics into account when calculating evapotranspiration. Originally, LWF-BROOK90 is used together with an MS ACCESS GUI to organize model input, select model options and parameters and run the model. The basic funcitonality of the GUI is covered by <em>brook90r</em>, and with one function call it will:</p>
+<ul>
+<li>write input files from climate driving data, model control options and parameters,</li>
+<li>start the commandline-tool LWF-BROOK90,</li>
+<li>read and return the created output files.</li>
+</ul>
+<p>The model control options thereby let you select different functions for defining aboveground stand dynamics, phenology, and root length density depth distributions. Additionally, a set of pedotransfer functions is provided to derive hydraulic parameters from soil physical properties.</p>
+</div>
+<div id="installation" class="section level1">
+<h1>Installation</h1>
+<p>Before installing the <em>brook90r</em> R-package, be sure to download and install the following packages, as <em>brook90r</em> depends on them:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">install.packages</span>(<span class="st">&quot;vegperiod&quot;</span>, <span class="dt">repos=</span><span class="st">&quot;https://www.nw-fva.de/r-pkgs&quot;</span>)
+<span class="kw">install.packages</span>(<span class="st">&quot;data.table&quot;</span>, <span class="dt">repos=</span><span class="st">&quot;https://cran.rstudio.com/&quot;</span>)</code></pre></div>
+<p>As <em>brook90r</em> is not available on CRAN, you have to install it directly from Github, using the <em>devtools</em>-package:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">devtools<span class="op">::</span><span class="kw">install_github</span>(<span class="st">&quot;pschmidtwalter/brook90r&quot;</span>)</code></pre></div>
+<p>Now load the <em>brook90r</em> package:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(brook90r)</code></pre></div>
+</div>
+<div id="data" class="section level1">
+<h1>Data</h1>
+<p>In this vignette, we will use meteorological and soil data from the longterm monitoring beech forest site SLB1 in the Solling mountains, Germany. The datasets are directly available after loading the package. Use <code>?soil_slb1</code> and <code>?meteo_slb1</code> to see the meaning of the variables and their units.</p>
+</div>
+<div id="basics" class="section level1">
+<h1>Basics</h1>
+<p>The central function to run LWF-BROOK90 from within R is <code>Run.B90</code>. Before we use it, we need to set up the required input objects that are passed as arguments. Aside from meteorological and soil data, we need to define lists containing the model control options and model parameters. The model control list contains basic information about the simulation (e.g. the start and end dates of the simulation, the phenology model, root length density depth distribution function, etc). The parameter list contains about 100 parameters, of which most are required to run the model, but some only take effect if certain model control options are chosen. Two functions are defined in <em>brook90r</em> that can be used to generate default model options and parameters:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">options.b90 &lt;-<span class="st"> </span><span class="kw">MakeIniControl.B90</span>()
+param.b90 &lt;-<span class="st"> </span><span class="kw">MakeParam.B90</span>()</code></pre></div>
+<p>The created lists can be easily manipulated by reference, or simply by assigning values to the option and parameter names directly in the function calls. To look up the meanings of the various options and parameters see <code>?MakeIniControl.B90</code> and <code>?MakeParam.B90</code>. The meaning and context of most input parameters (and output variables) can also be looked up in the documentation of the original Brook90 model version on <a href="http://www.ecoshift.net/brook/b90doc.html">Tony Federer’s webpages</a>, which is always a recommended source of information for working with any Brook90 version.</p>
+<p>We want to run LWF-Brook90 using the sample data from the Solling site and we need to prepare the datasets for LWF-Brook90. The <em>data.frame</em> <code>soil_slb1</code> contains soil physical data of the soil, but not yet the hydraulic parameters that LWF-BROOK90 requires. Fortunately, <em>brook90r</em> comes with a set of pedotransfer functions to derive the Mualem/van Genuchten parameters of the soil water retention and hydraulic conductivity functions. Here we use tabulated values of Wessolek, Renger &amp; Kaupenjohann <span class="citation">(2009)</span> and create a <em>data.frame</em> containing the required MvG-parameters along with the soil physical data:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">soil &lt;-<span class="st"> </span><span class="kw">cbind</span>(soil_slb1, <span class="kw">hydpar_wessolek_mvg</span>(<span class="dt">tex.KA5 =</span> soil_slb1<span class="op">$</span>texture))</code></pre></div>
+<p>Before we run the simulation, we need to select the LWF-BROOK90 output variables and their temporal resolution. Sets of output variables are chosen in a <code>[5,10]</code>-matrix, that we later pass on to LWF-BROOK90. To create the matrix, you can use the function <code>choose_output.B90</code>. It will open a <code>[5,10]</code>-matrix in R’s data-editor, where a default set of output is already selected. You can modify the selection by flagging groups of output variables with <code>0</code> and <code>1</code>. Afterwards, simply close the data-editor.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">output &lt;-<span class="st"> </span><span class="kw">choose_output.B90</span>()</code></pre></div>
+<p>Now we are ready to start the simulation using the central function <code>Run.B90</code> and save the returned simulation results in an object:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">b90.results.slb1 &lt;-<span class="st"> </span><span class="kw">Run.B90</span>(<span class="dt">directory =</span> <span class="st">&quot;/example_run_b90/&quot;</span>,
+                            <span class="dt">param =</span> param.b90,
+                            <span class="dt">inicontrol =</span> options.b90,
+                            <span class="dt">soil =</span> soil,
+                            <span class="dt">climate =</span> meteo_slb1,
+                            <span class="dt">outputmat =</span> output,
+                            <span class="dt">output_log =</span> <span class="st">&quot;b90.log&quot;</span>,
+                            <span class="dt">path_b90.exe =</span> <span class="st">&quot;H:/R-Packages/brook90r/b90.exe&quot;</span>)</code></pre></div>
+<pre><code>## [1] &quot;Creating project-directory...&quot;
+## [1] &quot;Creating constant stand properties from parameters...&quot;
+## [1] &quot;Standproperties created succesfully&quot;
+## [1] &quot;'Climate.in' created succesfully using global radiation&quot;
+## [1] &quot;'Param.in' created succesfully!&quot;
+## [1] &quot;Running model...&quot;
+## [1] &quot;Simulation successful! Duration: 3.88 seconds&quot;
+## [1] &quot;Reading output...&quot;
+## [1] &quot;Finished!&quot;</code></pre>
+<p><code>Run.B90</code> thereby creates the <code>directory</code> folder within the working directory, derives the daily stand properties (densef, height, lai, sai, age) and writes climate, vegetation properties and parameters to the ‘climate.in’ and ‘param.in’ files in the ‘in’ folder. It then starts the commandline tool under <code>path_b90.exe</code> which reads the files in the ‘in’ folder and stores its output as .asc-files in the ‘out’-folder within <code>directory</code>. As a last step, <code>Run.B90</code> returns the contents of the output files. While running, several messages progress messages are printed to the R-console. The commandline-feed of ‘b90.exe’ itself is by default redirected to the R-console, but can also be discarded (<code>output_log = FALSE</code>) or written to a file by passing a filename to the <code>output_log</code>-argument of <code>Run.B90</code>, as we did in the example above. The returned object <code>b90.results.slb1</code> is a list of the items containing the desired model output (as specified by the <code>outputmat</code>-argument and named according to the .asc files in the ‘out’-folder), along with the options, parameters and derived daily vegetation properties used in the simulation. Let us have a look at the <code>evapday.asc</code>-item of <code>b90.results.slb1</code> containing daily evaporation fluxes:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">str</span>(b90.results.slb1<span class="op">$</span>evapday.asc)</code></pre></div>
+<pre><code>## Classes 'data.table' and 'data.frame':   1095 obs. of  15 variables:
+##  $ yr   : int  2001 2001 2001 2001 2001 2001 2001 2001 2001 2001 ...
+##  $ mo   : int  1 1 1 1 1 1 1 1 1 1 ...
+##  $ da   : int  1 2 3 4 5 6 7 8 9 10 ...
+##  $ doy  : int  1 2 3 4 5 6 7 8 9 10 ...
+##  $ mesfl: num  0 0 0 0 0 0 0 0 0 0 ...
+##  $ flow : num  0.139 0.206 0.288 0.398 0.542 ...
+##  $ evap : num  0.659 0.154 0.161 0.781 0.393 0.075 0.06 0.059 0.149 0.159 ...
+##  $ tran : num  0 0 0 0 0 0 0 0 0 0 ...
+##  $ irvp : num  0.305 0.074 0.017 0.373 0.239 0.031 0 0.029 0.119 0.07 ...
+##  $ isvp : num  0 0 0 0 0 0 0 0 0 0 ...
+##  $ slvp : num  0.354 0.079 0.145 0.407 0.154 0.044 0.06 0.029 0.029 0.089 ...
+##  $ snvp : num  0 0 0 0 0 0 0 0 0 0 ...
+##  $ pint : num  1.417 0.28 0.635 1.732 0.536 ...
+##  $ ptran: num  0 0 0 0 0 0 0 0 0 0 ...
+##  $ pslvp: num  0.761 -0.087 0.216 1.213 0.09 ...
+##  - attr(*, &quot;.internal.selfref&quot;)=&lt;externalptr&gt;</code></pre>
+<p><em>evapday.asc</em> is a <em>data.table</em>-object (as are all the results returned by <code>Run.B90</code>) and contains date variables (<em>yr, mo, da, doy</em>), actual evaporation fluxes (<em>evap, tran, irvp, isvp, slvp, snvp</em>), potential evaporation fluxes (<em>pint, ptran, pslvp</em>) and total runoff (<em>flow</em>). For plotting, it is convenient to derive a Date object from the date variables. We use the <em>data.table</em> syntax to do so:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">b90.results.slb1<span class="op">$</span>evapday.asc[, dates <span class="op">:</span><span class="er">=</span><span class="st"> </span><span class="kw">as.Date</span>(<span class="kw">paste</span>(yr, mo, da, <span class="dt">sep =</span> <span class="st">&quot;-&quot;</span>))]</code></pre></div>
+<p>Another result that is returned by default are daily soil water state variables (<em>swati, theta, wetnes, psimi, psiti</em>), of the individual soil layers. The file in the ‘out’ folder is named <em>swatday.asc</em> and returned as <em>data.table</em>-object, containing the values of the individual layers organized in rows. We want to plot absolut soil water storage (<em>swati</em>) down to a soil depth of 100 cm, so we need to create a <em>Date</em>-object from the date variables and then integrate <code>b90.results.slb1$swatday.asc$swati</code> over the <em>swati</em>-values of the 14 uppermost soil layers. Again, we use the <em>data.table</em> syntax::</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">b90.results.slb1<span class="op">$</span>swatday.asc[, dates <span class="op">:</span><span class="er">=</span><span class="st"> </span><span class="kw">as.Date</span>(<span class="kw">paste</span>(yr, mo, da, <span class="dt">sep =</span> <span class="st">&quot;-&quot;</span>))]
+swat100cm &lt;-<span class="st"> </span>b90.results.slb1<span class="op">$</span>swatday.asc[nl <span class="op">&lt;=</span><span class="st"> </span><span class="dv">14</span>, 
+                                          <span class="kw">list</span>(<span class="dt">swat100_mm =</span> <span class="kw">sum</span>(swati)), 
+                                          by =<span class="st"> </span>dates ]</code></pre></div>
+<p>Now we can plot the data:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">par</span>(<span class="dt">mar=</span><span class="kw">c</span>(<span class="fl">4.1</span>,<span class="fl">4.1</span>,<span class="fl">1.1</span>,<span class="fl">4.1</span>))
+<span class="kw">plot</span>(b90.results.slb1<span class="op">$</span>evapday.asc<span class="op">$</span>dates, 
+     b90.results.slb1<span class="op">$</span>evapday.asc<span class="op">$</span>tran, <span class="dt">type =</span><span class="st">'l'</span>,
+     <span class="dt">col =</span> <span class="st">&quot;green&quot;</span>, <span class="dt">ylab =</span> <span class="st">&quot;tran [mm]&quot;</span>, <span class="dt">xlab =</span> <span class="st">&quot;&quot;</span>)
+<span class="kw">par</span>(<span class="dt">new =</span>T)
+<span class="kw">plot</span>(swat100cm<span class="op">$</span>dates,
+     swat100cm<span class="op">$</span>swat100_mm, 
+     <span class="dt">ylim=</span><span class="kw">c</span>(<span class="dv">150</span>, <span class="dv">350</span>), <span class="dt">type =</span><span class="st">'l'</span>, <span class="dt">col =</span> <span class="st">&quot;blue&quot;</span>,
+     <span class="dt">xaxt =</span> <span class="st">&quot;n&quot;</span>, <span class="dt">yaxt =</span><span class="st">&quot;n&quot;</span>, <span class="dt">xlab=</span> <span class="st">&quot;&quot;</span>, <span class="dt">ylab =</span> <span class="st">&quot;&quot;</span>)
+<span class="kw">axis</span>(<span class="dv">4</span>,<span class="kw">pretty</span>(<span class="kw">c</span>(<span class="dv">150</span>,<span class="dv">350</span>)))
+<span class="kw">mtext</span>(<span class="st">&quot;swat_100cm [mm]&quot;</span>, <span class="dt">side =</span> <span class="dv">4</span>, <span class="dt">line =</span><span class="dv">3</span>)
+<span class="kw">legend</span>(<span class="st">&quot;bottom&quot;</span>,<span class="dt">inset =</span> <span class="op">-</span><span class="fl">0.4</span>,
+       <span class="dt">legend =</span> <span class="kw">c</span>(<span class="st">&quot;tran&quot;</span>, <span class="st">&quot;swat100cm&quot;</span>),
+       <span class="dt">col =</span> <span class="kw">c</span>(<span class="st">&quot;green&quot;</span>, <span class="st">&quot;blue&quot;</span>),  <span class="dt">lty =</span> <span class="dv">1</span>, 
+      <span class="dt">bty =</span> <span class="st">&quot;n&quot;</span>, <span class="dt">xpd =</span>T,  <span class="dt">horiz =</span> T,  <span class="dt">text.width =</span> <span class="dv">100</span>)</code></pre></div>
+<p><img src="data:image/png;base64,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" /><!-- --></p>
+</div>
+<div id="vegetation-characteristics" class="section level1">
+<h1>Vegetation characteristics</h1>
+<div id="intrannual-variation-of-leaf-index" class="section level2">
+<h2>Intrannual variation of leaf index</h2>
+<p>In the simulation, we used the default parameters representing a deciduous forest stand, with dynamic dates of budburst and beginning of leaffall as controlled by <code>options.b90$budburst = &quot;dynamic&quot;</code> and <code>options.b90$leaffall = &quot;dynamic&quot;</code>. The models for calculating budburst and leaffall are set in the options with <code>options.b90$budburst.method = &quot;Menzel&quot;</code>,<code>options.b90$species_dynbudburst = &quot;Fagus sylvatica&quot;</code> and <code>options$leaffall.method = &quot;vonWilpert&quot;</code>. With these options, the parameters <code>parameters$budburstdoy</code> and <code>param.b90$leaffalldoy</code> become obsolete as these are calculated dynamically from air temperature and daylength.</p>
+</div>
+</div>
+<div id="references" class="section level1 unnumbered">
+<h1>References</h1>
+<div id="refs" class="references">
+<div id="ref-federer_sensitivity_2003">
+<p>Federer, C. A., C. Vörösmarty, and B. Fekete. 2003. “Sensitivity of Annual Evaporation to Soil and Root Properties in Two Models of Contrasting Complexity.” <em>J. Hydrometeor</em> 4 (6): 1276–90. doi:<a href="https://doi.org/10.1175/1525-7541(2003)004&lt;1276:SOAETS&gt;2.0.CO;2">10.1175/1525-7541(2003)004&lt;1276:SOAETS&gt;2.0.CO;2</a>.</p>
+</div>
+<div id="ref-federer_brook_2002">
+<p>Federer, C.A. 2002. “BROOK 90: A Simulation Model for Evaporation, Soil Water, and Streamflow.” <a href="http://www.ecoshift.net/brook/brook90.htm" class="uri">http://www.ecoshift.net/brook/brook90.htm</a>.</p>
+</div>
+<div id="ref-van_genuchten_closed-form_1980">
+<p>Genuchten, T. van. 1980. “A Closed-Form Equation for Predicting the Hydraulic Conductivity of Unsaturated Soils.” <em>Soil Science Society of America Journal</em> 44 (5): 892–98. doi:<a href="https://doi.org/10.2136/sssaj1980.03615995004400050002x">10.2136/sssaj1980.03615995004400050002x</a>.</p>
+</div>
+<div id="ref-hammel_charakterisierung_2001">
+<p>Hammel, Klaus, and Martin Kennel. 2001. <em>Charakterisierung Und Analyse Der Wasserverfügbarkeit Und Des Wasserhaushalts von Waldstandorten in Bayern Mit Dem Simulationsmodell BROOK90</em>. Vol. 185. Forstliche Forschungsberichte München.</p>
+</div>
+<div id="ref-mualem_new_1976">
+<p>Mualem, Y. 1976. “A New Model for Predicting the Hydraulic Conductivity of Unsaturated Porous Media.” <em>Water Resource Research</em> 12: 513–22.</p>
+</div>
+<div id="ref-wessolek_bodenphysikalische_2009">
+<p>Wessolek, Gerd, Martin Kaupenjohann, and Manfred Renger. 2009. <em>Bodenphysikalische Kennwerte Und Berechnungsverfahren Für Die Praxis</em>. Bodenökologie Und Bodengenese 40. Berlin: Inst. für Ökologie, Fachgebiet Bodenkunde, Standortkunde und Bodenschutz.</p>
+</div>
+</div>
+</div>
+
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

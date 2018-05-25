@@ -73,7 +73,6 @@
 #'                       soil = soil,
 #'                       path_b90.exe = "b90.exe")
 
-
 Run.B90 <- function(directory,
                     inicontrol,
                     param,
@@ -124,7 +123,7 @@ Run.B90 <- function(directory,
   if (missing(soil) & write.param.in == T) {
     stop("Missing argument: 'soil'")}
   if (!file.exists(file.path(path_b90.exe))) {
-    stop("Invalid argument: Executable file '",file.path(path_b90.exe), "' doesn't exist! Check argument 'path_b90.exe'")}
+    stop("Invalid argument: Executable file '",normalizePath(path_b90.exe), "' doesn't exist! Check argument 'path_b90.exe'")}
   if (!inherits(inicontrol$startdate, "Date")) {
     stop("Invalid argument: 'inicontrol$startdate'")}
   if (!inherits(inicontrol$startdate, "Date")) {
@@ -155,9 +154,16 @@ Run.B90 <- function(directory,
 
   setwd(directory) # set the working directory to the project folder
 
+  # clean file paths
   in.dir <- normalizePath(file.path(getwd(),"in"), mustWork = FALSE)
-  inicontrol$out.dir <- normalizePath(out.dir, mustWork = FALSE)
 
+  if (output_log != "" || output_log == F || is.null(output_log) ) {
+    output_log <- normalizePath(file.path(getwd(),output_log), mustWork = FALSE)
+  }
+
+
+  inicontrol$out.dir <- normalizePath(out.dir, mustWork = FALSE)
+  #inicontrol$out.dir <- out.dir
   if (!dir.exists(in.dir)) {
     dir.create(in.dir)
   }
@@ -356,14 +362,16 @@ Run.B90 <- function(directory,
       print("Running model..." )
     }
     start <- Sys.time()
-    simres <- tryCatch( {
+
+    cmdline <- tryCatch( {
       if (tolower(Sys.info()[["sysname"]]) == "windows") {
-        system2(path_b90.exe,
+        system2(command = path_b90.exe,
                 stdout = output_log,
                 invisible = TRUE,
-                wait = TRUE)
+                wait = TRUE
+        )
       } else {
-        system2(path_b90.exe,
+        system2(command = path_b90.exe,
                 stdout = output_log,
                 wait = TRUE)
       }
@@ -378,21 +386,29 @@ Run.B90 <- function(directory,
     units(simtime) <- "secs"
 
     # Unix uses shell for system2 and which not returning errors, so we create one in case simres != 0
-    if (is.integer(simres) & simres != 0) {
-      stop("Execution of b90.exe gave an error.")
+    if (is.integer(cmdline)) {
+      if (cmdline != 0) {
+        stop(paste0("Execution of b90.exe via shell gave an error: ", cmdline, ", check input and 'output_log'!"))
+      }
     }
 
-    #check for errors
-    if (inherits(simres, "warning")) {
-      print("Simulation Error, check input and/or log file!")
+    #check for warnings (system2 does not return errors if command fails)
+    if (inherits(cmdline, "warning")) {
+      print("Simulation Error, check input and log file!")
+      stop(print(cmdline))
     } else {
+
+      if (inherits(cmdline, "error")) {
+        stop(print(cmdline))
+      }
 
       if (verbose == T) {
         print(paste("Simulation successful! Duration:", round(simtime,2), "seconds"))
         print("Reading output...")
       }
 
-      simres <- readOutput.B90(inicontrol$out.dir)
+      simres <- readOutput.B90(normalizePath(inicontrol$out.dir))
+
       simres$param <- param
       simres$inicontrol <- inicontrol
       simres$soil <- soil
@@ -412,15 +428,8 @@ Run.B90 <- function(directory,
       }
       simres$finishing.time <- Sys.time()
       simres$sim_time <- simtime
+      return(simres)
     }
-
-    return(simres)
   }
-
 }
-
-
-
-
-
 

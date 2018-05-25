@@ -46,7 +46,7 @@ MakeIniControl.B90 <- function(...) {
                imodel = "MvG", # the parameterization of rentention & conductivity function. CH = Clapp-Hornberger, MvG: Mualem van Genuchten
                rootmodel = "betamodel", #any of the names accepted by the MakeRoots()
                humusroots = FALSE #parameter of MakeRoots()
-               )
+  )
   dots <- list(...)
 
   if (length(dots) > 0 ) {

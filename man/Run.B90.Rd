@@ -7,8 +7,8 @@
 Run.B90(directory, inicontrol, param, climate, soil, longtermdev,
   outputmat = choose_output.B90(edit = FALSE), write.climate.in = TRUE,
   write.param.in = TRUE, output.plant.devt = TRUE, output_log = "",
-  keep_log_on_success = TRUE, keepoutputfiles = TRUE, verbose = TRUE,
-  path_b90.exe = "b90.exe", run.model = TRUE)
+  out.dir = "out/", keep_log_on_success = TRUE, keepoutputfiles = TRUE,
+  verbose = TRUE, path_b90.exe = "b90.exe", run.model = TRUE)
 }
 \arguments{
 \item{directory}{Directoryname of the project where the input and output files
@@ -50,6 +50,8 @@ write.climate.in == TRUE.}
 is sent. The default \emph{output_log} = FALSE discards stdout. \emph{output_log} = ""
 sents all command-line model-output to the R console, all other names will create
 a text file containing the model runtime output.}
+
+\item{out.dir}{directory name}
 
 \item{keep_log_on_success}{Keep the file 'output_log' after a successful simulation?
 In case of simulation errors the 'output_log' file (if specified) is kept anyway for inspection purposes.}

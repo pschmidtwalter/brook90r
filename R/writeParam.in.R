@@ -32,7 +32,7 @@ writeParam.in <- function(b90ini, parameters, materials, soil, outmat, filename)
     "''",
     "''",
     paste(formatC(b90ini$ndays,  format  =  "fg"),"''"),
-    paste("0","''"),
+    paste("0", "''"),
     paste("0","''"),
     paste("0    0","''"),
     paste("'",b90ini$out.dir,"'", " ''", sep  =  ""),
