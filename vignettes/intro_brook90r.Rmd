@@ -53,7 +53,7 @@ param.b90 <- MakeParam.B90()
 ```
 The created lists can be easily manipulated by reference, or simply by assigning values to the option and parameter names directly in the function calls. To look up the meanings of the various options and parameters see `?MakeIniControl.B90` and `?MakeParam.B90`. The meaning and context of most input parameters (and output variables) can also be looked up in the documentation of the original Brook90 model version on [Tony Federer's webpages](http://www.ecoshift.net/brook/b90doc.html), which is always a recommended source of information for working with any Brook90 version.
 
-We want to run LWF-Brook90 using the sample data from the Solling site and we need to prepare the datasets for LWF-Brook90. The *data.frame* `soil_slb1` contains soil physical data of the soil, but not yet the hydraulic parameters that LWF-BROOK90 requires. Fortunately, *brook90r* comes with a set of pedotransfer functions to derive the Mualem/van Genuchten parameters of the soil water retention and hydraulic conductivity functions. Here we use tabulated values of Wessolek, Renger & Kaupenjohann [-@wessolek_bodenphysikalische_2009] and create a *data.frame* containing the required MvG-parameters along with the soil physical data:
+We want to run LWF-Brook90 using the sample data from the Solling site and we need to prepare the datasets for LWF-Brook90. The *data.frame* `soil_slb1` contains soil physical data of the soil, but not yet the hydraulic parameters that LWF-BROOK90 requires. Fortunately, *brook90r* comes with a set of pedotransfer functions to derive the Mualem/van Genuchten parameters of the soil water retention and hydraulic conductivity functions. Here we use texture tabulated values of Wessolek, Renger & Kaupenjohann [-@wessolek_bodenphysikalische_2009] and create a *data.frame* containing the required MvG-parameters along with the soil physical data:
 ```{r}
 soil <- cbind(soil_slb1, hydpar_wessolek_mvg(tex.KA5 = soil_slb1$texture))
 ```
@@ -72,7 +72,7 @@ b90.results.slb1 <- Run.B90(directory = "/example_run_b90/",
                             output_log = "b90.log",
                             path_b90.exe = "H:/R-Packages/brook90r/b90.exe")
 ```
-`Run.B90` thereby creates the `directory` folder within the working directory, derives the daily stand properties (densef, height, lai, sai, age) and writes climate, vegetation properties and parameters to the 'climate.in' and 'param.in' files in the 'in' folder. It then starts the commandline tool under `path_b90.exe` which reads the files in the 'in' folder and stores its output as .asc-files in the 'out'-folder within `directory`. As a last step, `Run.B90` returns the contents of the output files. While running, several messages progress messages are printed to the R-console. The commandline-feed of 'b90.exe' itself is by default redirected to the R-console, but can also be discarded (`output_log = FALSE`) or written to a file by passing a filename to the `output_log`-argument of `Run.B90`, as we did in the example above. The returned object `b90.results.slb1` is a list of the items containing the desired model output (as specified by the `outputmat`-argument and named according to the .asc files in the 'out'-folder), along with the options, parameters and derived daily vegetation properties used in the simulation. Let us have a look at the `evapday.asc`-item of `b90.results.slb1` containing daily evaporation fluxes:
+`Run.B90` thereby creates the `directory` folder, derives the daily stand properties (densef, height, lai, sai, age) and writes climate, vegetation properties and parameters to the 'climate.in' and 'param.in' files into a folder named 'in' within `directory`. It then starts the commandline tool under `path_b90.exe` which reads the files in the 'in' folder and stores its output as .asc-files in the specified folder `out.dir` (defaults to 'out/'). As a last step, `Run.B90` returns the contents of the output files. While running, several messages progress messages are printed to the R-console (if `verbose = TRUE`). The commandline-feed of 'b90.exe' itself is by default redirected to the R-console, but can also be discarded (`output_log = FALSE`) or written to a file by passing a filename to the `output_log`-argument of `Run.B90`, as we did in the example above. The returned object `b90.results.slb1` is a list of the items containing the desired model output (as specified by the `outputmat`-argument and named according to the .asc files in the 'out'-folder), along with the options, parameters and derived daily vegetation properties used in the simulation. Let us have a look at the `evapday.asc`-item of `b90.results.slb1` containing daily evaporation fluxes:
 
 ```{r}
 str(b90.results.slb1$evapday.asc)
@@ -81,7 +81,7 @@ str(b90.results.slb1$evapday.asc)
 ```{r}
 b90.results.slb1$evapday.asc[, dates := as.Date(paste(yr, mo, da, sep = "-"))]
 ```
-Another result that is returned by default are daily soil water state variables (*swati, theta, wetnes, psimi, psiti*), of the individual soil layers. The file in the 'out' folder is named *swatday.asc* and returned as *data.table*-object, containing the values of the individual layers organized in rows. We want to plot absolut soil water storage (*swati*) down to a soil depth of 100 cm, so we need to create a *Date*-object from the date variables and then integrate `b90.results.slb1$swatday.asc$swati` over the *swati*-values of the 14 uppermost soil layers. Again, we use the *data.table* syntax::
+Another result that is returned by default are daily soil water state variables (*swati, theta, wetnes, psimi, psiti*), of the individual soil layers. The file in the 'out' folder is named *swatday.asc* and returned as *data.table*-object, containing the values of the individual layers organized in rows. We want to plot absolut soil water storage (*swati*) down to a soil depth of 100 cm, so we need to create a *Date*-object from the date variables and then integrate `b90.results.slb1$swatday.asc$swati` over the *swati*-values of the 14 uppermost soil layers. Again, we use the *data.table* syntax:
 
 ```{r}
 b90.results.slb1$swatday.asc[, dates := as.Date(paste(yr, mo, da, sep = "-"))]
@@ -111,7 +111,55 @@ legend("bottom",inset = -0.4,
 
 # Vegetation characteristics
 ## Intrannual variation of leaf index
-In the simulation, we used the default parameters representing a deciduous forest stand, with dynamic dates of budburst and beginning of leaffall as controlled by `options.b90$budburst = "dynamic"` and `options.b90$leaffall = "dynamic"`. The models for calculating budburst and leaffall are set in the options with `options.b90$budburst.method = "Menzel"`,`options.b90$species_dynbudburst = "Fagus sylvatica"` and `options$leaffall.method = "vonWilpert"`. With these options, the parameters `parameters$budburstdoy` and `param.b90$leaffalldoy` become obsolete as these are calculated dynamically from air temperature and daylength.
+In the simulation, we used the default parameters representing a deciduous forest stand, with dynamic dates of budburst and beginning of leaffall as controlled by `options.b90$budburst = "dynamic"` and `options.b90$leaffall = "dynamic"`. The models for calculating budburst and leaffall are set in the options with `options.b90$budburst.method = "Menzel"`,`options.b90$species_dynbudburst = "Fagus sylvatica"` and `options$leaffall.method = "vonWilpert"`.
+With these options, the values of parameters `parameters$budburstdoy` and `param.b90$leaffalldoy` become obsolete as these are calculated dynamically from air temperature and daylength. The calculated julian days are then used as temporal anchor points to construct the intraannual variation of leaf area index (LAI) from parameters, using the function `MakeSeasLAI`. `Run.B90` calls `MakeSeasLAI` in the following way:
+```{r}
+LAI_b90 <- MakeSeasLAI(maxdoy = 365,
+            maxlai = param.b90$maxlai,
+            minlai = param.b90$maxlai * param.b90$winlaifrac,
+            budburst.doy = param.b90$budburstdoy,
+            leaffall.doy = param.b90$leaffalldoy,
+            emerge.dur = param.b90$emergedur,
+            leaffall.dur = param.b90$leaffalldur,
+            method = options.b90$annuallaidyn)
+```
+Thereby, parameters and model options are passed from the initial arguments to the function. The default method for the shape of the intraannual LAI course is called 'b90', which is implemented in the original LWF-BROOK90 GUI. Here we can also use other shape functions for the LAI course, which also need additional parameters:
+```{r}
+LAI_Coupmodel <- MakeSeasLAI(maxdoy = 365,
+            maxlai = param.b90$maxlai + 0.05,
+            minlai = param.b90$maxlai * param.b90$winlaifrac +0.05,
+            budburst.doy = param.b90$budburstdoy,
+            leaffall.doy = param.b90$leaffalldoy,
+            opt.doy = param.b90$optdoy,
+            shape.budburst = param.b90$shapestart,
+            shape.leaffall = param.b90$shapeend,
+            method = "Coupmodel")
+
+LAI_linear <- MakeSeasLAI(maxdoy = 365,
+            maxlai = param.b90$maxlai,
+            minlai = param.b90$maxlai * param.b90$winlaifrac,
+            budburst.doy = param.b90$budburstdoy,
+            leaffall.doy = param.b90$leaffalldoy,
+            doy.values = c(1,121,130,150,180,210,280,310,330,365),
+            lai.values = c(0.1,0.1,0.5,3,4.5,4.9,4.9,1,0.1,0.1),
+            method = "linear")
+
+plot(LAI_b90, type = "l",lwd = 2, col = "blue", xlab = "doy", ylab = "leaf area index")
+lines(LAI_Coupmodel, lwd = 2, col = "green")
+lines(LAI_linear, lwd = 2, col = "red")
+legend("topleft", legend = c("b90", "Coupmodel", "linear"),lwd = 2, col = c("blue", "green", "red"))
+
+```
+
+
+
+
+
+
+according to the model specified under `options.b90$annuallaidyn`. The default setting here is called 'b90' referring to the standard method of LWF-BROOK90. Other options are 'Coupmodel' or 'linear'. 
+
+
+
 
 
 

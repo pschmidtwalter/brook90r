@@ -57,3 +57,39 @@ legend("bottom",inset = -0.4,
        col = c("green", "blue"),  lty = 1, 
       bty = "n", xpd =T,  horiz = T,  text.width = 100)
 
+## ------------------------------------------------------------------------
+LAI_b90 <- MakeSeasLAI(maxdoy = 365,
+            maxlai = param.b90$maxlai,
+            minlai = param.b90$maxlai * param.b90$winlaifrac,
+            budburst.doy = param.b90$budburstdoy,
+            leaffall.doy = param.b90$leaffalldoy,
+            emerge.dur = param.b90$emergedur,
+            leaffall.dur = param.b90$leaffalldur,
+            method = options.b90$annuallaidyn)
+
+## ------------------------------------------------------------------------
+LAI_Coupmodel <- MakeSeasLAI(maxdoy = 365,
+            maxlai = param.b90$maxlai + 0.05,
+            minlai = param.b90$maxlai * param.b90$winlaifrac +0.05,
+            budburst.doy = param.b90$budburstdoy,
+            leaffall.doy = param.b90$leaffalldoy,
+            opt.doy = param.b90$optdoy,
+            shape.budburst = param.b90$shapestart,
+            shape.leaffall = param.b90$shapeend,
+            method = "Coupmodel")
+
+LAI_linear <- MakeSeasLAI(maxdoy = 365,
+            maxlai = param.b90$maxlai,
+            minlai = param.b90$maxlai * param.b90$winlaifrac,
+            budburst.doy = param.b90$budburstdoy,
+            leaffall.doy = param.b90$leaffalldoy,
+            doy.values = c(1,121,130,150,180,210,280,310,330,365),
+            lai.values = c(0.1,0.1,0.5,3,4.5,4.9,4.9,1,0.1,0.1),
+            method = "linear")
+
+plot(LAI_b90, type = "l",lwd = 2, col = "blue", xlab = "doy", ylab = "leaf area index")
+lines(LAI_Coupmodel, lwd = 2, col = "green")
+lines(LAI_linear, lwd = 2, col = "red")
+legend("topleft", legend = c("b90", "Coupmodel", "linear"),lwd = 2, col = c("blue", "green", "red"))
+
+
