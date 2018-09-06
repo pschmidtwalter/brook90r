@@ -50,7 +50,9 @@
 #'  wndrat       \tab Average ratio of nighttime to daytime wind speed. Default: 0.3\tab -                  \tab Meteo                  \cr
 #'  z0s          \tab Surface roughness of snow cover. Default: 0.001 \tab m                 \tab Meteo                  \cr
 #'  z0w          \tab Roughness length at the weather station at which wind speed was measured. Default: 0.005 (Grass) \tab m                 \tab Meteo                  \cr
-#'  zw           \tab Height at which wind speed was measured 2 \tab m                 \tab Meteo                  \cr
+#'  coords_x     \tab Longitude value (decimal degrees) of the simulation location (has no effect on simulation results). Default: 9.91 \tab m                 \tab Meteo                  \cr
+#'  coords_y     \tab Latitude value (decimal degrees) of the simulation location. Default: 51.54 \tab m                 \tab Meteo                  \cr
+#'  zw           \tab Height at which wind speed was measured. Default: 2 \tab m                 \tab Meteo                  \cr
 #'  eslope       \tab slope for evapotranspiration and snowmelt calculation. Default:  0\tab deg               \tab Meteo                  \cr
 #'  aspect       \tab Mean exposition of soil surface at soil profile (north: 0, west: 90, south: 180, east: 270). Default: 0\tab deg               \tab Meteo                  \cr
 #'  obsheight    \tab Mean height of obstacles on soil surface (grass, furrows etc.), used to calculate soil surface roughness. Default: 0.025 \tab m                 \tab Meteo                  \cr
@@ -194,6 +196,8 @@ MakeParam.B90 <- function(...) {
     z0w = 0.005,
     zw = 2,
     zminh = 2,
+    coords_x = 9.9095,
+    coords_y = 51.544,
     c1 = 0.25,
     c2 = 0.5,
     c3 = 0.2,

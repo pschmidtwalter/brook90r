@@ -4,20 +4,20 @@
 \alias{Run.B90}
 \title{Run the LWF-Brook90 hydrological model and return results}
 \usage{
-Run.B90(directory, inicontrol, param, climate, soil, longtermdev,
-  outputmat = choose_output.B90(edit = FALSE), write.climate.in = TRUE,
-  write.param.in = TRUE, output.plant.devt = TRUE, output_log = "",
-  out.dir = "out/", keep_log_on_success = TRUE, keepoutputfiles = TRUE,
-  verbose = TRUE, path_b90.exe = "b90.exe", run.model = TRUE)
+Run.B90(project.dir, options.b90, param.b90, climate, soil, longtermdev,
+  outputmat = choose_output.B90(edit = FALSE), output.log = "",
+  out.dir = "out/", path_b90.exe = "b90.exe", output.param.options = TRUE,
+  keep.log.on.success = TRUE, keep.outputfiles = TRUE, verbose = TRUE,
+  write.climate.in = TRUE, run.model = TRUE)
 }
 \arguments{
-\item{directory}{Directoryname of the project where the input and output files
+\item{project.dir}{Directory-name of the project where the input and output files
 are located. Will be created, if not existing.}
 
-\item{inicontrol}{Named list of model control options. Use
-\code{\link{MakeIniControl.B90}} to generate a list with default model control options.}
+\item{options.b90}{Named list of model control options. Use
+\code{\link{Makeoptions.b90.B90}} to generate a list with default model control options.}
 
-\item{param}{Named list of model input parameters. Use
+\item{param.b90}{Named list of model input parameters. Use
 \code{\link{MakeParam.B90}} to generate a list with default model parameters.}
 
 \item{climate}{Data.frame with daily climate data. The names of climate have to
@@ -29,46 +29,44 @@ Each row represents one layer, containing the layer's boundaries and soil hydrau
 The columns names for the upper and lower layer boundaries are \emph{upper} and \emph{lower} [m, negative downwards],
 the parameters of the van Genuchten retention functions are \emph{ths}, \emph{thr},
  \emph{alpha} [m-1], \emph{npar}, and the parameters of the Mualem conductivity function
- \emph{ksat} [mm d-1] and \emph{tort}. The volume fraction of stones has to be called \emph{gravel}.}
+ \emph{ksat} [mm d-1] and \emph{tort}. The volume fraction of stones has to be named \emph{gravel}.}
 
 \item{longtermdev}{Data.frame with yearly values of vegetation properties
 (named \emph{years}, \emph{age}, \emph{lai}, \emph{sai}, \emph{height}, \emph{densef})
 that are passed to \code{\link{MakeStand}}.}
 
 \item{outputmat}{A [10,5]-matrix flagging the desired model-output. Use
-\code{\link{choose_output.B90}} to generate and edit it.}
+\code{\link{choose_output.B90}} to generate and edit default output matrix..}
 
-\item{write.climate.in}{Should the climate file be written? Ignored if no
-Climate.in is found in "directory/in".}
+\item{output.log}{Logical or filename where 'stdout' of \code{\link[base]{system2}}-call
+is sent. The default \emph{output.log} = "" sents all command-line model-output to
+the R console, \emph{output.log} = FALSE discards stdout.
+All other names will create a text file containing the model runtime output.}
 
-\item{write.param.in}{Should the parameter file be written? Ignored if
-write.climate.in == TRUE.}
+\item{out.dir}{path where to write the output-files.}
 
-\item{output.plant.devt}{Return daily values of aboveground plant properties?}
+\item{path_b90.exe}{Filename of the executable. The default setting looks for the
+executable 'b90.exe' within 'project.dir'.}
 
-\item{output_log}{Logical or filename where stdout from \code{\link[base]{system2}}-call
-is sent. The default \emph{output_log} = FALSE discards stdout. \emph{output_log} = ""
-sents all command-line model-output to the R console, all other names will create
-a text file containing the model runtime output.}
+\item{output.param.options}{Append 'param.b90', 'options.b90', 'soil' and daily plant
+properties ('plant.devt', as derived from parameters and written to 'climate.in') to the result?}
 
-\item{out.dir}{directory name}
+\item{keep.log.on.success}{Keep the file 'output.log' after a successful simulation?
+In case of simulation errors the 'output.log' file (if specified) is kept anyway for inspection purposes.}
 
-\item{keep_log_on_success}{Keep the file 'output_log' after a successful simulation?
-In case of simulation errors the 'output_log' file (if specified) is kept anyway for inspection purposes.}
-
-\item{keepoutputfiles}{Keep the model .asc output files after running and
-returning the output?.}
+\item{keep.outputfiles}{Keep the model .asc output files after running and
+returning the output?}
 
 \item{verbose}{Print messages to the console? Default is TRUE.}
 
-\item{path_b90.exe}{Filename of the executable. The default setting looks for the
-executable 'b90.exe' within 'directory'.}
+\item{write.climate.in}{Should the climate file be written or not to save execution time?
+Ignored if no 'Climate.in' is found in 'project.dir/in'.}
 
 \item{run.model}{Run the model or only create input files? Default is TRUE.}
 }
 \value{
-Returns a list of data.frames (data.tables) containing the model results,
-control options and parameters and the execution time.
+Returns the model-output from the files found in 'out.dir' as a list of data.frames (data.tables),
+along with the execution time of the simulation, and input-parameters and options if desired.
 }
 \description{
 Takes all necessary information needed to run the LWF-Brook90 hydrological model,
@@ -80,7 +78,7 @@ the results.
 #Set up lists containing model control options and model parameters:
 
 param.b90 <- MakeParam.B90()
-options.b90 <- MakeIniControl.B90()
+options.b90 <- MakeOptions.B90()
 
 Set start and end Dates for the simulation
 
@@ -93,10 +91,9 @@ options.b90$enddate <- as.Date("2004-12-31")
 soil <- cbind(soil_slb1, hydpar_wessolek_mvg(soil_slb1$texture))
 
 Run LWF-Brook90
-
-b90.result <- Run.B90(directory = "example_run_b90",
-                      inicontrol = options.b90,
-                      param = param.b90,
+b90.result <- Run.B90(project.dir = "example_run_b90",
+                      options.b90 = options.b90,
+                      param.b90 = param.b90.b90,
                       climate = meteo_slb1,
                       soil = soil,
                       path_b90.exe = "b90.exe")

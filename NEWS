@@ -1,13 +1,16 @@
-brook90r v0.0.9000 (Release date: 2016-07-15)
+brook90r v0.2.0 (Release date: 2018-09-05)
 ==============
 
   Changes:
 
-  * Changes to defaults in plot.pkgDepGraph() to move legend to left of plot area.
+  * Removing, renaming and adding arguments in Run.B90()
+  * Moved xy-Coordinates from options.b90 to param.b90
+  * Added MultiRun.B90() function for parameter variation, which needs 'foreach' and 'doSNOW' packages
 
-brook90r v0.0-20 (Release date: 2014-08-18)
+brook90r v0.1.1 (Release date: 2018-05-01)
 ==============
 
   Changes:
 
-  * Modified examples to reduce running time, mostly using \dontrun{} sections
+  * Works now under linux if you have a linux compiled executable
+  * Result files can now be written to any file path

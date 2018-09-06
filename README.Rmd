@@ -14,7 +14,7 @@ knitr::opts_chunk$set(
 brook90r: run the LWF-BROOK90 hydrological model from within R
 
 # Motivation
-In hydrology, many R-packages exist that deal with pre- and post-processing of input data and results of hydrological process models. In addition, many ready-to-use algorithms exist in R providing automatic calibration,  sensitivity analysis, and parallelisation techniques. In order to make the vast resources of R directly available to the 1D-SVAT model [LWF-BROOK90](https://www.lwf.bayern.de/boden-klima/wasserhaushalt/index.php), *brook90r* was developed to serve as an interface to the LWF-BROOK90 executable commandline program.
+In hydrology, many R-packages exist that deal with pre- and post-processing of input data and results of hydrological process models. In addition, many ready-to-use algorithms exist in R providing automatic calibration, sensitivity analysis, and parallelisation techniques. In order to make the vast resources of R directly available to the 1D-SVAT model [LWF-BROOK90](https://www.lwf.bayern.de/boden-klima/wasserhaushalt/index.php), *brook90r* was developed to serve as an interface to the LWF-BROOK90 executable commandline program.
 
 Basicly, brook90r features the following functionality in one function call:
 
@@ -26,7 +26,7 @@ The model control options thereby let you select different functions for definin
 
 # Example
 Load brook90r
-```{r, eval=FALSE}
+```{r}
 library(brook90r)
 ```
 
@@ -37,19 +37,19 @@ data("soil_slb1")
 ```
 
 Set up lists containing default model control options and model parameters
-```{r, eval=FALSE}
+```{r}
 param.b90 <- MakeParam.B90()
-options.b90 <- MakeIniControl.B90()
+options.b90 <- MakeOptions.B90()
 ```
 
 Set new start and end dates in model control options
-```{r, eval=FALSE}
+```{r}
 options.b90$startdate <- as.Date("2002-01-01")
 options.b90$enddate <- as.Date("2004-12-31")
 ```
 
 Derive soil hydraulic properties from soil physical properties using a pedotransfer function
-```{r, eval=FALSE}
+```{r}
 soil <- cbind(soil_slb1, hydpar_puh2(clay = soil_slb1$clay,
                                      silt = soil_slb1$silt,
                                      sand = soil_slb1$sand,
@@ -59,9 +59,9 @@ soil <- cbind(soil_slb1, hydpar_puh2(clay = soil_slb1$clay,
 
 Run LWF-Brook90 and store the results in b90.results.slb1
 ```{r, eval =F}
-b90.results.slb1 <- Run.B90(directory = "example_run_b90/",
-                            param = param.b90,
-                            inicontrol = options.b90,
+b90.results.slb1 <- Run.B90(project.dir = "example_run_b90/",
+                            param.b90 = param.b90,
+                            options.b90 = options.b90,
                             soil = soil,
                             climate = meteo_slb1,
                             path_b90.exe = "b90.exe"
@@ -76,14 +76,14 @@ The package is not on CRAN, so please use the devtools-package to install direct
 ```{r, eval = F}
 devtools::install_github("pschmidtwalter/brook90r")
 ```
-Additionally, you will need to install Robert Nuske's *vegperiod* package, and the *data.table* package.
+Additionally, you will need to install the *data.table* package. Also important, though not required is Robert Nuske's *vegperiod* package.
 ```{r, eval=FALSE}
 install.packages("vegperiod", repos="https://www.nw-fva.de/r-pkgs")
 install.packages("data.table", repos="https://cran.rstudio.com/")
 ```
 
 # Requirements
-You can use the built-in functions without carrying out any water balance simulations. However, the central function *Run.B90* will only work with the small windows commandline tool 'b90.exe' which is not publicly available. The interested user can obtain 'b90.exe' directly from the [Bavarian State Institute of Forestry (LWF)](http://www.lwf.bayern.de/), [Departement Soil and Climate.](https://www.lwf.bayern.de/boden-klima/wasserhaushalt/index.php)
+You can use the built-in functions without carrying out any water balance simulations. However, the central function *Run.B90* will only work with the windows commandline tool 'b90.exe' which is not publicly available. The interested user can obtain 'b90.exe' directly from the [Bavarian State Institute of Forestry (LWF)](http://www.lwf.bayern.de/), [Departement Soil and Climate.](https://www.lwf.bayern.de/boden-klima/wasserhaushalt/index.php)
 
 # Author
 Paul Schmidt-Walter

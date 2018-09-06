@@ -1,6 +1,6 @@
 Package: brook90r
 Title: Run the LWF-Brook90 hydrological model from within R.
-Version: 0.1.0
+Version: 0.2.0
 Authors@R: person("Paul", "Schmidt-Walter", email = "paul.schmidt-walter@nw-fva.de",
     role = c("aut", "cre"))
 Description: Run the executable code of LWF-Brook90 forest hydrology model
@@ -14,13 +14,10 @@ Depends:
 License: GPL-3
 Encoding: UTF-8
 LazyData: true
-Imports:
- vegperiod (>= 0.2.1),
- data.table (>= 1.9.6)
 RoxygenNote: 6.0.1
 Suggests:
+    vegperiod (>= 0.2.1), 
     doSNOW,
-    foreach,
     sirad,
     testthat,
     knitr,

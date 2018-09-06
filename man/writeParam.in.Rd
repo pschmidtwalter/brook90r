@@ -4,10 +4,10 @@
 \alias{writeParam.in}
 \title{Writes the LWF-Brook90 input file Param.in}
 \usage{
-writeParam.in(b90ini, parameters, materials, soil, outmat, filename)
+writeParam.in(b90opts, parameters, materials, soil, outmat, filename)
 }
 \arguments{
-\item{b90ini}{A named list of model control options.}
+\item{b90opts}{A named list of model control options.}
 
 \item{parameters}{A named list of model parameters.}
 

@@ -1,4 +1,3 @@
-
 #' Create a daily sequence of stand properties (lai, sai, height, age)
 #'
 #' Uses a table with yearly values of perennial vegetation development or anually constant

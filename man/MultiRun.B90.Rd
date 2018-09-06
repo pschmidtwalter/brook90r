@@ -4,26 +4,79 @@
 \alias{MultiRun.B90}
 \title{Make a multirun simulation using a set of variable input parameters.}
 \usage{
-MultiRun.B90(nRuns, param_fixed, param_var, multirun.dir = "MultiRuns",
-  keep.outfiles = FALSE, singlerun_names = paste0("RunNo", 1:nRuns),
-  cores = 3, showProgress = TRUE, ...)
+MultiRun.B90(nRuns, param_var, param_const, options.b90, soil, climate,
+  multirun.dir = "MultiRuns", keep.subdirs = FALSE,
+  singlerun_names = paste0("RunNo", 1:nRuns), cores = 3,
+  showProgress = TRUE, ...)
 }
 \arguments{
-\item{nRuns}{Number of runs}
+\item{nRuns}{Number of single runs}
 
-\item{param_fixed}{Named list of model constant input parameters to use in all single runs.}
+\item{param_var}{data.frame of variable input parameters with realisations for each single run.}
 
-\item{param_var}{Named list or data.frame of variable input parameters with realisations for each single run.}
+\item{param_const}{Named list of constant model input parameters to use in all single runs.}
 
-\item{multirun.dir}{The directory where to write temporary files of single runs}
+\item{options.b90}{Named list of constant model control options passed to \code{\link[Run.B90]{Run.B90}}}
 
-\item{singlerun_names}{character vector with the names of the single runs.}
+\item{soil}{data.frame with soil properties passed to \code{\link[Run.B90]{Run.B90}}}
+
+\item{climate}{data.frame with climate data passed to \code{\link[Run.B90]{Run.B90}}}
+
+\item{multirun.dir}{The directory where to create the subdirectories for the the single runs.}
+
+\item{singlerun_names}{character vector with the names of the single runs. Used for creating
+the subdirectories and for naming the returned list of singlerun results.}
 
 \item{cores}{Number of cores to use for parallel processing}
 
-\item{...}{Arguments passed to \code{\link[Run.B90]{Run.B90}}.
-At least inicontrol, climate, and soil have to be provided!}
+\item{showProgress}{Show progressbar?}
+
+\item{...}{Further arguments passed to \code{\link[Run.B90]{Run.B90}}.}
+}
+\value{
+A named list with the results for the single runs. Simulation errors are passed on.
 }
 \description{
-Make a multirun simulation using a set of variable input parameters.
+Repeatedly calls \code{\link[Run.B90]{Run.B90}} with varying input parameters in parallel,
+stores the single run results in subdirectories and returns the results as a named list.
+}
+\examples{
+#Set up lists containing model control options and model parameters:
+param.b90 <- MakeParam.B90()
+options.b90 <- MakeOptions.B90()
+
+# Derive soil hydraulic properties from soil physical properties using pedotransfer functions
+soil <- cbind(soil_slb1, hydpar_wessolek_mvg(soil_slb1$texture))
+
+# Set start and end Dates for the simulation
+options.b90$startdate <- as.Date("2000-01-01")
+options.b90$enddate <- as.Date("2004-12-31")
+
+# choose the 'Coupmodel' shape option for the annual lai dynamic, with fixed budburst and leaf fall dates:
+options.b90$annuallaidyn <- 'Coupmodel'
+options.b90$budburst <- 'fixed'
+options.b90$leaffall <- 'fixed'
+
+#set up data.frame with variable leaf area index parameters
+n <- 10
+vary_parms <- data.frame(maxlai = runif(n,4,8),
+                         shapestart = runif(n, 0.1,1),
+                         winlaifrac = runif(n, 0,0.5),
+                         budburstdoy = runif(n,100,150),
+                         optdoy =runif(n,180,240))
+
+# Make a Multirun-Simulation
+b90.multi <- MultiRun.B90(nRuns = n,
+                     param_var = vary_parms,
+                     param_const = param.b90,
+                     options.b90 = options.b90,
+                     soil = soil,
+                     climate = meteo_slb1,
+                     multirun.dir = "MultiRuns",
+                     keep.subdirs = FALSE,
+                     singlerun_names = paste0("result.",1:n),
+                     cores = 2,
+                     output.log = F,
+                     output.param.options = F,
+                     path_b90.exe = "b90.exe")
 }

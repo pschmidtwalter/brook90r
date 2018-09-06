@@ -2,7 +2,7 @@
 #'
 #' Creates the Param.in file for the LWF-Brook90 executable
 #'
-#' @param b90ini A named list of model control options.
+#' @param b90opts A named list of model control options.
 #' @param parameters A named list of model parameters.
 #' @param materials A data.frame with soil materials holding unique hydraulic parameters.
 #' @param soil A data.frame containing the discretisation of model soil layers.
@@ -11,12 +11,11 @@
 #'
 #' @return no return value
 #' @export
-writeParam.in <- function(b90ini, parameters, materials, soil, outmat, filename){
+writeParam.in <- function(b90opts, parameters, materials, soil, outmat, filename){
 
-  # concat "/" or "\\" at the end of out.dir, depending on OS. The path was normalized in Run.B90
-  if (!substr(b90ini$out.dir, nchar(b90ini$out.dir), nchar(b90ini$out.dir)) %in% c("/", "\\")) {
-    b90ini$out.dir <- paste0(b90ini$out.dir,
-                             ifelse(grepl("\\", b90ini$out.dir, fixed = TRUE),"\\","/"))
+  # concat "/" or "\\" at the end of out.dir, depending on OS.
+  if (!substr(b90opts$out.dir, nchar(b90opts$out.dir), nchar(b90opts$out.dir)) %in% c("/", "\\")) {
+    b90opts$out.dir <- paste0(b90opts$out.dir,ifelse(Sys.info()[["sysname"]] == "windows", "\\", "/"))
   }
 
   # average duration of precipitation events by month, hours
@@ -31,11 +30,11 @@ writeParam.in <- function(b90ini, parameters, materials, soil, outmat, filename)
     "''",
     "''",
     "''",
-    paste(formatC(b90ini$ndays,  format  =  "fg"),"''"),
+    paste(formatC(b90opts$ndays,  format  =  "fg"),"''"),
     paste("0", "''"),
     paste("0","''"),
     paste("0    0","''"),
-    paste("'",b90ini$out.dir,"'", " ''", sep  =  ""),
+    paste("'",b90opts$out.dir,"'", " ''", sep  =  ""),
     "''",
     "''")
 
@@ -122,7 +121,7 @@ writeParam.in <- function(b90ini, parameters, materials, soil, outmat, filename)
     paste(formatC(nrow(materials),   format = "fg"), "''"),
     paste(formatC(parameters$ilayer,   format = "fg"), "''"),
     paste(formatC(parameters$qlayer,   format = "fg"), "''"),
-    paste(formatC(ifelse(b90ini$imodel =="MvG", 1,0),   format = "fg"), "''"),
+    paste(formatC(ifelse(b90opts$imodel =="MvG", 1,0),   format = "fg"), "''"),
     "''",
     "''",
     "''")

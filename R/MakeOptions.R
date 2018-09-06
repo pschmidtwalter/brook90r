@@ -9,8 +9,6 @@
 #'   \item{fornetrad}{Use global solar radiation (="globrad") or sunshine duration hours (="sunhour") for net radiation calculation?}
 #'   \item{precinterval}{Number of precipitation intervals (default is 1). If prec.interval > 1, a separate file ("in/PRFILE.DAT") has to be provided manually!}
 #'   \item{richter.corr.}{ Correct Precipitation for wind and evaporation losses (not implented yet)}
-#'   \item{coords_x}{Longitude value (decimal degrees) of the simulation location (has no effect on simulation results).}
-#'   \item{coords_y}{Latitude value (decimal degrees) of the simulation location.}
 #'   \item{budburst}{Calculate budburst day of year dynamically (="dynamic") or use fixed values (="fixed") defined in parameters (budburstdoy)?}
 #'   \item{budburst.method}{Name of method for dynamic budburst calculation. Passed to 'start.method'-argument of  \code{\link[vegperiod]{vegperiod}}.}
 #'   \item{leaffall}{ Calculate leaffall day of year dynamically (="dynamic") or use fixed values (="fixed") defined in parameters (leaffalldoy)?}
@@ -28,14 +26,12 @@
 #' # Include specific options
 #' options.B90_fixed_phenology <- MakeIniControl.B90(budburst = 'fixed', leaffall ='fixed')
 #' @export
-MakeIniControl.B90 <- function(...) {
+MakeOptions.B90 <- function(...) {
   ctrl <- list(startdate = as.Date("2001-1-1"),
                enddate = as.Date("2003-12-31"),
                fornetrad = "globrad", #"sunhour"
                prec.interval = 1,
                richter.corr. = FALSE,
-               coords_x = as.numeric(9.9095),
-               coords_y = as.numeric(51.544),
                budburst = "dynamic", #fixed
                budburst.method = "Menzel", #any of the names accepted by 'start.method'-argument of vegperiod::vegperiod()
                leaffall = "dynamic", #fixed

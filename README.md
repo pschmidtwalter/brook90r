@@ -22,6 +22,7 @@ Load brook90r
 
 ``` r
 library(brook90r)
+#> Loading required package: data.table
 ```
 
 Load sample meteo and soil data
@@ -35,7 +36,7 @@ Set up lists containing default model control options and model parameters
 
 ``` r
 param.b90 <- MakeParam.B90()
-options.b90 <- MakeIniControl.B90()
+options.b90 <- MakeOptions.B90()
 ```
 
 Set new start and end dates in model control options
@@ -58,9 +59,9 @@ soil <- cbind(soil_slb1, hydpar_puh2(clay = soil_slb1$clay,
 Run LWF-Brook90 and store the results in b90.results.slb1
 
 ``` r
-b90.results.slb1 <- Run.B90(directory = "example_run_b90/",
-                            param = param.b90,
-                            inicontrol = options.b90,
+b90.results.slb1 <- Run.B90(project.dir = "example_run_b90/",
+                            param.b90 = param.b90,
+                            options.b90 = options.b90,
                             soil = soil,
                             climate = meteo_slb1,
                             path_b90.exe = "b90.exe"
@@ -81,7 +82,7 @@ The package is not on CRAN, so please use the devtools-package to install direct
 devtools::install_github("pschmidtwalter/brook90r")
 ```
 
-Additionally, you will need to install Robert Nuske's *vegperiod* package, and the *data.table* package.
+Additionally, you will need to install the *data.table* package. Also important, though not required is Robert Nuske's *vegperiod* package.
 
 ``` r
 install.packages("vegperiod", repos="https://www.nw-fva.de/r-pkgs")
@@ -91,7 +92,7 @@ install.packages("data.table", repos="https://cran.rstudio.com/")
 Requirements
 ============
 
-You can use the built-in functions without carrying out any water balance simulations. However, the central function *Run.B90* will only work with the small windows commandline tool 'b90.exe' which is not publicly available. The interested user can obtain 'b90.exe' directly from the [Bavarian State Institute of Forestry (LWF)](http://www.lwf.bayern.de/), [Departement Soil and Climate.](https://www.lwf.bayern.de/boden-klima/wasserhaushalt/index.php)
+You can use the built-in functions without carrying out any water balance simulations. However, the central function *Run.B90* will only work with the windows commandline tool 'b90.exe' which is not publicly available. The interested user can obtain 'b90.exe' directly from the [Bavarian State Institute of Forestry (LWF)](http://www.lwf.bayern.de/), [Departement Soil and Climate.](https://www.lwf.bayern.de/boden-klima/wasserhaushalt/index.php)
 
 Author
 ======

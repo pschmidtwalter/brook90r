@@ -3,11 +3,11 @@
 #' Takes all necessary information needed to run the LWF-Brook90 hydrological model,
 #' writes input files, starts the external executable via a system-call and returns
 #' the results.
-#' @param directory Directoryname of the project where the input and output files
+#' @param project.dir Directory-name of the project where the input and output files
 #' are located. Will be created, if not existing.
-#' @param inicontrol Named list of model control options. Use
-#' \code{\link{MakeIniControl.B90}} to generate a list with default model control options.
-#' @param param Named list of model input parameters. Use
+#' @param options.b90 Named list of model control options. Use
+#' \code{\link{Makeoptions.b90.B90}} to generate a list with default model control options.
+#' @param param.b90 Named list of model input parameters. Use
 #' \code{\link{MakeParam.B90}} to generate a list with default model parameters.
 #' @param climate Data.frame with daily climate data. The names of climate have to
 #' corrrespond to arguments \emph{dates}, \emph{tmax}, \emph{tmin}, \emph{wind}, \emph{prec}, \emph{vappres},
@@ -17,34 +17,32 @@
 #' The columns names for the upper and lower layer boundaries are \emph{upper} and \emph{lower} [m, negative downwards],
 #' the parameters of the van Genuchten retention functions are \emph{ths}, \emph{thr},
 #'  \emph{alpha} [m-1], \emph{npar}, and the parameters of the Mualem conductivity function
-#'  \emph{ksat} [mm d-1] and \emph{tort}. The volume fraction of stones has to be called \emph{gravel}.
+#'  \emph{ksat} [mm d-1] and \emph{tort}. The volume fraction of stones has to be named \emph{gravel}.
 #' @param longtermdev Data.frame with yearly values of vegetation properties
 #' (named \emph{years}, \emph{age}, \emph{lai}, \emph{sai}, \emph{height}, \emph{densef})
 #' that are passed to \code{\link{MakeStand}}.
 #' @param outputmat A [10,5]-matrix flagging the desired model-output. Use
-#' \code{\link{choose_output.B90}} to generate and edit it.
-#' @param write.climate.in  Should the climate file be written? Ignored if no
-#' Climate.in is found in "directory/in".
-#' @param write.param.in Should the parameter file be written? Ignored if
-#' write.climate.in == TRUE.
-#' @param output.plant.devt Return daily values of aboveground plant properties?
-#' @param output_log Logical or filename where stdout from \code{\link[base]{system2}}-call
-#' is sent. The default \emph{output_log} = FALSE discards stdout. \emph{output_log} = ""
-#' sents all command-line model-output to the R console, all other names will create
-#' a text file containing the model runtime output.
-#' @param out.dir directory name
-#' @param keep_log_on_success Keep the file 'output_log' after a successful simulation?
-#' In case of simulation errors the 'output_log' file (if specified) is kept anyway for inspection purposes.
-#' @param keepoutputfiles Keep the model .asc output files after running and
-#' returning the output?.
-#' @param verbose Print messages to the console? Default is TRUE.
+#' \code{\link{choose_output.B90}} to generate and edit default output matrix..
+#' @param output.log Logical or filename where 'stdout' of \code{\link[base]{system2}}-call
+#' is sent. The default \emph{output.log} = "" sents all command-line model-output to
+#' the R console, \emph{output.log} = FALSE discards stdout.
+#' All other names will create a text file containing the model runtime output.
+#' @param out.dir path where to write the output-files.
 #' @param path_b90.exe Filename of the executable. The default setting looks for the
-#' executable 'b90.exe' within 'directory'.
+#' executable 'b90.exe' within 'project.dir'.
+#' @param output.param.options Append 'param.b90', 'options.b90', 'soil' and daily plant
+#' properties ('plant.devt', as derived from parameters and written to 'climate.in') to the result?
+#' @param keep.log.on.success Keep the file 'output.log' after a successful simulation?
+#' In case of simulation errors the 'output.log' file (if specified) is kept anyway for inspection purposes.
+#' @param keep.outputfiles Keep the model .asc output files after running and
+#' returning the output?
+#' @param verbose Print messages to the console? Default is TRUE.
+#' @param write.climate.in  Should the climate file be written or not to save execution time?
+#' Ignored if no 'Climate.in' is found in 'project.dir/in'.
 #' @param run.model Run the model or only create input files? Default is TRUE.
 #'
-#' @return Returns a list of data.frames (data.tables) containing the model results,
-#' control options and parameters and the execution time.
-#'
+#' @return Returns the model-output from the files found in 'out.dir' as a list of data.frames (data.tables),
+#' along with the execution time of the simulation, and input-parameters and options if desired.
 #' @export
 #'
 #' @examples
@@ -52,7 +50,7 @@
 #' #Set up lists containing model control options and model parameters:
 #'
 #' param.b90 <- MakeParam.B90()
-#' options.b90 <- MakeIniControl.B90()
+#' options.b90 <- MakeOptions.B90()
 #'
 #' Set start and end Dates for the simulation
 #'
@@ -65,86 +63,95 @@
 #' soil <- cbind(soil_slb1, hydpar_wessolek_mvg(soil_slb1$texture))
 #'
 #' Run LWF-Brook90
-#'
-#' b90.result <- Run.B90(directory = "example_run_b90",
-#'                       inicontrol = options.b90,
-#'                       param = param.b90,
+#' b90.result <- Run.B90(project.dir = "example_run_b90",
+#'                       options.b90 = options.b90,
+#'                       param.b90 = param.b90.b90,
 #'                       climate = meteo_slb1,
 #'                       soil = soil,
 #'                       path_b90.exe = "b90.exe")
 
-Run.B90 <- function(directory,
-                    inicontrol,
-                    param,
+Run.B90 <- function(project.dir,
+                    options.b90,
+                    param.b90,
                     climate,
                     soil,
                     longtermdev,
                     outputmat = choose_output.B90(edit = FALSE),
-                    write.climate.in = TRUE,
-                    write.param.in = TRUE,
-                    output.plant.devt = TRUE,
-                    output_log = "",
+                    output.log = "",
                     out.dir = "out/",
-                    keep_log_on_success = TRUE,
-                    keepoutputfiles = TRUE,
-                    verbose = TRUE,
                     path_b90.exe = "b90.exe",
+                    output.param.options = TRUE,
+                    keep.log.on.success = TRUE,
+                    keep.outputfiles = TRUE,
+                    verbose = TRUE,
+                    write.climate.in = TRUE,
                     run.model = TRUE
 ){
 
   oldWD <- getwd()
   on.exit(setwd(oldWD))
 
-  #name-checks
-  names(inicontrol) <- tolower(names(inicontrol))
-  names(param) <- tolower(names(param))
+  #name-checks ----------------------------------------------------------------------
+  names(options.b90) <- tolower(names(options.b90))
+  names(param.b90) <- tolower(names(param.b90))
   names(soil) <- tolower(names(soil))
   names(climate) <- tolower(names(climate))
 
-  inicontrol$fornetrad <- match.arg(inicontrol$fornetrad, choices = c("globrad","sunhour"))
-  inicontrol$budburst <- match.arg(inicontrol$budburst, choices = c("fixed", "dynamic"))
-  inicontrol$budburst.method <- match.arg(inicontrol$budburst.method,
-                                          choices = c(c("Menzel","StdMeteo", "ETCCDI", "Ribes uva-crispa")))
-  inicontrol$leaffall <- match.arg(inicontrol$leaffall, choices = c("fixed", "dynamic"))
-  inicontrol$longtermdyn <- match.arg(inicontrol$longtermdyn, choices = c("constant", "table"))
-  inicontrol$annuallaidyn <- match.arg(inicontrol$annuallaidyn, choices = c("b90", "linear", "Coupmodel"))
+  options.b90$fornetrad <- match.arg(options.b90$fornetrad, choices = c("globrad","sunhour"))
+  options.b90$budburst <- match.arg(options.b90$budburst, choices = c("fixed", "dynamic"))
+  options.b90$budburst.method <- match.arg(options.b90$budburst.method,
+                                           choices = c(c("Menzel","StdMeteo", "ETCCDI", "Ribes uva-crispa")))
+  options.b90$leaffall <- match.arg(options.b90$leaffall, choices = c("fixed", "dynamic"))
+  options.b90$longtermdyn <- match.arg(options.b90$longtermdyn, choices = c("constant", "table"))
+  options.b90$annuallaidyn <- match.arg(options.b90$annuallaidyn, choices = c("b90", "linear", "Coupmodel"))
 
-  # Input checks +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-  if (missing(directory)) {
-    stop("Missing argument: 'directory'")}
-  if (missing(param)) {
-    stop("Missing argument: 'param'")}
-  if (missing(inicontrol)) {
-    stop("Missing argument: 'inicontrol'")}
+  # Suggested packages checks -------------------------------------------------------
+  if (options.b90$budburst == "dynamic" || options.b90$leaffall == "dynamic") {
+    if (!requireNamespace("vegperiod", quietly = TRUE)) {
+      stop("In 'options.b90' you chose dynamic buburst or leaf fall, for which the
+           package \"vegperiod\" is required. Please install it:
+           install.packages('vegperiod', repos='https://www.nw-fva.de/r-pkgs')")
+    }
+  }
+
+  # Input checks --------------------------------------------------------------------
+  if (missing(project.dir)) {
+    stop("Missing argument: 'project.dir'")}
+  if (missing(param.b90)) {
+    stop("Missing argument: 'param.b90'")}
+  if (missing(options.b90)) {
+    stop("Missing argument: 'options.b90'")}
   if (missing(climate) & write.climate.in == T) {
     stop("Missing argument: 'climate'")}
-  if (missing(longtermdev) & tolower(inicontrol$longtermdyn) == "table") {
+  if (missing(longtermdev) & tolower(options.b90$longtermdyn) == "table") {
     stop("Missing argument: 'longtermdev'")}
-  if (missing(soil) & write.param.in == T) {
+  if (missing(soil)) {
     stop("Missing argument: 'soil'")}
   if (!file.exists(file.path(path_b90.exe))) {
     stop("Invalid argument: Executable file '",normalizePath(path_b90.exe), "' doesn't exist! Check argument 'path_b90.exe'")}
-  if (!inherits(inicontrol$startdate, "Date")) {
-    stop("Invalid argument: 'inicontrol$startdate'")}
-  if (!inherits(inicontrol$startdate, "Date")) {
-    stop("Invalid argument: 'inicontrol$enddate'")}
-  if (!(inicontrol$startdate < inicontrol$enddate)) {
+  if (!inherits(options.b90$startdate, "Date")) {
+    stop("Invalid argument: 'options.b90$startdate'")}
+  if (!inherits(options.b90$startdate, "Date")) {
+    stop("Invalid argument: 'options.b90$enddate'")}
+  if (!(options.b90$startdate < options.b90$enddate)) {
     stop("Invalid arguments: 'startdate > enddate ")}
-  if (run.model == F & write.climate.in == F & write.param.in == F) {
-    stop("No writing of inputfiles and no simulation?? Won't do anything, alright.")
+  if (run.model == F & write.climate.in == F) {
+    stop("No writing of inputfiles and no simulation? Won't do anything, alright.")
   }
 
+  # clean file paths and set up directories -----------------------------------------
+
   path_b90.exe <- normalizePath(path_b90.exe, mustWork = TRUE)
-  directory <- normalizePath(directory, mustWork = FALSE)
+  project.dir <- normalizePath(project.dir, mustWork = FALSE)
 
   # create project-directory
-  if (!dir.exists(directory)) {
+  if (!dir.exists(project.dir)) {
     if (verbose == TRUE) {print("Creating project-directory...")}
     tryCatch( {
-      dir.create(directory)
+      dir.create(project.dir)
     }, warning = function(wrn){
-      stop(paste0("The specified project directory (",
-                  directory,
+      stop(paste0("The specified  project directory (",
+                  project.dir,
                   ") could not be created.)"))
     },
     error = function(err){
@@ -152,48 +159,59 @@ Run.B90 <- function(directory,
     })
   }
 
-  setwd(directory) # set the working directory to the project folder
+  setwd(project.dir) # set the working directory to the project folder
 
-  # clean file paths
+  # input directory: always "project.dir/in/
   in.dir <- normalizePath(file.path(getwd(),"in"), mustWork = FALSE)
-
-  if (output_log != "" || output_log == F || is.null(output_log) ) {
-    output_log <- normalizePath(file.path(getwd(),output_log), mustWork = FALSE)
-  }
-
-
-  inicontrol$out.dir <- normalizePath(out.dir, mustWork = FALSE)
-  #inicontrol$out.dir <- out.dir
   if (!dir.exists(in.dir)) {
     dir.create(in.dir)
   }
 
-  if (!dir.exists(inicontrol$out.dir)) {
-    tryCatch( {
-      dir.create(inicontrol$out.dir)
-    }, warning = function(wrn){
-      warning(paste0("The specified output directory (",
-                     inicontrol$out.dir,
-                     ") could not be created. Writing results to '",directory, "/out' instead."))
-    },
-    error = function(err){
-      inicontrol$out.dir <- "out"
-      dir.create(inicontrol$out.dir)
-      warning(paste0("The specified output directory (",
-                     inicontrol$out.dir,
-                     ") could not be created. Writing results to '",directory, "/out' instead."))
+  # output-directory: variable! But, in Param.in needs to be shorter than 80 characters!
+  options.b90$out.dir <- normalizePath(out.dir, mustWork = FALSE)
 
+  # if normalized output-name too long, and not inside 'project.dir' make out.dir within 'project.dir':
+  if (nchar(options.b90$out.dir) > 80 &
+      options.b90$out.dir != normalizePath(file.path(getwd(), basename(options.b90$out.dir)), mustWork = F) ) {
+    warning(paste0("The specified output directory (",options.b90$out.dir,") is too long
+                    and could not be read by b90.exe. Find the results in ",basename(options.b90$out.dir),
+                   " within the project directory instead!"))
+    options.b90$out.dir <- basename(options.b90$out.dir)
+  }
+
+  #Create output directory:
+  if (!dir.exists(options.b90$out.dir) ) {
+    tryCatch( {
+      dir.create(options.b90$out.dir)
+    }, warning = function(wrn){
+      options.b90$out.dir <- basename(options.b90$out.dir)
+      dir.create(options.b90$out.dir)
+      warning(paste0("The specified output directory (",options.b90$out.dir,") could
+                     not be created. Find the results in ",basename(options.b90$out.dir),
+                     " within the project directory instead!"))
     })
   }
 
+  # file path for stdout in system2 call
+  if (output.log == TRUE || (is.character(output.log) & nchar(output.log) > 0)) {
+    output.log <- normalizePath(ifelse(output.log == TRUE, "b90.log", output.log),
+                                mustWork = FALSE)
+  } else {
+    if (is.null(output.log)) {
+      output.log = FALSE
+    }
+  }
+
+
+
   #clear output and log
-  try(file.remove(list.files(inicontrol$out.dir, pattern = ".ASC", full.names = T)))
+  try(file.remove(list.files(options.b90$out.dir, pattern = ".ASC", full.names = T)))
 
 
-  #Simulation period
+  #Simulation period ----------------------------------------------------------------
   climyears <- as.integer(unique(format(climate$dates, "%Y")))
-  simyears <- seq(from = as.integer(format(inicontrol$startdate,"%Y")),
-                  to = as.integer(format(inicontrol$enddate,"%Y")),
+  simyears <- seq(from = as.integer(format(options.b90$startdate,"%Y")),
+                  to = as.integer(format(options.b90$enddate,"%Y")),
                   by = 1)
 
   if (length(simyears[which(simyears %in% climyears)]) < length(simyears)) {
@@ -206,62 +224,58 @@ Run.B90 <- function(directory,
 
   #input und output directories +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-  #+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-  #Climate.in
+  #Climate.in -----------------------------------------------------------------------
   # check ob climate.in vorhanden und mit start und end kompatibel  :
   if (!write.climate.in & file.exists(file.path(in.dir, "Climate.in"))) {
 
     climate.in <- read.table(file.path(in.dir, "Climate.in"), sep = "\t", skip = 3, header = F)[2:16]
     names(climate.in) <- c("year","month","mday","globrad","tmax","tmin","vap","wind","prec","mesfl","densef","height","lai","sai","age")
 
-    if (inicontrol$startdate != with(climate.in[1,], as.Date(paste(year, month, mday,sep = "-")))) {
+    if (options.b90$startdate != with(climate.in[1,], as.Date(paste(year, month, mday,sep = "-")))) {
       write.climate.in <- TRUE}
 
-    if (inicontrol$enddate > with(climate.in[(nrow(climate.in)),], as.Date(paste(year, month, mday, sep = "-")))) {
+    if (options.b90$enddate > with(climate.in[(nrow(climate.in)),], as.Date(paste(year, month, mday, sep = "-")))) {
       write.climate.in <- TRUE}
 
   } else {write.climate.in <- TRUE}
 
   #Number of Simulation days
-  inicontrol$ndays <-   as.integer(difftime(inicontrol$enddate,inicontrol$startdate)) + 1
+  options.b90$ndays <-   as.integer(difftime(options.b90$enddate,options.b90$startdate)) + 1
 
-  #Vegetation-Period+++++++++++++++++++++++++++++++++
-  if (inicontrol$budburst == "dynamic" | inicontrol$leaffall == "dynamic") {
+  # ---- Vegetation-Period  ----------------------------------------------------------
+  if (options.b90$budburst == "dynamic" | options.b90$leaffall == "dynamic") {
     budburst_leaffall <- with(climate, vegperiod::vegperiod(dates = dates,
                                                             Tavg = tmean,
-                                                            start.method = as.character(inicontrol$budburst.method),
-                                                            species = as.character(inicontrol$species_dynbudburst),
-                                                            end.method = as.character(inicontrol$leaffall.method),
+                                                            start.method = as.character(options.b90$budburst.method),
+                                                            species = as.character(options.b90$species_dynbudburst),
+                                                            end.method = as.character(options.b90$leaffall.method),
                                                             est.prev = ifelse(length(climyears) <= 5, length(climyears) - 1, 5))
     )
-    if (inicontrol$budburst == "fixed") { budburst_leaffall$start <- param$budburstdoy }
-    if (inicontrol$leaffall == "fixed") { budburst_leaffall$end <- param$leaffalldoy }
+    if (options.b90$budburst == "fixed") { budburst_leaffall$start <- param.b90$budburstdoy }
+    if (options.b90$leaffall == "fixed") { budburst_leaffall$end <- param.b90$leaffalldoy }
 
     budburst_leaffall <- budburst_leaffall[which(budburst_leaffall$year %in% simyears),]
 
   } else {
     budburst_leaffall <- data.frame(year = simyears,
-                                    start = rep(param$budburstdoy, length(simyears)),
-                                    end = rep(param$leaffalldoy, length(simyears)))
+                                    start = rep(param.b90$budburstdoy, length(simyears)),
+                                    end = rep(param.b90$leaffalldoy, length(simyears)))
   }
 
-  #
-
-  # Make Stand +++++++++++++++++++++++++++++++++++++++
-  #
+  # ---- Make Stand --------------------------------------------------------------------
   if (write.climate.in == TRUE) {
-    if (tolower(inicontrol$longtermdyn) == "table") {
+    if (tolower(options.b90$longtermdyn) == "table") {
       stand <- longtermdev
       if (verbose == T) {print("Creating long term stand dynamics from table 'longtermdev'...")}
     } else {
-      stand <- data.frame(year = simyears[1], age = param$age, height = param$height,
-                          maxlai = param$maxlai, sai = param$sai,densef = param$densef)
+      stand <- data.frame(year = simyears[1], age = param.b90$age, height = param.b90$height,
+                          maxlai = param.b90$maxlai, sai = param.b90$sai,densef = param.b90$densef)
       if (verbose == T) {print("Creating constant stand properties from parameters...")}
     }
 
     stand <- MakeStand(stand.years = stand$year,
                        maxlai = stand$maxlai,
-                       minlai = stand$maxlai*param$winlaifrac,
+                       minlai = stand$maxlai*param.b90$winlaifrac,
                        sai = stand$sai,
                        height = stand$height,
                        densef = stand$densef,
@@ -269,58 +283,60 @@ Run.B90 <- function(directory,
                        yearsout = simyears,
                        budburst.doy = budburst_leaffall$start,
                        leaffall.doy = budburst_leaffall$end,
-                       emerge.dur = param$emergedur,  leaffall.dur = param$leaffalldur,
-                       opt.doy = param$optdoy, shape.budburst = param$shapestart,
-                       shape.leaffall = param$shapeend, method = inicontrol$annuallaidyn
+                       emerge.dur = param.b90$emergedur,  leaffall.dur = param.b90$leaffalldur,
+                       opt.doy = param.b90$optdoy, shape.budburst = param.b90$shapestart,
+                       shape.leaffall = param.b90$shapeend, method = options.b90$annuallaidyn
     )
 
-    stand <- stand[which(stand$dates >= inicontrol$startdate
-                         & stand$dates <= inicontrol$enddate),]
+    stand <- stand[which(stand$dates >= options.b90$startdate
+                         & stand$dates <= options.b90$enddate),]
 
     if (verbose == T) {
       print("Standproperties created succesfully")
     }
   }
-  #write StandProperties & Climate
+  #write StandProperties & Climate ----------------------------------------------------
   if (write.climate.in) {
-    if (tolower(inicontrol$fornetrad) == "globrad") {
-      with(climate[which(climate$dates >= inicontrol$startdate & climate$dates <= inicontrol$enddate), ],
+    if (tolower(options.b90$fornetrad) == "globrad") {
+      with(climate[which(climate$dates >= options.b90$startdate & climate$dates <= options.b90$enddate), ],
            writeClimate.in(dates = dates, tmax = tmax, tmin = tmin, vappres = vappres,
                            wind = wind, prec = prec, globrad = globrad, sunhours = NULL,
                            densef = stand$densef, height = stand$height,
                            lai = stand$lai, sai = stand$sai, age = stand$age,
-                           latitude = inicontrol$coords_y, use.sunhours = F,
+                           latitude = param.b90$coords_y, use.sunhours = F,
                            filename = file.path(getwd(),"in/Climate.in"),
-                           richter.prec.corr = inicontrol$richter.corr., prec.int = inicontrol$prec.interval,
-                           snow.ini = param$snowini, gwat.ini = param$gwatini)
+                           richter.prec.corr = options.b90$richter.corr., prec.int = options.b90$prec.interval,
+                           snow.ini = param.b90$snowini, gwat.ini = param.b90$gwatini)
       )
       if (verbose == T) {print("'Climate.in' created succesfully using global radiation")}
     } else {
-      with(climate[which(climate$dates >= inicontrol$startdate & climate$dates <= inicontrol$enddate), ],
+      with(climate[which(climate$dates >= options.b90$startdate & climate$dates <= options.b90$enddate), ],
            writeClimate.in(dates = dates, tmax = tmax, tmin = tmin, vappres = vappres,
                            wind = wind, prec = prec, sunhours = sunhours, globrad = NULL,
                            densef = stand$densef, height = stand$height,
                            lai = stand$lai, sai = stand$sai, age = stand$age,
-                           latitude = inicontrol$coords_y, use.sunhours = T,
+                           latitude = param.b90$coords_y, use.sunhours = T,
                            filename = file.path(getwd(),"in/Climate.in"),
-                           richter.prec.corr = inicontrol$richter.corr., prec.int = inicontrol$prec.interval,
-                           snow.ini = param$snowini, gwat.ini = param$gwatini)
+                           richter.prec.corr = options.b90$richter.corr., prec.int = options.b90$prec.interval,
+                           snow.ini = param.b90$snowini, gwat.ini = param.b90$gwatini)
       )
-      if (verbose == T) {print("'Climate.in' created succesfully using sunshine duration hours")}
+      if (verbose == T) { print("'Climate.in' created succesfully using sunshine duration hours")}
     }
   }
 
-  #+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-  # Wurzeln dran mergen, wenn nicht aus soil-data.frame
-  if (inicontrol$rootmodel != "soilvar") {
-    soil$relrootlength <- MakeRelRootDens(soil$lower * (-100), param$maxrootdepth,
-                                          method = inicontrol$rootmodel, param = param$betaroot,
-                                          humusroots = inicontrol$humusroots
+
+  # Make Roots ----------------------------------------------------------------------
+  if (options.b90$rootmodel != "soilvar") {
+    soil$relrootlength <- MakeRelRootDens(soil$lower * (-100), param.b90$maxrootdepth,
+                                          method = options.b90$rootmodel, param = param.b90$betaroot,
+                                          humusroots = options.b90$humusroots
     )}
 
 
-  #  Create materials for writeparam.in aus Soil-Table
-  ## TODO: materials and layers as list-elements in param
+
+  #  Make soil ----------------------------------------------------------------------
+  #  Create materials for writeparam.in from soil
+  ## TODO: materials and layers as list-elements in param.b90?
 
   dubl <- duplicated(soil[,c("ths","thr","alpha","npar","ksat","tort","gravel")])
   materials <- soil[!dubl,c("ths","thr","alpha","npar","ksat","tort","gravel")]
@@ -340,22 +356,21 @@ Run.B90 <- function(directory,
   soil$midpoint <- soil$lower + soil$thick/2
   soil$thick <- soil$thick * 1000
   soil$layer <- 1:nrow(soil)
-  soil$psiini <- param$psiini
+  soil$psiini <- param.b90$psiini
 
-  #####
+  # write Param.in ------------------------------------------------------------------
+  writeParam.in(b90opts = options.b90,
+                parameters = param.b90,
+                materials = materials,
+                soil = soil,
+                outmat = outputmat,
+                filename = file.path(in.dir, "Param.in"))
 
-  if (write.param.in || write.climate.in) {
-    writeParam.in(b90ini = inicontrol,
-                  parameters = param,
-                  materials = materials,
-                  soil = soil,
-                  outmat = outputmat,
-                  filename = file.path(in.dir, "Param.in"))
-  }
-  if (verbose == T) {
+  if (verbose == TRUE) {
     print("'Param.in' created succesfully!")
   }
-  # run, if required ################################################################
+
+  # Execute b90.exe  ----------------------------------------------------------------
   if (run.model == T) {
 
     if (verbose == T) {
@@ -366,13 +381,13 @@ Run.B90 <- function(directory,
     cmdline <- tryCatch( {
       if (tolower(Sys.info()[["sysname"]]) == "windows") {
         system2(command = path_b90.exe,
-                stdout = output_log,
+                stdout = output.log,
                 invisible = TRUE,
                 wait = TRUE
         )
       } else {
         system2(command = path_b90.exe,
-                stdout = output_log,
+                stdout = output.log,
                 wait = TRUE)
       }
     }, warning = function(wrn){
@@ -385,17 +400,20 @@ Run.B90 <- function(directory,
     simtime <- Sys.time() - start
     units(simtime) <- "secs"
 
+    # Check for Errors --------------------------------------------------------------
+
     # Unix uses shell for system2 and which not returning errors, so we create one in case simres != 0
     if (is.integer(cmdline)) {
       if (cmdline != 0) {
-        stop(paste0("Execution of b90.exe via shell gave an error: ", cmdline, ", check input and 'output_log'!"))
+        stop(paste0("Execution of b90.exe via shell gave an error: ", cmdline, ", check input and 'output.log'!"))
       }
     }
 
-    #check for warnings (system2 does not return errors if command fails)
+    # check for warnings (system2 does not return errors if command fails)
     if (inherits(cmdline, "warning")) {
       print("Simulation Error, check input and log file!")
       stop(print(cmdline))
+
     } else {
 
       if (inherits(cmdline, "error")) {
@@ -407,27 +425,29 @@ Run.B90 <- function(directory,
         print("Reading output...")
       }
 
-      simres <- readOutput.B90(normalizePath(inicontrol$out.dir))
+      # Read output files -----------------------------------------------------------
+      simres <- readOutput.B90(options.b90$out.dir)
 
-      simres$param <- param
-      simres$inicontrol <- inicontrol
-      simres$soil <- soil
-      if (output.plant.devt == TRUE) {
+      # append input parameters
+      if (output.param.options == TRUE) {
         simres$plant.devt <- data.table(stand)
+        simres$param.b90 <- param.b90
+        simres$options.b90 <- options.b90
+        simres$soil <- soil
       }
 
       #remove output
-      if (!keepoutputfiles) { try(file.remove(list.files(inicontrol$out.dir, pattern = ".ASC", full.names = T))) }
+      if (!keep.outputfiles) { try(file.remove(list.files(options.b90$out.dir, pattern = ".ASC", full.names = T))) }
       #remove log-file (only if simulation had no errors)
-      if (output_log != "" & output_log != FALSE & keep_log_on_success == F) {
-        try(file.remove(output_log))
+      if (output.log != "" & output.log != FALSE & keep.log.on.success == F) {
+        try(file.remove(output.log))
       }
 
       if (verbose == T) {
         print("Finished!")
       }
       simres$finishing.time <- Sys.time()
-      simres$sim_time <- simtime
+      simres$sim.time <- simtime
       return(simres)
     }
   }

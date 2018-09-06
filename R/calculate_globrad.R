@@ -16,9 +16,15 @@ CalcGlobRad <- function(doy, SunHour, lat,
                         b0=0.5
 ) {
 
+  if (!requireNamespace("sirad", quietly = TRUE)) {
+    stop("Package \"sirad\" needed for calculating global radiation from sunshine duration. Please install it.")
+  }
+
   latrad <- pi/180 * lat
 
-  exterr.DayL <- sirad::extrat(doy,latrad)[c("ExtraTerrestrialSolarRadiationDaily","DayLength")]
+  exterr.DayL <- data.frame(DayLength = dayLength(latrad, i = doy),
+                            ExtraTerrestrialSolarRadiationDaily = exd(latrad, i = doy))
+
 
   return( (a0 + b0 * SunHour / exterr.DayL$DayLength) * exterr.DayL$ExtraTerrestrialSolarRadiationDaily )
 }
