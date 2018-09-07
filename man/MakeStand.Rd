@@ -4,8 +4,8 @@
 \alias{MakeStand}
 \title{Create a daily sequence of stand properties (lai, sai, height, age)}
 \usage{
-MakeStand(stand.years, maxlai, minlai, budburst.doy, leaffall.doy, sai, height,
-  densef, age, yearsout = stand.years, ...)
+MakeStand(stand.years, maxlai, winlaifrac, budburst.doy, leaffall.doy, sai,
+  height, densef, age, yearsout = stand.years, ...)
 }
 \arguments{
 \item{stand.years}{A sequence of years or a single year, at which the stand properties were measured}
@@ -13,7 +13,7 @@ MakeStand(stand.years, maxlai, minlai, budburst.doy, leaffall.doy, sai, height,
 \item{maxlai}{Maximum leaf area index during summer, either a fixed single value or
 corresponding to stand.years}
 
-\item{minlai}{Minimum leaf area index during winter, either a fixed single value or
+\item{winlaifrac}{Minimum leaf area index during winter, either a fixed single value or
 corresponding to stand.years.}
 
 \item{budburst.doy}{Day of year when leaf flushing sets in, either a fixed single
@@ -46,7 +46,7 @@ densef at daily resolution
 }
 \description{
 Uses a table with yearly values of perennial vegetation development or anually constant
-values (maxlai, minlai, sai, height, age) and turns them into a daily table of vegetation
+values (maxlai, winlaifrac, sai, height, age) and turns them into a daily table of vegetation
 properties, that can be passed on to write.climate.in
 }
 \details{

@@ -6,15 +6,24 @@
 #' \describe{
 #'   \item{startdate}{Startdate of the simulation.}
 #'   \item{enddate}{Enddate of the simulation.}
-#'   \item{fornetrad}{Use global solar radiation (="globrad") or sunshine duration hours (="sunhour") for net radiation calculation?}
-#'   \item{precinterval}{Number of precipitation intervals (default is 1). If prec.interval > 1, a separate file ("in/PRFILE.DAT") has to be provided manually!}
-#'   \item{richter.corr.}{ Correct Precipitation for wind and evaporation losses (not implented yet)}
+#'   \item{fornetrad}{Use global solar radiation (="globrad") or sunshine duration
+#'   hours (="sunhour") for net radiation calculation?}
+#'   \item{prec.interval}{Number of precipitation intervals (default is 1).
+#'   If prec.interval > 1, a separate file ("in/PRFILE.DAT") has to be provided manually!}
+#'   \item{richter.prec.corr}{ Correct Precipitation for wind and evaporation losses (not implented yet)}
 #'   \item{budburst}{Calculate budburst day of year dynamically (="dynamic") or use fixed values (="fixed") defined in parameters (budburstdoy)?}
-#'   \item{budburst.method}{Name of method for dynamic budburst calculation. Passed to 'start.method'-argument of  \code{\link[vegperiod]{vegperiod}}.}
-#'   \item{leaffall}{ Calculate leaffall day of year dynamically (="dynamic") or use fixed values (="fixed") defined in parameters (leaffalldoy)?}
-#'   \item{species_dynbudburst}{name of tree species [required if budburst.method='Menzel']. Passed to 'species'-argument of \code{\link[vegperiod]{vegperiod}} .}
-#'   \item{longtermdyn}{Name of method for longterm plant development: either constant ("const") or yearly changing values ("table") of plant development.}
-#'   \item{annuallaidyn}{Name of method method for generating seasonal plant development. Passed to 'method'-argument of \code{\link{MakeSeasLAI}}. }
+#'   \item{budburst.method}{Name of method for budburst calculation. If
+#'   'constant' or 'fixed', budburst day of year from parameters is used.
+#'   All other methods calculate budburst day of year dynamically from temperatures, and
+#'   the method name is passed to the 'start.method'-argument of  \code{\link[vegperiod]{vegperiod}}.}
+#'   \item{leaffall.method}{Name of method for leaffall calculation. If
+#'   'constant' or 'fixed', beginning of leaffall (day of year) from parameters is used.
+#'   All other methods calculate budburst day of year dynamically from temperatures, and
+#'   the method name is passed to the 'end.method'-argument of  \code{\link[vegperiod]{vegperiod}}.}
+#'   \item{longtermdyn}{Name of method for longterm plant development: either constant ("constant")
+#'   or yearly values ("table") of plant development.}
+#'   \item{lai.method}{Name of method method for generating daily plant development.
+#'   Passed to 'method'-argument of \code{\link{MakeSeasLAI}}. }
 #'   \item{imodel}{Name of hydraulic parameterization: "CH" for Clapp/Hornberger, "MvG" for Mualem/van Genuchten}
 #'   \item{rootmodel}{Model name of the root length density depth distribution function. Any of the names accepted by \code{\link{MakeRelRootDens}} are allowed.
 #'   Assign "soilvar", if the root length density should be taken from the soil-data.frame (colname relrootlength)     }
@@ -22,23 +31,20 @@
 #' }
 #' @examples
 #' # Default options
-#' options.b90 <- MakeIniControl.B90()
+#' options.b90 <- MakeOptions.B90()
 #' # Include specific options
-#' options.B90_fixed_phenology <- MakeIniControl.B90(budburst = 'fixed', leaffall ='fixed')
+#' options.B90_dynamic_phenology <- MakeOptions.B90(budburst = 'Menzel', leaffall ='vonWilpert')
 #' @export
 MakeOptions.B90 <- function(...) {
   ctrl <- list(startdate = as.Date("2001-1-1"),
                enddate = as.Date("2003-12-31"),
                fornetrad = "globrad", #"sunhour"
                prec.interval = 1,
-               richter.corr. = FALSE,
-               budburst = "dynamic", #fixed
-               budburst.method = "Menzel", #any of the names accepted by 'start.method'-argument of vegperiod::vegperiod()
-               leaffall = "dynamic", #fixed
-               leaffall.method = "vonWilpert", #any of the names accepted by 'start.method'-argument of vegperiod::vegperiod()
-               species_dynbudburst = "Fagus sylvatica", # any of the names accepted by 'species'-argument in vegperiod::vegperiod()
-               longtermdyn = "const", #table
-               annuallaidyn = "b90", #any of the names accepted by 'method'-argument of MakeSeasLAI()
+               richter.prec.corr = FALSE,
+               budburst.method = "fixed", #any of the names accepted by 'start.method'-argument of vegperiod::vegperiod()
+               leaffall.method = "fixed", #any of the names accepted by 'start.method'-argument of vegperiod::vegperiod()
+               longtermdyn = "constant", #table
+               lai.method = "b90", #any of the names accepted by 'method'-argument of MakeSeasLAI()
                imodel = "MvG", # the parameterization of rentention & conductivity function. CH = Clapp-Hornberger, MvG: Mualem van Genuchten
                rootmodel = "betamodel", #any of the names accepted by the MakeRoots()
                humusroots = FALSE #parameter of MakeRoots()

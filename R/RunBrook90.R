@@ -98,15 +98,19 @@ Run.B90 <- function(project.dir,
   names(climate) <- tolower(names(climate))
 
   options.b90$fornetrad <- match.arg(options.b90$fornetrad, choices = c("globrad","sunhour"))
-  options.b90$budburst <- match.arg(options.b90$budburst, choices = c("fixed", "dynamic"))
-  options.b90$budburst.method <- match.arg(options.b90$budburst.method,
-                                           choices = c(c("Menzel","StdMeteo", "ETCCDI", "Ribes uva-crispa")))
-  options.b90$leaffall <- match.arg(options.b90$leaffall, choices = c("fixed", "dynamic"))
-  options.b90$longtermdyn <- match.arg(options.b90$longtermdyn, choices = c("constant", "table"))
-  options.b90$annuallaidyn <- match.arg(options.b90$annuallaidyn, choices = c("b90", "linear", "Coupmodel"))
 
-  # Suggested packages checks -------------------------------------------------------
-  if (options.b90$budburst == "dynamic" || options.b90$leaffall == "dynamic") {
+  options.b90$budburst.method <- match.arg(options.b90$budburst.method,
+                                           choices = c("fixed", "constant","Menzel","StdMeteo", "ETCCDI", "Ribes uva-crispa"))
+
+  options.b90$leaffall.method <- match.arg(options.b90$leaffall.method,
+                                           choices = c("fixed", "constant","vonWilpert", "LWF-BROOK90", "NuskeAlbert", "StdMeteo","ETCCDI"))
+
+  options.b90$longtermdyn <- match.arg(options.b90$longtermdyn, choices = c("constant", "table"))
+
+  options.b90$lai.method <- match.arg(options.b90$lai.method, choices = c("b90", "linear", "Coupmodel"))
+
+  # Check suggested packages --------------------------------------------------------
+  if (!options.b90$budburst.method %in% c("constant", "fixed") || !options.b90$leaffall.method %in% c("constant", "fixed")) {
     if (!requireNamespace("vegperiod", quietly = TRUE)) {
       stop("In 'options.b90' you chose dynamic buburst or leaf fall, for which the
            package \"vegperiod\" is required. Please install it:
@@ -208,7 +212,7 @@ Run.B90 <- function(project.dir,
   try(file.remove(list.files(options.b90$out.dir, pattern = ".ASC", full.names = T)))
 
 
-  #Simulation period ----------------------------------------------------------------
+  # Simulation period ----------------------------------------------------------------
   climyears <- as.integer(unique(format(climate$dates, "%Y")))
   simyears <- seq(from = as.integer(format(options.b90$startdate,"%Y")),
                   to = as.integer(format(options.b90$enddate,"%Y")),
@@ -222,7 +226,6 @@ Run.B90 <- function(project.dir,
     }
   }
 
-  #input und output directories +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
   #Climate.in -----------------------------------------------------------------------
   # check ob climate.in vorhanden und mit start und end kompatibel  :
@@ -243,24 +246,57 @@ Run.B90 <- function(project.dir,
   options.b90$ndays <-   as.integer(difftime(options.b90$enddate,options.b90$startdate)) + 1
 
   # ---- Vegetation-Period  ----------------------------------------------------------
-  if (options.b90$budburst == "dynamic" | options.b90$leaffall == "dynamic") {
+  # start and end dynamic
+  if (!options.b90$budburst.method %in% c("constant", "fixed") &
+      !options.b90$leaffall.method %in% c("constant", "fixed")) {
     budburst_leaffall <- with(climate, vegperiod::vegperiod(dates = dates,
                                                             Tavg = tmean,
                                                             start.method = as.character(options.b90$budburst.method),
-                                                            species = as.character(options.b90$species_dynbudburst),
+                                                            species = as.character(param.b90$budburst.species),
                                                             end.method = as.character(options.b90$leaffall.method),
                                                             est.prev = ifelse(length(climyears) <= 5, length(climyears) - 1, 5))
     )
-    if (options.b90$budburst == "fixed") { budburst_leaffall$start <- param.b90$budburstdoy }
-    if (options.b90$leaffall == "fixed") { budburst_leaffall$end <- param.b90$leaffalldoy }
-
     budburst_leaffall <- budburst_leaffall[which(budburst_leaffall$year %in% simyears),]
-
   } else {
-    budburst_leaffall <- data.frame(year = simyears,
-                                    start = rep(param.b90$budburstdoy, length(simyears)),
-                                    end = rep(param.b90$leaffalldoy, length(simyears)))
+    # only budburst is dynamic:
+    if (!options.b90$budburst.method %in% c("constant", "fixed") & options.b90$leaffall.method %in% c("constant", "fixed"))   {
+      if (length(param.b90$leaffalldoy) > 1 & length(param.b90$leaffalldoy) != length(simyears)) {
+        stop("When options.b90$leaffall.method == 'fixed', either provide a single value
+                for param.b90$leaffall or a sequence of values, one for each year of the simulation period.")
+      }
+      budburst_leaffall <- with(climate,
+                                vegperiod::vegperiod(dates = dates,
+                                                     Tavg = tmean,
+                                                     start.method = as.character(options.b90$budburst.method),
+                                                     species = as.character(param.b90$budburst.species),
+                                                     end.method = "StdMeteo",
+                                                     est.prev = ifelse(length(climyears) <= 5, length(climyears) - 1, 5))
+      )
+      budburst_leaffall <- budburst_leaffall[which(budburst_leaffall$year %in% simyears),]
+      budburst_leaffall$end <- param.b90$leaffalldoy
+    } else {
+      # only end dynamic
+      if (options.b90$budburst.method %in% c("constant", "fixed") & !options.b90$leaffall.method %in% c("constant", "fixed"))   {
+        if (length(param.b90$budburstdoy) > 1 & length(param.b90$budburstdoy) != length(simyears)) {
+          stop("When options.b90$budburst.method == 'fixed', either provide a single value
+               for param.b90$budburstdoy or a sequence of values, one for each year of the simulation period.")
+        }
+        budburst_leaffall <- with(climate,
+                                  vegperiod::vegperiod(dates = dates,
+                                                       Tavg = tmean,
+                                                       start.method = "StdMeteo",
+                                                       end.method = options.b90$leaffall.method))
+        budburst_leaffall <- budburst_leaffall[which(budburst_leaffall$year %in% simyears),]
+        budburst_leaffall$start <- param.b90$budburstdoy
+      } else {
+        #both fixed
+        budburst_leaffall <- data.frame(year = simyears,
+                                        start = rep(param.b90$budburstdoy, length(simyears)),
+                                        end = rep(param.b90$leaffalldoy, length(simyears)))
+      }
+    }
   }
+
 
   # ---- Make Stand --------------------------------------------------------------------
   if (write.climate.in == TRUE) {
@@ -275,7 +311,7 @@ Run.B90 <- function(project.dir,
 
     stand <- MakeStand(stand.years = stand$year,
                        maxlai = stand$maxlai,
-                       minlai = stand$maxlai*param.b90$winlaifrac,
+                       winlaifrac = param.b90$winlaifrac,
                        sai = stand$sai,
                        height = stand$height,
                        densef = stand$densef,
@@ -284,8 +320,11 @@ Run.B90 <- function(project.dir,
                        budburst.doy = budburst_leaffall$start,
                        leaffall.doy = budburst_leaffall$end,
                        emerge.dur = param.b90$emergedur,  leaffall.dur = param.b90$leaffalldur,
-                       opt.doy = param.b90$optdoy, shape.budburst = param.b90$shapestart,
-                       shape.leaffall = param.b90$shapeend, method = options.b90$annuallaidyn
+                       shape.optdoy = param.b90$shape.optdoy, shape.budburst = param.b90$shape.budburst,
+                       shape.leaffall = param.b90$shape.leaffall,
+                       method = options.b90$lai.method,
+                       lai.doy = param.b90$lai.doy,
+                       lai.frac = param.b90$lai.frac
     )
 
     stand <- stand[which(stand$dates >= options.b90$startdate
@@ -305,7 +344,7 @@ Run.B90 <- function(project.dir,
                            lai = stand$lai, sai = stand$sai, age = stand$age,
                            latitude = param.b90$coords_y, use.sunhours = F,
                            filename = file.path(getwd(),"in/Climate.in"),
-                           richter.prec.corr = options.b90$richter.corr., prec.int = options.b90$prec.interval,
+                           richter.prec.corr = options.b90$richter.prec.corr, prec.int = options.b90$prec.interval,
                            snow.ini = param.b90$snowini, gwat.ini = param.b90$gwatini)
       )
       if (verbose == T) {print("'Climate.in' created succesfully using global radiation")}
@@ -317,7 +356,7 @@ Run.B90 <- function(project.dir,
                            lai = stand$lai, sai = stand$sai, age = stand$age,
                            latitude = param.b90$coords_y, use.sunhours = T,
                            filename = file.path(getwd(),"in/Climate.in"),
-                           richter.prec.corr = options.b90$richter.corr., prec.int = options.b90$prec.interval,
+                           richter.prec.corr = options.b90$richter.prec.corr, prec.int = options.b90$prec.interval,
                            snow.ini = param.b90$snowini, gwat.ini = param.b90$gwatini)
       )
       if (verbose == T) { print("'Climate.in' created succesfully using sunshine duration hours")}

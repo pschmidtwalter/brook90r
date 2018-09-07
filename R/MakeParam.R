@@ -59,6 +59,7 @@
 #'  dpsimax      \tab maximum potential difference considered equal. Default: 5e-04 \tab kPa               \tab Numerical              \cr
 #'  dswmax       \tab maximum change allowed in SWATI. Default: 0.05 \tab percent of SWATMX \tab Numerical              \cr
 #'  dtimax       \tab maximum iteration time step. Default: 0.5 \tab d                 \tab Numerical              \cr
+#'  budburst.species  \tab Name of tree species for estimating budburst doy using Menzel-model (passed to \code{\link[vegperiod]{vegperiod}}) Default: 'Fagus sylvatica' \tab -                  \tab Plant                  \cr
 #'  budburstdoy  \tab Leaf flush day of year - passed to MakeSeasLAI. Default: 121\tab -                  \tab Plant                  \cr
 #'  emergedur    \tab Leaf growth duration until maxlai is reached.. Default: 28\tab d                 \tab Plant                  \cr
 #'  height       \tab plant height. Default: 25 \tab m                 \tab Plant                  \cr
@@ -116,13 +117,16 @@ MakeParam.B90 <- function(...) {
     densef = 1,
     age = 100,
     winlaifrac = 0,
+    budburst.species = "Fagus sylvatica",
     budburstdoy = 121,
     optdoy = 210,
     leaffalldoy = 279,
-    shapestart = 0.3,
-    shapeend = 3,
+    shape.budburst = 0.3,
+    shape.leaffall = 3,
     emergedur = 28,
     leaffalldur = 58,
+    lai.doy =c(1,121,150,250,280,320,365),
+    lai.val = c(0,0,0.75,1,0.8,0,0),
     alb = 0.2,
     albsn = 0.5,
     ksnvp = 0.3,

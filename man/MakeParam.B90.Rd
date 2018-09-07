@@ -72,6 +72,7 @@ Create the list of model parameters
  dpsimax      \tab maximum potential difference considered equal. Default: 5e-04 \tab kPa               \tab Numerical              \cr
  dswmax       \tab maximum change allowed in SWATI. Default: 0.05 \tab percent of SWATMX \tab Numerical              \cr
  dtimax       \tab maximum iteration time step. Default: 0.5 \tab d                 \tab Numerical              \cr
+ budburst.species  \tab Name of tree species for estimating budburst doy using Menzel-model (passed to \code{\link[vegperiod]{vegperiod}}) Default: 'Fagus sylvatica' \tab -                  \tab Plant                  \cr
  budburstdoy  \tab Leaf flush day of year - passed to MakeSeasLAI. Default: 121\tab -                  \tab Plant                  \cr
  emergedur    \tab Leaf growth duration until maxlai is reached.. Default: 28\tab d                 \tab Plant                  \cr
  height       \tab plant height. Default: 25 \tab m                 \tab Plant                  \cr

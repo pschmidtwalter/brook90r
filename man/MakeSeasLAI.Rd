@@ -5,44 +5,44 @@
 \title{Create daily seasonal plant dynamics sequence (e.g. leaf area index development)
 for one year}
 \usage{
-MakeSeasLAI(maxdoy, minlai, maxlai, budburst.doy = 121, leaffall.doy = 279,
-  emerge.dur = 28, leaffall.dur = 58, opt.doy = 220,
-  shape.budburst = 0.5, shape.leaffall = 10, doy.values = c(1, 120, 150,
-  280, 320, maxdoy), lai.values = c(0, 0, 1, 2, 0, 0), method = "b90")
+MakeSeasLAI(method = "b90", maxlai, winlaifrac = 0, budburst.doy = 121,
+  leaffall.doy = 279, emerge.dur = 28, leaffall.dur = 58,
+  shape.optdoy = 220, shape.budburst = 0.5, shape.leaffall = 10,
+  lai.doy = c(1, 121, 150, 280, 320, maxdoy), lai.frac = c(0, 0, 0.5, 1,
+  0.5, 0), maxdoy)
 }
 \arguments{
+\item{method}{name of method for generating the sequence. Must be one of "b90", "linear", "Coupmodel"}
+
+\item{maxlai}{maximum value during summer (not used when method = 'linear')}
+
+\item{winlaifrac}{minimum lai as fraction of maxlai during winter (not used when method = 'linear')}
+
+\item{budburst.doy}{day of year when growth begins (not used when method = 'linear')}
+
+\item{leaffall.doy}{day of year when growth cessates (not used when method = 'linear')}
+
+\item{emerge.dur}{number of days until maximum value is reached (required when method = "Coupmodel")}
+
+\item{leaffall.dur}{number of days until minimum value is reached (required when method = "b90")}
+
+\item{shape.budburst}{shape parameter for the growth phase (required when method = "Coupmodel")}
+
+\item{shape.leaffall}{shape parameter growth cessation (required when method = "Coupmodel")}
+
+\item{lai.doy}{vector of integers (required when method = "linear")}
+
+\item{lai.frac}{vector of values corresponding to doy.values (required when method = "linear")}
+
 \item{maxdoy}{last day of year (leapyear: 366, else 365)}
 
-\item{minlai}{minimum value during winter}
-
-\item{maxlai}{maximum value during summer}
-
-\item{budburst.doy}{day of year when growth begins}
-
-\item{leaffall.doy}{day of year when growth cessates [applies when method = "b90"]}
-
-\item{emerge.dur}{number of days until maximum value is reached [applies when method = "b90"]}
-
-\item{leaffall.dur}{number of days until minimum value is reached}
-
-\item{opt.doy}{day of year when optimum value is reached [applies when method = "Coupmodel"]}
-
-\item{shape.budburst}{shape parameter for the growth phase [applies when method = "Coupmodel"]}
-
-\item{shape.leaffall}{shape parameter growth cessation [applies when method = "Coupmodel"]}
-
-\item{doy.values}{vector of integers [required when method = "linear"]}
-
-\item{lai.values}{vector of values corresponding to doy.values [required when method = "linear"]}
-
-\item{method}{name of method for generating hte sequence. Must be one of "b90", "linear", "Coupmodel"}
+\item{opt.doy}{day of year when optimum value is reached (required when method = "Coupmodel")}
 }
 \value{
 Returns a seasonal sequence of length maxdoy
 }
 \description{
-Creates the seasonal course of leaf area or other plant traits, based
+Creates the seasonal course of leaf area index, based
 on minimum lai, maximum lai, budburst and leaffall day of year (doy) and shape
 parameters.
-Sollte Vielleicht noch etwas genereller gehalten werden, nicht von LAI reden in den Parameters!
 }

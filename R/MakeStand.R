@@ -1,12 +1,12 @@
 #' Create a daily sequence of stand properties (lai, sai, height, age)
 #'
 #' Uses a table with yearly values of perennial vegetation development or anually constant
-#' values (maxlai, minlai, sai, height, age) and turns them into a daily table of vegetation
+#' values (maxlai, winlaifrac, sai, height, age) and turns them into a daily table of vegetation
 #' properties, that can be passed on to write.climate.in
 #' @param stand.years A sequence of years or a single year, at which the stand properties were measured
 #' @param maxlai Maximum leaf area index during summer, either a fixed single value or
 #' corresponding to stand.years
-#' @param minlai Minimum leaf area index during winter, either a fixed single value or
+#' @param winlaifrac Minimum leaf area index during winter, either a fixed single value or
 #' corresponding to stand.years.
 #' @param budburst.doy Day of year when leaf flushing sets in, either a fixed single
 #' value or corresponding to stand.years.
@@ -34,7 +34,7 @@
 #' @export
 MakeStand <- function(stand.years,
                       maxlai,
-                      minlai,
+                      winlaifrac,
                       budburst.doy,
                       leaffall.doy,
                       sai,
@@ -46,7 +46,7 @@ MakeStand <- function(stand.years,
 ){
 
   # data
-  longterm.stand.dyn <- data.frame(year = stand.years, maxlai, minlai, sai,
+  longterm.stand.dyn <- data.frame(year = stand.years, maxlai, winlaifrac, sai,
                                    height, densef, age)
 
   #in case only constant parameters are given
@@ -92,7 +92,7 @@ MakeStand <- function(stand.years,
 
     TempLAI <- with(longterm.stand.dyn,
                     MakeSeasLAI(maxdoy = maxdoy[i],
-                                minlai = minlai[i],
+                                winlaifrac = winlaifrac[i],
                                 maxlai = maxlai[i],
                                 budburst.doy = budburst.doy[i],
                                 leaffall.doy = leaffall.doy[i],
