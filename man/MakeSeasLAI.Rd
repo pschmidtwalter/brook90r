@@ -5,14 +5,16 @@
 \title{Create daily seasonal plant dynamics sequence (e.g. leaf area index development)
 for one year}
 \usage{
-MakeSeasLAI(method = "b90", maxlai, winlaifrac = 0, budburst.doy = 121,
-  leaffall.doy = 279, emerge.dur = 28, leaffall.dur = 58,
-  shape.optdoy = 220, shape.budburst = 0.5, shape.leaffall = 10,
-  lai.doy = c(1, 121, 150, 280, 320, maxdoy), lai.frac = c(0, 0, 0.5, 1,
-  0.5, 0), maxdoy)
+MakeSeasLAI(method = "b90", year, maxlai, winlaifrac = 0,
+  budburst.doy = 121, leaffall.doy = 279, emerge.dur = 28,
+  leaffall.dur = 58, shape.optdoy = 220, shape.budburst = 0.5,
+  shape.leaffall = 10, lai.doy = c(1, 121, 150, 280, 320, 365),
+  lai.frac = c(0, 0, 0.5, 1, 0.5, 0))
 }
 \arguments{
 \item{method}{name of method for generating the sequence. Must be one of "b90", "linear", "Coupmodel"}
+
+\item{year}{year to identify leap years}
 
 \item{maxlai}{maximum value during summer (not used when method = 'linear')}
 
@@ -33,8 +35,6 @@ MakeSeasLAI(method = "b90", maxlai, winlaifrac = 0, budburst.doy = 121,
 \item{lai.doy}{vector of integers (required when method = "linear")}
 
 \item{lai.frac}{vector of values corresponding to doy.values (required when method = "linear")}
-
-\item{maxdoy}{last day of year (leapyear: 366, else 365)}
 
 \item{opt.doy}{day of year when optimum value is reached (required when method = "Coupmodel")}
 }

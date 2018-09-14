@@ -21,7 +21,7 @@
 #' @param age Vegetation age, internally used in LWF-Brook90 for root growth (see parameters
 #' rgrorate, rgroper,inirtlen, inirdep). Either a fixed single value or corresponding
 #' to the beginning of stand.years, or corresponding to stand.years. a
-#' @param yearsout years for which ouput is generated, maybe longer or shorter than
+#' @param years.out years for which ouput is generated, maybe longer or shorter than
 #' stand.years,but must include at least one of the values in stand.year.
 #' @param ... parameters passed to \code{\link{MakeSeasLAI}}.
 #'
@@ -33,113 +33,78 @@
 #'
 #' @export
 MakeStand <- function(stand.years,
-                      maxlai,
-                      winlaifrac,
-                      budburst.doy,
-                      leaffall.doy,
                       sai,
                       height,
                       densef,
                       age,
-                      yearsout = stand.years,
-                      ... #parameters passed to function MakeSeasLAI
-){
+                      years.out = stand.years,
+                      approx.method){
+
+  #TODO: Properties are currently interpolated with the values interpreted as valid
+  # for the 1st of January of the respective years of the simulation. Between these dates,
+  # values are interpolated to daily values and extrapolated to for the last year,
+  # using the increment of the year before. It would be nicer to let growth of sai
+  # and height take place only during the growing season, and also provide inital
+  # values height and sai by parameters.
+
 
   # data
-  longterm.stand.dyn <- data.frame(year = stand.years, maxlai, winlaifrac, sai,
-                                   height, densef, age)
+  longterm.stand.dyn <- data.frame(year = stand.years, height, sai, densef, age)
 
-  #in case only constant parameters are given
-  if (nrow(longterm.stand.dyn) == 1) {
-    longterm.stand.dyn <- longterm.stand.dyn[rep(1,length(yearsout)),]
-    #recalculate age
-    longterm.stand.dyn$age <-  seq(from = min(age) - (min(stand.years) - min(yearsout)),
-                                   by = 1, length.out = nrow(longterm.stand.dyn))
-    longterm.stand.dyn$year <- yearsout
-  }
-
-  #if necessary prolongate or constrain standdata to yearsout
+  #if necessary prolongate standproperties to years.out (only happens if longtermdev-table is supplied)
   #beginning
-  if (min(stand.years) > min(yearsout)) {
+  if (min(stand.years) > min(years.out)) {
     longterm.stand.dyn <- rbind(
-      longterm.stand.dyn[rep(1,min(longterm.stand.dyn$year) - min(yearsout)),],
+      longterm.stand.dyn[rep(1,min(longterm.stand.dyn$year) - min(years.out)),],
       longterm.stand.dyn)
-  } else {
-    longterm.stand.dyn <- longterm.stand.dyn[which(longterm.stand.dyn$year >= min(yearsout)),]
   }
   #end
-  if (max(stand.years) < max(yearsout)) {
+  if (max(stand.years) < max(years.out)) {
     longterm.stand.dyn <- rbind(
       longterm.stand.dyn,
-      longterm.stand.dyn[rep(nrow(longterm.stand.dyn),max(yearsout) - max(longterm.stand.dyn$year)),])
-  } else {
-    longterm.stand.dyn <- longterm.stand.dyn[which(longterm.stand.dyn$year <= max(yearsout)),]
+      longterm.stand.dyn[rep(nrow(longterm.stand.dyn),max(years.out) - max(longterm.stand.dyn$year)),])
   }
 
-  if (length(unique(longterm.stand.dyn$year)) < length(yearsout)) {
-    #recalculate year and age
-    longterm.stand.dyn$year <- yearsout #recalculate
-    longterm.stand.dyn$age <-  seq(from = min(age) - (min(stand.years) - min(yearsout)),
+  if (length(unique(longterm.stand.dyn$year)) < length(years.out)) {
+    #recalculate year and age (if period was prolonged)
+    longterm.stand.dyn$year <- years.out
+    longterm.stand.dyn$age <-  seq(from = min(age) - (min(stand.years) - min(years.out)),
                                    by = 1, length.out = nrow(longterm.stand.dyn))
   }
 
   longterm.stand.dyn$datum <- as.Date(paste(longterm.stand.dyn$year,"-01-01",sep = ""), "%Y-%m-%d")
-  longterm.stand.dyn$maxdoy <- with(longterm.stand.dyn,
-                                    ifelse( ((year %% 4 == 0) & (year %% 100 != 0)) | (year %% 400 == 0),
-                                            366, 365) )
-
-  for (i in 1:nrow(longterm.stand.dyn)) {
-
-    TempLAI <- with(longterm.stand.dyn,
-                    MakeSeasLAI(maxdoy = maxdoy[i],
-                                winlaifrac = winlaifrac[i],
-                                maxlai = maxlai[i],
-                                budburst.doy = budburst.doy[i],
-                                leaffall.doy = leaffall.doy[i],
-                                ...)
-    )
-
-
-    if (i == 1) {
-      LAI <- TempLAI
-    } else {LAI <- c(LAI, TempLAI)}
-  }
 
   ########
-  # interpolate some stand characteristics (applies also to "constant" mode)
-  #helper for extrapolation
-  #ToDo: Make height growth depending on growing season!
-  expol <- longterm.stand.dyn[nrow(longterm.stand.dyn),
-                              c("year","age","height","sai","densef")]
-  expol[,c("age","year")] <- expol[,c("age","year")] + 1
-  expol$datum <- as.Date(paste(expol$year,"-01-01",sep = ""), "%Y-%m-%d")
+  # interpolate and extrapolate stand characteristics
 
   # make output
-  out <- data.frame(dates = seq.Date(from = as.Date(paste0(min(yearsout),"-01-01")),
-                                     to = as.Date(paste0(max(yearsout),"-12-31")),
+  out <- data.frame(dates = seq.Date(from = as.Date(paste0(min(years.out),"-01-01")),
+                                     to = as.Date(paste0(max(years.out),"-12-31")),
                                      by = "day"))
 
-  out$height <- approx(c(longterm.stand.dyn$datum, expol$datum),
-                             c(longterm.stand.dyn$height,expol$height),
-                             rule = 2, method = "linear",
-                             xout = out$dates)$y
+  out$height <- approx(longterm.stand.dyn$datum,
+                       longterm.stand.dyn$height,
+                       rule = 2, f = 0,
+                       method = approx.method,
+                       xout = out$dates)$y
 
-  out$sai <-   approx(c(longterm.stand.dyn$datum,expol$datum),
-                      c(longterm.stand.dyn$sai,expol$sai),
-                      rule = 2, method = "linear",
+  out$sai <-   approx(longterm.stand.dyn$datum,
+                      longterm.stand.dyn$sai,
+                      rule = 2, f = 0,
+                      method = approx.method,
                       xout = out$dates)$y
 
-  out$age <- approx(c(longterm.stand.dyn$datum,expol$datum),
-                    c(longterm.stand.dyn$age,expol$age),
+  out$densef <- approx(longterm.stand.dyn$datum,
+                       longterm.stand.dyn$densef,
+                       rule = 2, f = 0,
+                       method = approx.method,
+                       xout = out$dates)$y
+
+  out$age <- approx(longterm.stand.dyn$datum,
+                    longterm.stand.dyn$age,
                     rule = 2, method = "linear",
                     xout = out$dates)$y
 
-  out$densef <- approx(c(longterm.stand.dyn$datum,expol$datum),
-                                  c(longterm.stand.dyn$densef,expol$densef),
-                                  rule = 2, method = "linear",
-                                  xout = out$dates)$y
-
-  out$lai <- LAI
 
   return(out)
 }

@@ -6,7 +6,7 @@
 #' @param project.dir Directory-name of the project where the input and output files
 #' are located. Will be created, if not existing.
 #' @param options.b90 Named list of model control options. Use
-#' \code{\link{Makeoptions.b90.B90}} to generate a list with default model control options.
+#' \code{\link{MakeOptions.B90}} to generate a list with default model control options.
 #' @param param.b90 Named list of model input parameters. Use
 #' \code{\link{MakeParam.B90}} to generate a list with default model parameters.
 #' @param climate Data.frame with daily climate data. The names of climate have to
@@ -14,7 +14,7 @@
 #' \emph{globrad}, \emph{sunhours}) of \code{\link{writeClimate.in}}.
 #' @param soil Data.frame containing the hydraulic properties of the soil layers.
 #' Each row represents one layer, containing the layer's boundaries and soil hydraulic parameters.
-#' The columns names for the upper and lower layer boundaries are \emph{upper} and \emph{lower} [m, negative downwards],
+#' The columns names for the upper and lower layer boundaries are \emph{upper} and \emph{lower} (m, negative downwards),
 #' the parameters of the van Genuchten retention functions are \emph{ths}, \emph{thr},
 #'  \emph{alpha} [m-1], \emph{npar}, and the parameters of the Mualem conductivity function
 #'  \emph{ksat} [mm d-1] and \emph{tort}. The volume fraction of stones has to be named \emph{gravel}.
@@ -105,7 +105,7 @@ Run.B90 <- function(project.dir,
   options.b90$leaffall.method <- match.arg(options.b90$leaffall.method,
                                            choices = c("fixed", "constant","vonWilpert", "LWF-BROOK90", "NuskeAlbert", "StdMeteo","ETCCDI"))
 
-  options.b90$longtermdyn <- match.arg(options.b90$longtermdyn, choices = c("constant", "table"))
+  options.b90$standprop.input <- match.arg(options.b90$standprop.input, choices = c("parameters", "table"))
 
   options.b90$lai.method <- match.arg(options.b90$lai.method, choices = c("b90", "linear", "Coupmodel"))
 
@@ -127,8 +127,8 @@ Run.B90 <- function(project.dir,
     stop("Missing argument: 'options.b90'")}
   if (missing(climate) & write.climate.in == T) {
     stop("Missing argument: 'climate'")}
-  if (missing(longtermdev) & tolower(options.b90$longtermdyn) == "table") {
-    stop("Missing argument: 'longtermdev'")}
+  if (missing(longtermdev) & tolower(options.b90$standprop.input) == "table") {
+    stop("Missing argument: 'longtermdev', required if options.b90$standprop.input = 'table'")}
   if (missing(soil)) {
     stop("Missing argument: 'soil'")}
   if (!file.exists(file.path(path_b90.exe))) {
@@ -246,6 +246,29 @@ Run.B90 <- function(project.dir,
   options.b90$ndays <-   as.integer(difftime(options.b90$enddate,options.b90$startdate)) + 1
 
   # ---- Vegetation-Period  ----------------------------------------------------------
+  # check length of fixed leaffall
+  if (options.b90$leaffall.method %in% c("constant", "fixed")) {
+    if (length(param.b90$leaffalldoy) > 1 & length(param.b90$leaffalldoy) != length(simyears)) {
+      stop("When options.b90$leaffall.method == 'fixed', either provide a single value
+                for param.b90$leaffall or a sequence of values, one for each year of the simulation period.")
+    }
+  }
+  #check length of fixed budburst
+  if (options.b90$budburst.method %in% c("constant", "fixed") ) {
+    if (length(param.b90$budburstdoy) > 1 & length(param.b90$budburstdoy) != length(simyears)) {
+      stop("When options.b90$budburst.method == 'fixed', either provide a single value
+         for param.b90$budburstdoy or a sequence of values, one for each year of the simulation period.")
+    }
+  }
+
+  # TODO: achtung!!!
+  if (length(param.b90$budburstdoy == 1)) {
+    param.b90$budburstdoy <- rep(param.b90$budburstdoy,times = length(simyears))
+  }
+  if (length(param.b90$leaffalldoy == 1)) {
+    param.b90$leaffalldoy <- rep(param.b90$leaffalldoy,times = length(simyears))
+  }
+
   # start and end dynamic
   if (!options.b90$budburst.method %in% c("constant", "fixed") &
       !options.b90$leaffall.method %in% c("constant", "fixed")) {
@@ -257,13 +280,11 @@ Run.B90 <- function(project.dir,
                                                             est.prev = ifelse(length(climyears) <= 5, length(climyears) - 1, 5))
     )
     budburst_leaffall <- budburst_leaffall[which(budburst_leaffall$year %in% simyears),]
+    param.b90$budburstdoy <- budburst_leaffall$start
+    param.b90$leaffalldoy <- budburst_leaffall$end
   } else {
     # only budburst is dynamic:
     if (!options.b90$budburst.method %in% c("constant", "fixed") & options.b90$leaffall.method %in% c("constant", "fixed"))   {
-      if (length(param.b90$leaffalldoy) > 1 & length(param.b90$leaffalldoy) != length(simyears)) {
-        stop("When options.b90$leaffall.method == 'fixed', either provide a single value
-                for param.b90$leaffall or a sequence of values, one for each year of the simulation period.")
-      }
       budburst_leaffall <- with(climate,
                                 vegperiod::vegperiod(dates = dates,
                                                      Tavg = tmean,
@@ -272,27 +293,16 @@ Run.B90 <- function(project.dir,
                                                      end.method = "StdMeteo",
                                                      est.prev = ifelse(length(climyears) <= 5, length(climyears) - 1, 5))
       )
-      budburst_leaffall <- budburst_leaffall[which(budburst_leaffall$year %in% simyears),]
-      budburst_leaffall$end <- param.b90$leaffalldoy
+      param.b90$budburstdoy <- budburst_leaffall$start[which(budburst_leaffall$year %in% simyears)]
     } else {
       # only end dynamic
       if (options.b90$budburst.method %in% c("constant", "fixed") & !options.b90$leaffall.method %in% c("constant", "fixed"))   {
-        if (length(param.b90$budburstdoy) > 1 & length(param.b90$budburstdoy) != length(simyears)) {
-          stop("When options.b90$budburst.method == 'fixed', either provide a single value
-               for param.b90$budburstdoy or a sequence of values, one for each year of the simulation period.")
-        }
         budburst_leaffall <- with(climate,
                                   vegperiod::vegperiod(dates = dates,
                                                        Tavg = tmean,
                                                        start.method = "StdMeteo",
                                                        end.method = options.b90$leaffall.method))
-        budburst_leaffall <- budburst_leaffall[which(budburst_leaffall$year %in% simyears),]
-        budburst_leaffall$start <- param.b90$budburstdoy
-      } else {
-        #both fixed
-        budburst_leaffall <- data.frame(year = simyears,
-                                        start = rep(param.b90$budburstdoy, length(simyears)),
-                                        end = rep(param.b90$leaffalldoy, length(simyears)))
+        options.b90$leaffalldoy <- budburst_leaffall$end[which(budburst_leaffall$year %in% simyears)]
       }
     }
   }
@@ -300,35 +310,71 @@ Run.B90 <- function(project.dir,
 
   # ---- Make Stand --------------------------------------------------------------------
   if (write.climate.in == TRUE) {
-    if (tolower(options.b90$longtermdyn) == "table") {
-      stand <- longtermdev
+    if (tolower(options.b90$standprop.input) == "table") {
       if (verbose == T) {print("Creating long term stand dynamics from table 'longtermdev'...")}
-    } else {
-      stand <- data.frame(year = simyears[1], age = param.b90$age, height = param.b90$height,
-                          maxlai = param.b90$maxlai, sai = param.b90$sai,densef = param.b90$densef)
+      standprop_yearly <- data.table(longtermdev)
+      # interpolate lai with rule = 2 to extend lai from table to simyears
+      param.b90$maxlai <- with(longtermdev, approx(x = as.Date(paste0(year,"-01-01")),
+                                                   y = maxlai,
+                                                   xout = as.Date(paste0(simyears,"-01-01")),
+                                                   method = 'constant', rule = 2))$y
+    } else { # standproperties from parameters
       if (verbose == T) {print("Creating constant stand properties from parameters...")}
+
+      # yearly variation of parameters
+      if (any(with(param.b90, length(sai) > 1, length(densef) > 1, length(height) > 1))) {
+        standprop_yearly <- data.frame(year = c(simyears, max(simyears) + 1),
+                                       age = seq(from = param.b90$age.ini, by = 1,
+                                                 length.out = length(simyears) + 1),
+                                       height <- c(param.b90$height, param.b90$height.end),
+                                       sai <- c(param.b90$sai, param.b90$sai.end),
+                                       densef <- c(param.b90$densef, param.b90$densef.end))
+        if (length(param.b90$height) == 1) { standprop_yearly$height <- param.b90$height}
+        if (length(param.b90$sai) == 1) {standprop_yearly$sai <- param.b90$sai}
+        if (length(param.b90$densef) == 1) {standprop_yearly$densef <- param.b90$densef}
+
+      } else { # same properties every year
+        standprop_yearly <- data.frame(year = simyears,
+                                       age = seq(from = param.b90$age.ini, by = 1,
+                                                 length.out = length(simyears)),
+                                       height = param.b90$height,
+                                       sai = param.b90$sai,
+                                       densef = param.b90$densef)
+      }
     }
 
-    stand <- MakeStand(stand.years = stand$year,
-                       maxlai = stand$maxlai,
-                       winlaifrac = param.b90$winlaifrac,
-                       sai = stand$sai,
-                       height = stand$height,
-                       densef = stand$densef,
-                       age = stand$age,
-                       yearsout = simyears,
-                       budburst.doy = budburst_leaffall$start,
-                       leaffall.doy = budburst_leaffall$end,
-                       emerge.dur = param.b90$emergedur,  leaffall.dur = param.b90$leaffalldur,
-                       shape.optdoy = param.b90$shape.optdoy, shape.budburst = param.b90$shape.budburst,
-                       shape.leaffall = param.b90$shape.leaffall,
-                       method = options.b90$lai.method,
-                       lai.doy = param.b90$lai.doy,
-                       lai.frac = param.b90$lai.frac
-    )
+    standprop_daily <- with(standprop_yearly,
+                            data.table(MakeStand(stand.years = year,
+                                                 sai = sai, height = height, densef = densef,
+                                                 age = age,
+                                                 years.out = simyears,
+                                                 approx.method = options.b90$standprop.interp)))
+    # constrain to simulation period
+    standprop_daily <- standprop_daily[which(dates >= options.b90$startdate
+                                             & dates <= options.b90$enddate),]
 
-    stand <- stand[which(stand$dates >= options.b90$startdate
-                         & stand$dates <= options.b90$enddate),]
+    # daily leaf area index: make data.table to create leaf area index by year.
+
+    laidaily <- data.table(lai = MakeSeasLAI(simyears,
+                                             method = options.b90$lai.method,
+                                             maxlai = param.b90$maxlai,
+                                             winlaifrac = param.b90$winlaifrac,
+                                             budburst.doy = param.b90$budburstdoy,
+                                             leaffall.doy = param.b90$leaffalldoy,
+                                             emerge.dur = param.b90$emergedur,
+                                             leaffall.dur = param.b90$leaffalldur,
+                                             shape.budburst = param.b90$shape.budburst,
+                                             shape.leaffall = param.b90$shape.leaffall,
+                                             shape.optdoy = param.b90$shape.optdoy,
+                                             lai.doy = param.b90$lai.doy,
+                                             lai.frac = param.b90$lai.frac))
+
+    # constrain to simulation period
+    laidaily[,dates := seq.Date(as.Date(paste0(min(simyears),"-01-01")),
+                                as.Date(paste0(max(simyears),"-12-31")), by = "day")]
+    laidaily <- laidaily[which(dates >= options.b90$startdate
+                               & dates <= options.b90$enddate),]
+
 
     if (verbose == T) {
       print("Standproperties created succesfully")
@@ -340,8 +386,8 @@ Run.B90 <- function(project.dir,
       with(climate[which(climate$dates >= options.b90$startdate & climate$dates <= options.b90$enddate), ],
            writeClimate.in(dates = dates, tmax = tmax, tmin = tmin, vappres = vappres,
                            wind = wind, prec = prec, globrad = globrad, sunhours = NULL,
-                           densef = stand$densef, height = stand$height,
-                           lai = stand$lai, sai = stand$sai, age = stand$age,
+                           densef = standprop_daily$densef, height = standprop_daily$height,
+                           lai = laidaily$lai, sai = standprop_daily$sai, age = standprop_daily$age,
                            latitude = param.b90$coords_y, use.sunhours = F,
                            filename = file.path(getwd(),"in/Climate.in"),
                            richter.prec.corr = options.b90$richter.prec.corr, prec.int = options.b90$prec.interval,
@@ -352,8 +398,8 @@ Run.B90 <- function(project.dir,
       with(climate[which(climate$dates >= options.b90$startdate & climate$dates <= options.b90$enddate), ],
            writeClimate.in(dates = dates, tmax = tmax, tmin = tmin, vappres = vappres,
                            wind = wind, prec = prec, sunhours = sunhours, globrad = NULL,
-                           densef = stand$densef, height = stand$height,
-                           lai = stand$lai, sai = stand$sai, age = stand$age,
+                           densef = standprop_daily$densef, height = standprop_daily$height,
+                           lai = laidaily$lai, sai = standprop_daily$sai, age = standprop_daily$age,
                            latitude = param.b90$coords_y, use.sunhours = T,
                            filename = file.path(getwd(),"in/Climate.in"),
                            richter.prec.corr = options.b90$richter.prec.corr, prec.int = options.b90$prec.interval,
@@ -469,7 +515,8 @@ Run.B90 <- function(project.dir,
 
       # append input parameters
       if (output.param.options == TRUE) {
-        simres$plant.devt <- data.table(stand)
+        simres$plant.devt <- data.table(standprop_daily)
+        simres$plant.devt$lai <- laidaily$lai
         simres$param.b90 <- param.b90
         simres$options.b90 <- options.b90
         simres$soil <- soil

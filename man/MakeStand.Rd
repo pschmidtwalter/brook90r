@@ -4,23 +4,11 @@
 \alias{MakeStand}
 \title{Create a daily sequence of stand properties (lai, sai, height, age)}
 \usage{
-MakeStand(stand.years, maxlai, winlaifrac, budburst.doy, leaffall.doy, sai,
-  height, densef, age, yearsout = stand.years, ...)
+MakeStand(stand.years, sai, height, densef, age, years.out = stand.years,
+  approx.method)
 }
 \arguments{
 \item{stand.years}{A sequence of years or a single year, at which the stand properties were measured}
-
-\item{maxlai}{Maximum leaf area index during summer, either a fixed single value or
-corresponding to stand.years}
-
-\item{winlaifrac}{Minimum leaf area index during winter, either a fixed single value or
-corresponding to stand.years.}
-
-\item{budburst.doy}{Day of year when leaf flushing sets in, either a fixed single
-value or corresponding to stand.years.}
-
-\item{leaffall.doy}{Day of year when leaffall begins, either a fixed single value
-or corresponding to stand.years.}
 
 \item{sai}{Stem area index, either a fixed single value or corresponding to
 stand.years.}
@@ -35,8 +23,20 @@ value orcorresponding to stand.years.}
 rgrorate, rgroper,inirtlen, inirdep). Either a fixed single value or corresponding
 to the beginning of stand.years, or corresponding to stand.years. a}
 
-\item{yearsout}{years for which ouput is generated, maybe longer or shorter than
+\item{years.out}{years for which ouput is generated, maybe longer or shorter than
 stand.years,but must include at least one of the values in stand.year.}
+
+\item{maxlai}{Maximum leaf area index during summer, either a fixed single value or
+corresponding to stand.years}
+
+\item{winlaifrac}{Minimum leaf area index during winter, either a fixed single value or
+corresponding to stand.years.}
+
+\item{budburst.doy}{Day of year when leaf flushing sets in, either a fixed single
+value or corresponding to stand.years.}
+
+\item{leaffall.doy}{Day of year when leaffall begins, either a fixed single value
+or corresponding to stand.years.}
 
 \item{...}{parameters passed to \code{\link{MakeSeasLAI}}.}
 }

@@ -29,7 +29,7 @@
 #' @return no return value
 #' @export
 writeClimate.in <- function(dates, tmax, tmin, vappres, wind, prec, globrad,
-                            sunhours,densef, height, lai, sai,age,latitude,
+                            sunhours, densef, height, lai, sai,age,latitude,
                             mesfl=rep(0, length(dates)),
                             filename = "in/Climate.in", use.sunhours = F,
                             richter.prec.corr= F, prec.int = 1, snow.ini = 0, gwat.ini = 0
@@ -53,9 +53,10 @@ writeClimate.in <- function(dates, tmax, tmin, vappres, wind, prec, globrad,
   dat$doy <- as.integer(format(dates, "%j"))
 
   #Richter korrektur
-#   if(b90ini$richterpreccorr==TRUE){
-#     clim$Precip <- with(clim, RichterKorrPrec(dates=datum,tavg=tmean,precip=prec,exp=b90ini$richterexposition) )
-#   }
+  if(richter.prec.corr==TRUE){
+  warning("Richter correction of precipitation is not impemented yet. No correction is done!")
+     #clim$Precip <- with(clim, RichterKorrPrec(dates=datum,tavg=tmean,precip=prec,exp=b90ini$richterexposition) )
+   }
 
   #Globalstrahlung berechnen, wenn als Sonnenscheindauer angegeben
   if (use.sunhours == T) {

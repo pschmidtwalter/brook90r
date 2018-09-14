@@ -1,7 +1,7 @@
 #' Create a list of model control options
 #'
 #' @param ... named arguments to be included in return value
-#' @return returns a list of default model options. Can be used as inicontrol-argument in \code{\link[Run.B90]{Run.B90}}.
+#' @return returns a list of default model options. Can be used as inicontrol-argument in \code{\link{Run.B90}}.
 #' @details
 #' \describe{
 #'   \item{startdate}{Startdate of the simulation.}
@@ -20,8 +20,11 @@
 #'   'constant' or 'fixed', beginning of leaffall (day of year) from parameters is used.
 #'   All other methods calculate budburst day of year dynamically from temperatures, and
 #'   the method name is passed to the 'end.method'-argument of  \code{\link[vegperiod]{vegperiod}}.}
-#'   \item{longtermdyn}{Name of method for longterm plant development: either constant ("constant")
-#'   or yearly values ("table") of plant development.}
+#'   \item{standprop.input}{Name of input for longterm (interannual) plant development.
+#'   'parameters': yearly values of stand properties height, sai, densef, lai come from
+#'   parameters, 'table':  values come from a table, see 'longtermdev'-argument of \code{\link{Run.B90}.}}
+#'   \item{standprop.interp}{Interpolation method for stand properties.
+#'   'linear' or 'constant', see 'approx.method'-argument of \code{\link{MakeStand}}.}
 #'   \item{lai.method}{Name of method method for generating daily plant development.
 #'   Passed to 'method'-argument of \code{\link{MakeSeasLAI}}. }
 #'   \item{imodel}{Name of hydraulic parameterization: "CH" for Clapp/Hornberger, "MvG" for Mualem/van Genuchten}
@@ -33,7 +36,7 @@
 #' # Default options
 #' options.b90 <- MakeOptions.B90()
 #' # Include specific options
-#' options.B90_dynamic_phenology <- MakeOptions.B90(budburst = 'Menzel', leaffall ='vonWilpert')
+#' options.b90_dynamic_phenology <- MakeOptions.B90(budburst = 'Menzel', leaffall ='vonWilpert')
 #' @export
 MakeOptions.B90 <- function(...) {
   ctrl <- list(startdate = as.Date("2001-1-1"),
@@ -43,7 +46,8 @@ MakeOptions.B90 <- function(...) {
                richter.prec.corr = FALSE,
                budburst.method = "fixed", #any of the names accepted by 'start.method'-argument of vegperiod::vegperiod()
                leaffall.method = "fixed", #any of the names accepted by 'start.method'-argument of vegperiod::vegperiod()
-               longtermdyn = "constant", #table
+               standprop.input = "parameters", #table
+               standprop.interp = "constant",
                lai.method = "b90", #any of the names accepted by 'method'-argument of MakeSeasLAI()
                imodel = "MvG", # the parameterization of rentention & conductivity function. CH = Clapp-Hornberger, MvG: Mualem van Genuchten
                rootmodel = "betamodel", #any of the names accepted by the MakeRoots()

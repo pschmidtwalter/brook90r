@@ -2,7 +2,7 @@
 #'
 #' A dataset containing daily weather variables for the period 1960-2013
 #'
-#' @format A data.frame with 19724 rows and 9 variables
+#' @format A data.table with 19724 rows and 9 variables
 #' \describe{
 #'   \item{dates}{date}
 #'   \item{tmin}{daily minimum temperature, degC}
@@ -19,7 +19,7 @@
 #'
 #' A dataset containing the soil horizons' physical properties
 #'
-#' @format A data.frame with 20 rows and 11 variables
+#' @format A data.table with 20 rows and 11 variables
 #' \describe{
 #'   \item{horizon}{horizon symbol}
 #'   \item{upper}{upper layer boundary, m}
@@ -34,5 +34,21 @@
 #' }
 "soil_slb1"
 
-
+#' Annual stand properties of the Solling Beech experimental site 'SLB1'
+#'
+#' A dataset containing the forests's stand properties
+#'
+#' @format A data.table with 49 rows and 7 variables
+#' \describe{
+#'   \item{year}{Year of observation}
+#'   \item{species}{Tree species}
+#'   \item{age}{age of the main stand}
+#'   \item{height}{average height of the trees, m}
+#'   \item{maxlai}{maximum leaf area index, m2 m-2}
+#'   \item{sai}{stem area index, m2 m-2 }
+#'   \item{densef}{stand density}
+#'   \item{clay}{clay content, mass-\% }
+#'   \item{c_org}{organic carbon content, mass-\%}
+#' }
+"standprop_slb1"
 

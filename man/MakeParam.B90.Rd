@@ -76,15 +76,18 @@ Create the list of model parameters
  budburstdoy  \tab Leaf flush day of year - passed to MakeSeasLAI. Default: 121\tab -                  \tab Plant                  \cr
  emergedur    \tab Leaf growth duration until maxlai is reached.. Default: 28\tab d                 \tab Plant                  \cr
  height       \tab plant height. Default: 25 \tab m                 \tab Plant                  \cr
+ height.ini   \tab initial plant height at the beginning of the simulaton. Used for interpolation , ignored if length(height) . Default: 25 \tab m                 \tab Plant                  \cr
  leaffalldoy  \tab number of days until maximum lai is reached - passed to MakeSeasLAI. Default: 279\tab doy               \tab Plant                  \cr
  leaffalldur  \tab number of days until minimum lai is reached - passed to MakeSeasLAI. Default: 58 \tab d                 \tab Plant                  \cr
- optdoy       \tab day of year when optimum value is reached - passed to MakeSeasLAI. Default: 210 \tab doy               \tab Plant                  \cr
  sai          \tab steam area index. Default: 1 \tab -                 \tab Plant                  \cr
- shapeend     \tab Shape parameter for leaf fall phase - passed to MakeSeasLAI. Default: 0.3\tab -                  \tab Plant                  \cr
- shapestart   \tab shape parameter for leaf growth phase - passed to MakeSeasLAI. Default: 3\tab -                  \tab Plant                  \cr
+ sai.ini      \tab steam area index at the end of the simulation. Ignored if length(height) == 1, Default: 1 \tab -                 \tab Plant                  \cr
+ shape.leaffall  \tab Shape parameter for leaf fall phase - passed to MakeSeasLAI. Default: 0.3\tab -                  \tab Plant                  \cr
+ shape.budburst  \tab shape parameter for leaf growth phase - passed to MakeSeasLAI. Default: 3\tab -                  \tab Plant                  \cr
+ shape.optdoy \tab day of year when optimum value is reached - passed to MakeSeasLAI. Default: 210 \tab doy               \tab Plant                  \cr
  winlaifrac   \tab Minimum LAI as a fraction of maxlai. Default: 0 \tab -                  \tab Plant                  \cr
  cs           \tab Ratio of projected stem area index to canopy height. Default: 0.035 \tab m-1               \tab Plant                  \cr
  densef       \tab Density factor for MaxLAI, CS, RtLen, RPlant, not <.001, 1 for typical stand. Default: 1\tab -                  \tab Plant                  \cr
+ densef.ini   \tab initial density factor (see densef) at the beginning of the simulation. Ignored if length(densef) == 1. Default: 1\tab -                  \tab Plant                  \cr
  maxlai       \tab Maximum projected leaf area index - passed to MakeSeasLAI. Default: 5 \tab - \tab Plant                  \cr
  radex        \tab Extinction coefficient for solar radiation and net radiation in the canopy. Default: 0.5\tab -                  \tab Potential Transpiration\cr
  cvpd         \tab Vapour pressure deficit at which leaf conductance is halved. Default: 2\tab kPa               \tab Potential Transpiration\cr
@@ -108,7 +111,7 @@ Create the list of model parameters
  snoden       \tab snow density. Default: 0.3 \tab mm mm-1           \tab Snow                   \cr
  rssa         \tab soil evaporation resistance at field capacity. Default: 100 \tab s m-1             \tab Soilevap               \cr
  rssb         \tab exponent in relation of RSS to water potential. Default: 1 \tab -                  \tab Soilevap               \cr
- age          \tab Age of stand (for root development). Default: 100\tab a                 \tab Water supply           \cr
+ age.ini      \tab Age of stand (for root development). Default: 100\tab a                 \tab Water supply           \cr
  initrdep     \tab Initial root depth. Default: 0.25\tab m                 \tab Water supply           \cr
  initrlen     \tab Initial water-absorbing root length per unit area. Default: 12\tab m/m-2             \tab Water supply           \cr
  rgroper      \tab Period of net root growth. Default: 30 \tab a                  \tab Water supply           \cr
@@ -120,4 +123,10 @@ Create the list of model parameters
  psicr        \tab Critical leaf water potential at which stomates close. Default: -2 \tab MPa               \tab Water supply           \cr
  rrad         \tab Average radius of the fine or water-absorbing roots. Default: 0.35 \tab mm                \tab Water supply
 }
+}
+\examples{
+# Default parameter
+parms <- MakeParam.B90()
+# Include specific parameters
+parms_maxlai <- MakeParam.B90(maxlai = c(4,6,5), height =20)
 }

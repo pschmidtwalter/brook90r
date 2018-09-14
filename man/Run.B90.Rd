@@ -15,7 +15,7 @@ Run.B90(project.dir, options.b90, param.b90, climate, soil, longtermdev,
 are located. Will be created, if not existing.}
 
 \item{options.b90}{Named list of model control options. Use
-\code{\link{Makeoptions.b90.B90}} to generate a list with default model control options.}
+\code{\link{MakeOptions.B90}} to generate a list with default model control options.}
 
 \item{param.b90}{Named list of model input parameters. Use
 \code{\link{MakeParam.B90}} to generate a list with default model parameters.}
@@ -26,7 +26,7 @@ corrrespond to arguments \emph{dates}, \emph{tmax}, \emph{tmin}, \emph{wind}, \e
 
 \item{soil}{Data.frame containing the hydraulic properties of the soil layers.
 Each row represents one layer, containing the layer's boundaries and soil hydraulic parameters.
-The columns names for the upper and lower layer boundaries are \emph{upper} and \emph{lower} [m, negative downwards],
+The columns names for the upper and lower layer boundaries are \emph{upper} and \emph{lower} (m, negative downwards),
 the parameters of the van Genuchten retention functions are \emph{ths}, \emph{thr},
  \emph{alpha} [m-1], \emph{npar}, and the parameters of the Mualem conductivity function
  \emph{ksat} [mm d-1] and \emph{tort}. The volume fraction of stones has to be named \emph{gravel}.}

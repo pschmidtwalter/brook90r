@@ -4,7 +4,7 @@
 \name{soil_slb1}
 \alias{soil_slb1}
 \title{Soil profile data from the Solling Beech experimental site 'SLB1'}
-\format{A data.frame with 20 rows and 11 variables
+\format{A data.table with 20 rows and 11 variables
 \describe{
   \item{horizon}{horizon symbol}
   \item{upper}{upper layer boundary, m}
