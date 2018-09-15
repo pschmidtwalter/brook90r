@@ -39,11 +39,13 @@ MakeSeasLAI <- function(method="b90",
 
   if (method %in% c("b90", "Coupmodel")) {
 
-    dat <- data.table(year = year, maxlai = maxlai, winlaifrac = winlaifrac,
-                      budburst.doy = budburst.doy, leaffall.doy = leaffall.doy,
-                      emerge.dur = emerge.dur, leaffall.dur = leaffall.dur,
-                      shape.optdoy = shape.optdoy, shape.budburst = shape.budburst,
-                      shape.leaffall = shape.leaffall)
+    dat <- suppressWarnings(
+      data.table(year = year, maxlai = maxlai, winlaifrac = winlaifrac,
+                 budburst.doy = budburst.doy, leaffall.doy = leaffall.doy,
+                 emerge.dur = emerge.dur, leaffall.dur = leaffall.dur,
+                 shape.optdoy = shape.optdoy, shape.budburst = shape.budburst,
+                 shape.leaffall = shape.leaffall)
+    )
 
     dat[,maxdoy := ifelse( ((year %% 4 == 0) & (year %% 100 != 0)) | (year %% 400 == 0),
                            366, 365)]
@@ -51,18 +53,18 @@ MakeSeasLAI <- function(method="b90",
 
     if (method == "b90") {
       out <- dat[, brook90r:::plant.b90(minval = minlai, maxval = maxlai,
-                             doy.incr = budburst.doy, incr.dur = emerge.dur,
-                             doy.decr = leaffall.doy, decr.dur = leaffall.dur,
-                             maxdoy = maxdoy),
+                                        doy.incr = budburst.doy, incr.dur = emerge.dur,
+                                        doy.decr = leaffall.doy, decr.dur = leaffall.dur,
+                                        maxdoy = maxdoy),
                  by = year]$V1
     }
     if (method == "Coupmodel") {
       out <- dat[, brook90r:::plant.coupmodel(minval = minlai, maxval = maxlai,
-                                   doy.incr = budburst.doy,
-                                   doy.max = shape.optdoy,
-                                   doy.min = leaffall.doy + leaffall.dur,
-                                   shape.incr = shape.budburst, shape.decr = shape.leaffall,
-                                   maxdoy = maxdoy),
+                                              doy.incr = budburst.doy,
+                                              doy.max = shape.optdoy,
+                                              doy.min = leaffall.doy + leaffall.dur,
+                                              shape.incr = shape.budburst, shape.decr = shape.leaffall,
+                                              maxdoy = maxdoy),
                  by = year]$V1
     }
 

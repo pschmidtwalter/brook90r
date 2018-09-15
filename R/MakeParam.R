@@ -72,6 +72,7 @@
 #'  shape.budburst  \tab shape parameter for leaf growth phase - passed to MakeSeasLAI. Default: 3\tab -                  \tab Plant                  \cr
 #'  shape.optdoy \tab day of year when optimum value is reached - passed to MakeSeasLAI. Default: 210 \tab doy               \tab Plant                  \cr
 #'  winlaifrac   \tab Minimum LAI as a fraction of maxlai. Default: 0 \tab -                  \tab Plant                  \cr
+#'  standprop.table \tab Data.frame with yearly values of vegetation properties with columns 'year','age', 'height', 'maxlai', 'sai', 'densef' \tab                   \tab Plant                  \cr
 #'  cs           \tab Ratio of projected stem area index to canopy height. Default: 0.035 \tab m-1               \tab Plant                  \cr
 #'  densef       \tab Density factor for MaxLAI, CS, RtLen, RPlant, not <.001, 1 for typical stand. Default: 1\tab -                  \tab Plant                  \cr
 #'  densef.ini   \tab initial density factor (see densef) at the beginning of the simulation. Ignored if length(densef) == 1. Default: 1\tab -                  \tab Plant                  \cr
@@ -127,6 +128,7 @@ MakeParam.B90 <- function(...) {
     densef = 1,
     densef.end = 1,
     age.ini = 100,
+    standprop.table = NULL,
     winlaifrac = 0,
     budburst.species = "Fagus sylvatica",
     budburstdoy = 121,

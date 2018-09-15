@@ -4,7 +4,7 @@
 \alias{Run.B90}
 \title{Run the LWF-Brook90 hydrological model and return results}
 \usage{
-Run.B90(project.dir, options.b90, param.b90, climate, soil, longtermdev,
+Run.B90(project.dir, options.b90, param.b90, climate, soil,
   outputmat = choose_output.B90(edit = FALSE), output.log = "",
   out.dir = "out/", path_b90.exe = "b90.exe", output.param.options = TRUE,
   keep.log.on.success = TRUE, keep.outputfiles = TRUE, verbose = TRUE,
@@ -30,10 +30,6 @@ The columns names for the upper and lower layer boundaries are \emph{upper} and 
 the parameters of the van Genuchten retention functions are \emph{ths}, \emph{thr},
  \emph{alpha} [m-1], \emph{npar}, and the parameters of the Mualem conductivity function
  \emph{ksat} [mm d-1] and \emph{tort}. The volume fraction of stones has to be named \emph{gravel}.}
-
-\item{longtermdev}{Data.frame with yearly values of vegetation properties
-(named \emph{years}, \emph{age}, \emph{lai}, \emph{sai}, \emph{height}, \emph{densef})
-that are passed to \code{\link{MakeStand}}.}
 
 \item{outputmat}{A [10,5]-matrix flagging the desired model-output. Use
 \code{\link{choose_output.B90}} to generate and edit default output matrix..}

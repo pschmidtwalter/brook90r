@@ -18,9 +18,6 @@
 #' the parameters of the van Genuchten retention functions are \emph{ths}, \emph{thr},
 #'  \emph{alpha} [m-1], \emph{npar}, and the parameters of the Mualem conductivity function
 #'  \emph{ksat} [mm d-1] and \emph{tort}. The volume fraction of stones has to be named \emph{gravel}.
-#' @param longtermdev Data.frame with yearly values of vegetation properties
-#' (named \emph{years}, \emph{age}, \emph{lai}, \emph{sai}, \emph{height}, \emph{densef})
-#' that are passed to \code{\link{MakeStand}}.
 #' @param outputmat A [10,5]-matrix flagging the desired model-output. Use
 #' \code{\link{choose_output.B90}} to generate and edit default output matrix..
 #' @param output.log Logical or filename where 'stdout' of \code{\link[base]{system2}}-call
@@ -75,7 +72,6 @@ Run.B90 <- function(project.dir,
                     param.b90,
                     climate,
                     soil,
-                    longtermdev,
                     outputmat = choose_output.B90(edit = FALSE),
                     output.log = "",
                     out.dir = "out/",
@@ -127,8 +123,6 @@ Run.B90 <- function(project.dir,
     stop("Missing argument: 'options.b90'")}
   if (missing(climate) & write.climate.in == T) {
     stop("Missing argument: 'climate'")}
-  if (missing(longtermdev) & tolower(options.b90$standprop.input) == "table") {
-    stop("Missing argument: 'longtermdev', required if options.b90$standprop.input = 'table'")}
   if (missing(soil)) {
     stop("Missing argument: 'soil'")}
   if (!file.exists(file.path(path_b90.exe))) {
@@ -261,11 +255,11 @@ Run.B90 <- function(project.dir,
     }
   }
 
-  # TODO: achtung!!!
-  if (length(param.b90$budburstdoy == 1)) {
+  # Extend budburst
+  if (length(param.b90$budburstdoy) == 1) {
     param.b90$budburstdoy <- rep(param.b90$budburstdoy,times = length(simyears))
   }
-  if (length(param.b90$leaffalldoy == 1)) {
+  if (length(param.b90$leaffalldoy) == 1) {
     param.b90$leaffalldoy <- rep(param.b90$leaffalldoy,times = length(simyears))
   }
 
@@ -311,13 +305,17 @@ Run.B90 <- function(project.dir,
   # ---- Make Stand --------------------------------------------------------------------
   if (write.climate.in == TRUE) {
     if (tolower(options.b90$standprop.input) == "table") {
-      if (verbose == T) {print("Creating long term stand dynamics from table 'longtermdev'...")}
-      standprop_yearly <- data.table(longtermdev)
+      if (verbose == T) {print("Creating long term stand dynamics from table 'standprop.table'...")}
+      if (is.null(param.b90$standprop.table) & tolower(options.b90$standprop.input) == "table") {
+        stop("Missing parameter: 'standprop.table', required if options.b90$standprop.input = 'table'")}
+
+      standprop_yearly <- data.table(param.b90$standprop.table)
       # interpolate lai with rule = 2 to extend lai from table to simyears
-      param.b90$maxlai <- with(longtermdev, approx(x = as.Date(paste0(year,"-01-01")),
-                                                   y = maxlai,
-                                                   xout = as.Date(paste0(simyears,"-01-01")),
-                                                   method = 'constant', rule = 2))$y
+      param.b90$maxlai <- with(param.b90$standprop.table,
+                               approx(x = as.Date(paste0(year,"-01-01")),
+                                      y = maxlai,
+                                      xout = as.Date(paste0(simyears,"-01-01")),
+                                      method = 'constant', rule = 2))$y
     } else { # standproperties from parameters
       if (verbose == T) {print("Creating constant stand properties from parameters...")}
 
@@ -326,9 +324,9 @@ Run.B90 <- function(project.dir,
         standprop_yearly <- data.frame(year = c(simyears, max(simyears) + 1),
                                        age = seq(from = param.b90$age.ini, by = 1,
                                                  length.out = length(simyears) + 1),
-                                       height <- c(param.b90$height, param.b90$height.end),
-                                       sai <- c(param.b90$sai, param.b90$sai.end),
-                                       densef <- c(param.b90$densef, param.b90$densef.end))
+                                       height = c(param.b90$height, param.b90$height.end),
+                                       sai = c(param.b90$sai, param.b90$sai.end),
+                                       densef = c(param.b90$densef, param.b90$densef.end))
         if (length(param.b90$height) == 1) { standprop_yearly$height <- param.b90$height}
         if (length(param.b90$sai) == 1) {standprop_yearly$sai <- param.b90$sai}
         if (length(param.b90$densef) == 1) {standprop_yearly$densef <- param.b90$densef}
@@ -374,7 +372,6 @@ Run.B90 <- function(project.dir,
                                 as.Date(paste0(max(simyears),"-12-31")), by = "day")]
     laidaily <- laidaily[which(dates >= options.b90$startdate
                                & dates <= options.b90$enddate),]
-
 
     if (verbose == T) {
       print("Standproperties created succesfully")

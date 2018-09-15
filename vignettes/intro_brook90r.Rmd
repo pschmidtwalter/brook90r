@@ -57,7 +57,7 @@ We want to run LWF-Brook90 using the sample data from the Solling site and we ne
 ```{r}
 soil <- cbind(soil_slb1, hydpar_wessolek_mvg(tex.KA5 = soil_slb1$texture))
 ```
-Before we run the simulation, we need to select the LWF-BROOK90 output variables and their temporal resolution. Sets of output variables are chosen in a `[5,10]`-matrix, that we later pass on to LWF-BROOK90. To create the matrix, you can use the function `choose_output.B90`. It will open a `[5,10]`-matrix in R's data-editor, where a default set of output is already selected. You can modify the selection by flagging groups of output variables with `0` and `1`. Afterwards, simply close the data-editor.
+Before we run the simulation, we need to select the LWF-BROOK90 output variables and their temporal resolution. Sets of output variables are chosen in a `[5,10]`-matrix, that is used as argument in `Run.B90`. To create the matrix, you can use the function `choose_output.B90`. It will open a `[5,10]`-matrix in R's data-editor, where a default set of output is already selected. You can modify the selection by flagging groups of output variables with `0` and `1`. Afterwards, simply close the data-editor.
 ```{r}
 output <- choose_output.B90()
 ```
@@ -72,7 +72,7 @@ b90.results.slb1 <- Run.B90(project.dir = "/example_run_b90/",
                             output.log = "b90.log",
                             path_b90.exe = "H:/R-Packages/brook90r/b90.exe")
 ```
-`Run.B90` thereby creates the project directory (`project.dir`), derives the daily stand properties (densef, height, lai, sai, age) and writes climate, vegetation properties and parameters to the 'climate.in' and 'param.in' files into a folder named 'in' within `project.dir`. It then starts the commandline tool under `path_b90.exe` which reads the files in the 'in' folder and stores its output as .asc-files in the specified folder `out.dir` (defaults to 'out/' within `project.dir`). As a last step, `Run.B90` returns the contents of the output files. While running, several  progress messages are printed to the R-console (if `verbose = TRUE`). The commandline-feed of 'b90.exe' itself is by default redirected to the R-console, but can also be discarded (`output_log = FALSE`) or written to a file by passing a filename to the `output_log`-argument of `Run.B90`, as we did in the example above. The returned object `b90.results.slb1` is a list of the items containing the model output (as specified by the `outputmat`-argument and named according to the .asc files in the 'out'-folder), along with the options, parameters and derived daily vegetation properties used in the simulation, if desired. Let us have a look at the `evapday.asc`-item of `b90.results.slb1` containing daily evaporation fluxes:
+`Run.B90` thereby creates the project directory (`project.dir`), derives the daily stand properties (densef, height, lai, sai, age) and writes climate, vegetation properties and parameters to the 'climate.in' and 'param.in' files into a folder named 'in' within `project.dir`. It then starts the commandline tool under `path_b90.exe` which reads the files in the 'in' folder and stores its output as .asc-files in the specified folder `out.dir` (defaults to 'out/' within `project.dir`). As a last step, `Run.B90` returns the contents of the output files. While running, several  progress messages are printed to the R-console (if `verbose = TRUE`). The commandline-feed of 'b90.exe' itself is by default redirected to the R-console, but can also be discarded (`output.log = FALSE`) or written to a file by passing a filename to the `output.log`-argument of `Run.B90`, as we did in the example above. The returned object `b90.results.slb1` is a list containing the model output (as specified by the `outputmat`-argument and named according to the .asc files in the `out.dir`-folder), along with the options, parameters and derived daily vegetation properties used in the simulation, if desired (`output.param.options = T`). Let us have a look at the `evapday.asc`-item of `b90.results.slb1` containing daily evaporation fluxes:
 
 ```{r}
 str(b90.results.slb1$evapday.asc)
@@ -81,7 +81,7 @@ str(b90.results.slb1$evapday.asc)
 ```{r}
 b90.results.slb1$evapday.asc[, dates := as.Date(paste(yr, mo, da, sep = "-"))]
 ```
-Another result that is returned by default are daily soil water state variables (*swati, theta, wetnes, psimi, psiti*), of the individual soil layers. The file in the 'out' folder is named *swatday.asc* and returned as *data.table*-object, containing the values of the individual layers organized in rows. We want to plot absolut soil water storage (*swati*) down to a soil depth of 100 cm, so we need to create a *Date*-object from the date variables and then integrate `b90.results.slb1$swatday.asc$swati` over the *swati*-values of the 14 uppermost soil layers. Again, we use the *data.table* syntax:
+Another result that is returned by default are daily soil water state variables ('swati', 'theta', 'wetnes', 'psimi', 'psiti'), of the individual soil layers. The file in the `out.dir`folder is named *swatday.asc* and returned as *data.table*-object, containing the values of the individual layers organized in rows. We want to plot absolut soil water storage ('swati') down to a soil depth of 100 cm, so we need to create a *Date*-object from the date variables and then integrate `b90.results.slb1$swatday.asc$swati` over the 'swati'-values of the 14 uppermost soil layers. Again, we use *data.table* syntax:
 
 ```{r}
 b90.results.slb1$swatday.asc[, dates := as.Date(paste(yr, mo, da, sep = "-"))]
@@ -113,7 +113,8 @@ legend("bottom",inset = -0.4,
 # Options and parameters {#options}
 The model control options (`options.b90`-argument in `Run.B90`) let you select basic information about the simulation like start and end dates of the simulation (`startdate`, `enddate`), the radiation input (global radiation or sunshine duration, `fornetrad`), the precipitation interval (`prec.interval`), correction for evaporation bias of precipitation (`richter.prec.corr`, not implemented yet), and which  water retention and hydraulic conductivity models to use (`imodel`, Mualem/van Genuchten or Clapp/Hornberger). 
 
-Aside from the basic information, the options control the basic shape of the annual course of leaf area index, which phenology model, and which root depth density depth distribution function to use, and if you want to use a table for supplying annual values of above ground plant development (`longtermdyn`). The interplay of options and parameters is shown briefly in the following paragraphs, by describing how parameters are passed to the individual functions that are called from within `Run.B90`.
+Aside from the basic information, the options control the basic shape of the annual course of leaf area index, which phenology model, and which root depth density depth distribution function to use. The interplay of options and parameters is shown briefly in the following paragraphs, by describing how parameters are passed to the individual functions that are called from within `Run.B90`. Abbildung??
+
 
 ## Vegetation characteristics
 
@@ -222,7 +223,7 @@ Beside the obvious between-year variation of maximum leaf area index, we can als
 Within `Run.B90`, budburst and leaf fall also can be estimated using temperature based phenology models. By choosing other settings than the default `options.b90$budburst.method = 'fixed'` and `options.b90$leaffall.method = 'fixed'`, the `vegperiod()` function of the 'vegperiod'-Package is called from within `Run.B90`. And `budburstdoy` and/or `leaffalldoy` are calculated for each year from the climate data using the desired methods. See `vegperiod` for a available methods. The estimated values can be found in the `param.b90` list element of the simulation results. 
 
 ### Other plant properties (height, sai, densef)
-Like leaf area index parameters and budburst/leaffall-dates, it is also possible to provide vectors of values for stand height, stem area index, and stand density to generate between-year variation of stand characteristics. From the yearly values, daily values are interpolated to a daily timeseries using the function `MakeStand()`. The `approx.method`- argument of the function defines how to interpolate the yearly values. Within `Run.B90`, the option `options.b90$standprop.interp` is passed to `MakeStand()`. The default interpolation method 'constant' results in a yearly changing step function, while 'linear' interpolates the values.
+Like the leaf area index parameters and budburst/leaffall-dates, it is also possible to provide vectors of values for stand height, stem area index, and stand density to generate between-year variation of stand characteristics. From the yearly values, daily values are interpolated using the function `MakeStand()`. The `approx.method`- argument of the function defines how to interpolate the yearly values. Within `Run.B90`, the option `options.b90$standprop.interp` is passed to the `approx.method`- argument of `MakeStand()`. The default interpolation method 'constant' results in a yearly changing step function, while 'linear' interpolates the values.
 ```{r}
 param.b90$height <- c(20,21,21.5)
 param.b90$sai <- c(0.5,0.45,0.53)
@@ -241,7 +242,7 @@ stand_l <- MakeStand(stand.years = 2001:2003,
                      sai = param.b90$sai, 
                      height = param.b90$height, 
                      densef = param.b90$densef,
-                     age =param.b90$age, 
+                     age = param.b90$age, 
                      approx.method = options.b90$standprop.interp)
 
 par(mar=c(4.1,4.1,1.1,4.1))
@@ -254,8 +255,7 @@ lines(stand_l$dates, stand_l$height,
 par(new = T)
 plot(stand_c$dates, stand_c$sai, 
      type = "l", lwd = 2, col = "brown",
-     ylim = c(0.4,0.8), yaxt ="n",ylab = "",
-     )
+     ylim = c(0.4,0.8), yaxt ="n",ylab = "",xlab = "")
 lines(stand_l$dates, stand_l$sai, 
      type = "l", lwd = 2, col = "brown",
      lty = 2)
@@ -267,27 +267,54 @@ legend("topleft", legend = c("height const.", "height linear", "sai const.", "sa
 
 
 ```
-In the latter case, the yearly values are interpreted to be valid for January 1st of the respective years, and additional parameters `height.end`, `sai.end`, `densef.end` have to be provided to `Run.B90`. 
-defining the values at the end of the simulation, to which the value of the last year is interpolated to.
+With the 'linear' interpolation, the yearly values are interpreted to be valid at January 1st of the respective years, and additional parameters `height.end`, `sai.end`, `densef.end` have to be provided to `Run.B90` via the `param.b90`-argument. The parameters define the values at the end of the simulation, to which the value of the last year is interpolated to.
 
-The yearly values for `height`, `sai`, and `densef` are  currently interpreted to be valid for the 1st of January of the respective years of the simulations. Between these dates, the values are interpolated to derive a daily timeseries. For the last year of the simulation, the values are extrapolated using the daily increment of the year before the last year.
-
-Another option for incorporating between-year variation of plant properties is to provide a table of values via the `longtermdev`-argument of `Run.B90`. To take effect, the option `options.b90$longtermdyn` has to be set to 'table', so that the values passed via parameters are ignored. We use the table `standprop_slb1`, that contains the observed stand data of Solling Beech Experimental site from 1966 to 2014.
+Another option for incorporating between-year variation of plant properties is to provide a table of values via the parameter `standprop.table` of the `param.b90`-argument of `Run.B90`. To take effect, the option `options.b90$standprop.input` has to be set to 'table'. In this case, the values passed via parameters `maxlai`, `height`, `sai`, `densef`, and `age.ini` are ignored.
+For demonstration purposes we use the table `standprop_slb1`, that contains the observed stand data of the Solling Beech Experimental site from 1966 to 2014, along with estimated leaf area and stem area index using allometric function.
 ```{r,echo = 1:3, results = 'hide',fig.height=4, fig.width=7}
-options.b90$standprop <- 'table'
-options.b90$standprop.interp <- "linear"
-b90.results.slb1.lai <- Run.B90(project.dir = "/example_run_b90/",
+
+#Extend simulation period
+options.b90$startdate <- as.Date("1995-01-01")
+options.b90$enddate <- as.Date("2005-12-31")
+
+#set up options for table input 
+options.b90$standprop.input <- 'table'
+options.b90$standprop.interp <- "const"
+param.b90$standprop.table <- standprop_slb1
+
+# Set up dynamic budburst and leaf fall
+options.b90$budburst.method <- "Menzel"
+options.b90$leaffall.method <- "vonWilpert"
+param.b90$budburst.species <- "Fagus sylvatica"
+
+#run LWF-Brook90
+b90.results.slb1.standtable <- Run.B90(project.dir = "/example_run_b90/",
                             options.b90 = options.b90,
                             param.b90 = param.b90,
                             climate = meteo_slb1,
                             soil = soil,
-                            longtermdev = standprop_slb1,
                             outputmat = output,
                             output.log = "b90.log",
                             path_b90.exe = "H:/R-Packages/brook90r/b90.exe")
+par(mar=c(4.1,4.1,1.1,4.1))
+with(b90.results.slb1.standtable$plant.devt,{
+  plot(dates, lai, 
+       type = "l", lwd = 2, col = "green", 
+       ylab = "lai, sai", xlab = "")
+  lines(dates, sai, lwd = 2, col = "brown")
+  par(new = T) 
+  plot(dates, height,
+       type = "l", lwd = 2, col = "blue", 
+       ylim = c(27, 32),
+       ylab = "", xlab = "",
+       xaxt = "n", yaxt = "n")
+})
+axis(4, at = seq(27,32, by = 1))
+mtext("height", side = 4, line = 3)
+legend("bottom",horiz = T, bty = "n",inset = -0.3, xpd =T,
+       legend = c("lai", "sai", "height"), 
+       col  = c("green","brown", "blue"), lwd = 2, pch = NULL)
+
 ```
 
-
 # References
-
-
