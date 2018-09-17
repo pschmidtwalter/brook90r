@@ -169,7 +169,7 @@ writeParam.in <- function(b90opts, parameters, materials, soil, outmat, filename
   writeLines(c("''","''"), p.in)
 
   #write Templayers
-  writeLines(apply(format(soil[,c("layer", "midpoint","thick", "mat","psiini","relrootlength")]),
+  writeLines(apply(format(soil[,c("layer", "midpoint","thick", "mat","psiini","rootden")]),
                    1, paste, collapse = "\t"), p.in)
 
   writeLines(lines.sec3, p.in)

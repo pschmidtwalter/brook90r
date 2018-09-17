@@ -19,3 +19,7 @@ standprop_slb1 <- standprop_slb1[,-c(1,2,4)]
 names(standprop_slb1)[which(names(standprop_slb1) == "density")] <- "densef"
 setDT(standprop_slb1)
 devtools::use_data(standprop_slb1, overwrite = T)
+
+rootden_slb1 <- read.csv("data-raw/rootden_slb1.csv", stringsAsFactors = F)
+setDT(rootden_slb1)
+devtools::use_data(rootden_slb1, overwrite = T)

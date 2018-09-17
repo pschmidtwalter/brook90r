@@ -52,3 +52,13 @@
 #' }
 "standprop_slb1"
 
+#' Fine root distribution at Solling Beech experimental site 'SLB1'
+#'
+#' A dataset containing the number of fine roots per decimeter soil depth
+#'
+#' @format A data.table with 9 rows and 2 variables
+#' \describe{
+#'   \item{depth}{lower depth of the root layer}
+#'   \item{rootden}{root density (number of roots per decimeter soil depth)}
+#' }
+"rootden_slb1"

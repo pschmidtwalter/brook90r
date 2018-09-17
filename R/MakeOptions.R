@@ -28,8 +28,8 @@
 #'   \item{lai.method}{Name of method method for generating daily plant development.
 #'   Passed to 'method'-argument of \code{\link{MakeSeasLAI}}. }
 #'   \item{imodel}{Name of hydraulic parameterization: "CH" for Clapp/Hornberger, "MvG" for Mualem/van Genuchten}
-#'   \item{rootmodel}{Model name of the root length density depth distribution function. Any of the names accepted by \code{\link{MakeRelRootDens}} are allowed.
-#'   Assign "soilvar", if the root length density should be taken from the soil-data.frame (colname relrootlength)     }
+#'   \item{root.method}{Method name of the root length density depth distribution function. Any of the names accepted by \code{\link{MakeRelRootDens}} are allowed.
+#'   Additionally, "soilvar" can be used if the root length density depth distribution is specified in column 'rootden' in the soil-data.frame}
 #'   \item{humusroots}{Shall roots be defined for humuslayer? If TRUE, the humus layers will have the same root length density as the uppermost mineral soil layer.}
 #' }
 #' @examples
@@ -50,7 +50,7 @@ MakeOptions.B90 <- function(...) {
                standprop.interp = "constant",
                lai.method = "b90", #any of the names accepted by 'method'-argument of MakeSeasLAI()
                imodel = "MvG", # the parameterization of rentention & conductivity function. CH = Clapp-Hornberger, MvG: Mualem van Genuchten
-               rootmodel = "betamodel", #any of the names accepted by the MakeRoots()
+               root.method = "betamodel", #any of the names accepted by the MakeRoots()
                humusroots = FALSE #parameter of MakeRoots()
   )
   dots <- list(...)

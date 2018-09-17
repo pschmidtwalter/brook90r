@@ -4,8 +4,8 @@
 \alias{MakeRelRootDens}
 \title{Generates a root density depth function for the soil nodes}
 \usage{
-MakeRelRootDens(soilnodes, maxrootdepth, method, param, relrootden = NULL,
-  rootdepths = NULL, humusroots = FALSE)
+MakeRelRootDens(soilnodes, maxrootdepth, method = "betamodel", beta = 0.97,
+  relrootden = NULL, rootdepths = NULL, humusroots = FALSE)
 }
 \arguments{
 \item{soilnodes}{vector of lower soil layer limits (cm, positive downward.),
@@ -18,7 +18,7 @@ density length will be set to zero}
 \item{method}{root distribution model name. Choose "betamodel" to use the model after Gale & Grigal, "table" to supply a table,
 or "constant" to get a uniform root distribution with depth}
 
-\item{param}{parameter(s) of the root distribution function}
+\item{beta}{parameter(s) of the root distribution function}
 
 \item{relrootden}{vector with relative root length}
 

@@ -408,13 +408,13 @@ Run.B90 <- function(project.dir,
 
 
   # Make Roots ----------------------------------------------------------------------
-  if (options.b90$rootmodel != "soilvar") {
-    soil$relrootlength <- MakeRelRootDens(soil$lower * (-100), param.b90$maxrootdepth,
-                                          method = options.b90$rootmodel, param = param.b90$betaroot,
+  if (options.b90$root.method != "soilvar") {
+    soil$rootden <- MakeRelRootDens(soil$lower * (-100),
+                                          param.b90$maxrootdepth * (-100),
+                                          method = options.b90$rootmodel,
+                                          beta = param.b90$betaroot,
                                           humusroots = options.b90$humusroots
     )}
-
-
 
   #  Make soil ----------------------------------------------------------------------
   #  Create materials for writeparam.in from soil
