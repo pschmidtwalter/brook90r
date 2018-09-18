@@ -316,16 +316,44 @@ legend("bottom",horiz = T, bty = "n",inset = -0.3, xpd =T,
 ```
 
 ## Root depth density depth distribution
-The root depth density depth distribution can either be provided in the column `rootden` of the `soil`- argument of `Run.B90()`, or can be derived using the function `MakeRelRootDens()`. In order to use root density as specified in the soil data, the `root.method` element of the `options.b90`-list has to be set to 'soilvar'. Other method names are passed to `MakeRelRootDens()`. Currently, the function provides three different methods to assign values of relative root density to a vector of soil depths. The default method 'betamodel' uses the model of Gale & Grigal (-@gale_vertical_1987), which is of the form $y = 1- \beta^d$, where $y$ is the cumulative root fraction down to soil depth $d$ and $\beta$ is the depth coefficient. Larger values of $\beta$ correspond to a greater proportion of roots in deeper soil layers. Within `Run.B90()` the function is called in the following way:
+The root depth density depth distribution can either be provided in the column `rootden` of the `soil`- argument of `Run.B90()`, or can be derived using the function `MakeRelRootDens()`. In order to use root density as specified in the soil data, the `root.method` element of the `options.b90`-list has to be set to 'soilvar'. Other method names are passed to `MakeRelRootDens()`. Currently, the function provides two methods to assign values of relative root density to a vector of soil depths. The default method 'betamodel' uses the model of Gale & Grigal (-@gale_vertical_1987), which is of the form $y = 1- \beta^d$, where $y$ is the cumulative root fraction down to soil depth $d$ and $\beta$ is the depth coefficient. Larger values of $\beta$ correspond to a greater proportion of roots in deeper soil layers:
+```{r, echo = F, fig.height=4, fig.width=4}
+plot(MakeRelRootDens(soilnodes = seq(0,-2, by = -0.01), 
+                              method = "betamodel", 
+                              beta = 0.93),
+     seq(0,-2, by = -0.01), ylim = c(-2,0),
+     type="l", lwd = 1.5,
+     xlab = "relative root density", ylab = "soil depth [m]")
+lines(MakeRelRootDens(soilnodes = seq(0,-2, by = -0.01), 
+                              method = "betamodel", 
+                              beta = 0.96),
+     seq(0,-2, by = -0.01), 
+     lty = 2, lwd = 1.5)
+lines(MakeRelRootDens(soilnodes = seq(0,-2, by = -0.01), 
+                              method = "betamodel", 
+                              beta = 0.98),
+     seq(0,-2, by = -0.01), 
+     lty = 3, lwd = 1.5)
+lines(MakeRelRootDens(soilnodes = seq(0,-2, by = -0.01), 
+                              method = "betamodel", 
+                              beta = 0.99),
+     seq(0,-2, by = -0.01), 
+     lty = 4, lwd = 1.5)
+legend("bottomright",legend = c(expression(paste(beta, "= 0.93")),expression(paste(beta, "= 0.96")),
+                                expression(paste(beta, "= 0.98")),expression(paste(beta, "= 0.99"))),
+       lwd = 1.5, pch = NULL, lty = 1:4, bty = "n")
+```
+For larger values of $\beta$, the root density will reach zero only in very deep soil layer. In order to set the root density to zero at any desired soil depth, the parameter `maxrootdepth` was defined. With this parameter, the root density is set to zero in all soil layers that lie deeper than `maxrootdepth`.
+Within `Run.B90()`, the function is called in the following way:
 ```{r}
-options.b90$rootmodel <- 'betamodel'
+param.b90$maxrootdepth <- -1.5
 roots_beta <- MakeRelRootDens(soilnodes = soil_slb1$lower, 
                               maxrootdepth = param.b90$maxrootdepth,
-                              method = options.b90$rootmodel, 
                               beta = param.b90$betaroot,
-                              humusroots = options.b90$humusroots)
+                              method = options.b90$rootmodel)
+plot(roots_beta, soil_slb1$lower, type ="s")
 ```
-Theoretically, the root density estimated with the beta-model approaches but never reaches a value of 0 in deep soil layers. Therefore, the parameter `maxrootdepth` was defined, setting the root density to zero at the specified depth. The parameter `humusroots` defines, if humus layers should have roots or not....
+The
 A second option to define the root distribution for the soil layers is to provide value pairs of soil depth and root density, that are then interpolated to the given soil depths of soil layers. As an example, we use the table `rootden_slb1` that contains an observed root density depth profile from the Solling Beech Experimental Site.
 ```{r}
 options.b90$root.method <- 'table'

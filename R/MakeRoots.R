@@ -18,11 +18,10 @@
 #' @export
 MakeRelRootDens <- function(soilnodes, #cm lower layer limits, positive downward
                             maxrootdepth = min(soilnodes), #cm, positive downward
-                            method ="betamodel", #Depth-Table, Beta
+                            method = "betamodel", #Depth-Table, Beta
                             beta = 0.97, #
                             relrootden=NULL, # supply when method is "table"
-                            rootdepths=NULL,
-                            humusroots = FALSE
+                            rootdepths=NULL
                             #cum_RLenDmax= 0.95 # maximum cumulative rootlength, at which maximim
 ) {
 
@@ -31,26 +30,26 @@ MakeRelRootDens <- function(soilnodes, #cm lower layer limits, positive downward
   maxrootdepth <- soilnodes[which(abs(soilnodes - maxrootdepth) == min(abs(soilnodes-maxrootdepth)))]
 
   if (method == "betamodel") {
-
+    # only positive d-values allowed in beta-model:
     maxrootdepth <- maxrootdepth * (-100)
-
     soilnodes <- soilnodes * (-100)
 
-    RLenD <- 1 - (beta ^ seq(1,maxrootdepth))
-    RLenD <- c(RLenD[1], diff(RLenD))
-    rootden <- data.table(rootden = RLenD, lower = 1:maxrootdepth)
+    # cumulative density
+    # shift min(soilnodes) to 1 and extend maxrootdepth
+    RLenDcum <- 1 - (beta ^ seq(1,maxrootdepth-(min(soilnodes)-1)))
+    # density
+    RLenD <- c(RLenDcum[1], diff(RLenDcum))
 
+    # linear approx function is derived using the "unshifted" values
+    RelDenFun <- approxfun(x = seq(min(soilnodes),maxrootdepth),
+                           y = RLenD,
+                           method = "linear",
+                           rule = 2:1, yright = 0) # rule 2:1: left > max(x) -> repeat, right = 0
 
-    if (humusroots) {
-      RelDenFun <- approxfun(x = seq(1,length(RLenD)),y = RLenD, method = "linear",rule = 2:1, yright = 0)
-    } else {
-      RelDenFun <- approxfun(x = seq(1,length(RLenD)),y = RLenD, method = "linear",rule = 1:1, yleft = 0, yright = 0)
-    }
-
-    # get values at soillayer midpoint:
-    midpoints <- c(0, soilnodes[1:length(soilnodes)-1]) + (diff(c(0,soilnodes))/2)
+    # get midpoints of the soilnodes:
+    midpoints <- c(min(soilnodes) - 1, soilnodes[1:length(soilnodes)-1]) + (diff(c(min(soilnodes) - 1,soilnodes))/2)
+    # calc the rootden for the midpoints to be exact, and normalize to unity
     rootden <- RelDenFun(midpoints) * (1/sum(RelDenFun(midpoints)))
-
   }
 
   if (method == "table") {
