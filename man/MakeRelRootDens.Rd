@@ -4,23 +4,24 @@
 \alias{MakeRelRootDens}
 \title{Generates a root density depth function for the soil nodes}
 \usage{
-MakeRelRootDens(soilnodes, maxrootdepth, method = "betamodel", beta = 0.97,
-  relrootden = NULL, rootdepths = NULL, humusroots = FALSE)
+MakeRelRootDens(soilnodes, maxrootdepth = min(soilnodes),
+  method = "betamodel", beta = 0.97, relrootden = NULL,
+  rootdepths = NULL, humusroots = FALSE)
 }
 \arguments{
-\item{soilnodes}{vector of lower soil layer limits (cm, positive downward.),
-for which the relative root distribution will be calculated. Values in  Topsoil
-(humus) layers are given as negative values.}
+\item{soilnodes}{vector of lower soil layer limits,
+for which the relative root distribution will be calculated. Topsoil (humus) layers
+corespond to negative values.}
 
-\item{maxrootdepth}{the maximum rooting depth below  which relative root
-density length will be set to zero}
+\item{maxrootdepth}{the maximum rooting depth (m, positive downwards) below which
+relative root length density will be set to zero}
 
 \item{method}{root distribution model name. Choose "betamodel" to use the model after Gale & Grigal, "table" to supply a table,
-or "constant" to get a uniform root distribution with depth}
+"constant" to get a uniform root distribution with depth. 'table' redistributes layers of root density to the soilnodes}
 
 \item{beta}{parameter(s) of the root distribution function}
 
-\item{relrootden}{vector with relative root length}
+\item{relrootden}{vector with relative root density}
 
 \item{rootdepths}{vector with lower depths limit, corresponding to relative
 rootlength-vector}
@@ -34,3 +35,4 @@ vector of relative rootlength, corresponding to soilnodes
 \description{
 Generates a root density depth function for the soil nodes
 }
+

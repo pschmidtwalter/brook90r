@@ -338,10 +338,6 @@ roots_beta <- MakeRelRootDens(soilnodes = soil_slb1$lower,
 ```
 
 
-plot(c(roots_beta[1],roots_beta),c(0,soil_slb1$lower), type = 's')
-abline(h=0)
-
-
 
 
 

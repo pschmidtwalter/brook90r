@@ -24,3 +24,4 @@ a sequence of global radiation in \eqn{MJ m^-2 d^-1} with the length of doy
 Uses day of year (doy) and latitude to determine extraterrestrial solar radiation and daylength,
 which is then used to calculate global radiation using angström formula
 }
+

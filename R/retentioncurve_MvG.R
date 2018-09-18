@@ -8,7 +8,6 @@
 #' @param m value of van Genuchten parameter N. Defaults 1-1/n
 #'
 #' @return vector of water contents
-#' @export
 MvG.swc <- function(
   psi, #pressure head in hPa
   alpha, #MvG alpha

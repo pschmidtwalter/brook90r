@@ -23,7 +23,7 @@ Create the list of model parameters
  hr           \tab Smallest height to which CZR applies. Default: 10 \tab m                 \tab Canopy                 \cr
  hs           \tab Largest height to which CZS applies. Default: 1\tab m                 \tab Canopy                 \cr
  lpc          \tab Minimum leaf area index defining a closed canopy. Default: 4\tab -                 \tab Canopy                 \cr
- lwidth       \tab Average leaf width. Default: 0.1\tab m                 \tab Canopy                 \cr
+ lwidth       \tab Average leaf width. Default: 0.1\tab m  \tab Canopy                 \cr
  nn           \tab Eddy diffusivity extinction coefficient within canopy. Default: 2.5\tab -                 \tab Canopy                 \cr
  rhotp        \tab Ratio of total leaf area to projected area. Default: 2\tab -                  \tab Canopy                 \cr
  zminh        \tab Reference height for weather data above the canopy top height. Default: 2\tab m \tab Canopy                 \cr
@@ -40,7 +40,7 @@ Create the list of model parameters
  qfpar        \tab Quickflow shape parameter. Default: 1 \tab -                  \tab Flow                   \cr
  qlayer       \tab Number of layers which are considered for generation of surface or source area flow. Default: 0\tab -                  \tab Flow                   \cr
  gwatini      \tab Initial value of groundwater storage. Default: 0\tab mm                  \tab Initial                \cr
- snowini      \tab Initial value of water content of snow pack. Default: 0\tab mm                  \tab Initial                \cr
+ snowini      \tab Initial value of water content of snow pack. Default: 0\tab mm \tab Initial                \cr
  intrainini   \tab Initial value of intercepted rain. Default: 0\tab mm                  \tab Initial                \cr
  intsnowini   \tab Initial value of intercepted snow. Default: 0\tab -                  \tab Initial                \cr
  psiini       \tab Initial pressure head of soil layers. May have the same length as row.names(soil). Default: -6.3 \tab kPa                \tab Initial  \cr
@@ -61,7 +61,7 @@ Create the list of model parameters
  fetch        \tab Fetch upwind of the weather station at which wind speed was measured. Default: 5000 \tab m                 \tab Meteo                  \cr
  ksnvp        \tab Correction factor for snow evaporation. Default: 0.3 \tab -                  \tab Meteo                  \cr
  wndrat       \tab Average ratio of nighttime to daytime wind speed. Default: 0.3\tab -                  \tab Meteo                  \cr
- z0s          \tab Surface roughness of snow cover. Default: 0.001 \tab m                 \tab Meteo                  \cr
+ z0s          \tab Surface roughness of snow cover. Default: 0.001 \tab m                \tab Meteo                  \cr
  z0w          \tab Roughness length at the weather station at which wind speed was measured. Default: 0.005 (Grass) \tab m                 \tab Meteo                  \cr
  coords_x     \tab Longitude value (decimal degrees) of the simulation location (has no effect on simulation results). Default: 9.91 \tab m                 \tab Meteo                  \cr
  coords_y     \tab Latitude value (decimal degrees) of the simulation location. Default: 51.54 \tab m                 \tab Meteo                  \cr
@@ -73,17 +73,17 @@ Create the list of model parameters
  dswmax       \tab maximum change allowed in SWATI. Default: 0.05 \tab percent of SWATMX \tab Numerical              \cr
  dtimax       \tab maximum iteration time step. Default: 0.5 \tab d                 \tab Numerical              \cr
  budburst.species  \tab Name of tree species for estimating budburst doy using Menzel-model (passed to \code{\link[vegperiod]{vegperiod}}) Default: 'Fagus sylvatica' \tab -                  \tab Plant                  \cr
- budburstdoy  \tab Leaf flush day of year - passed to MakeSeasLAI. Default: 121\tab -                  \tab Plant                  \cr
+ budburstdoy  \tab Budburst day of year - passed to \code{\link[MakeSeasLAI]}. Default: 121\tab doy                  \tab Plant                  \cr
  emergedur    \tab Leaf growth duration until maxlai is reached.. Default: 28\tab d                 \tab Plant                  \cr
  height       \tab plant height. Default: 25 \tab m                 \tab Plant                  \cr
  height.ini   \tab initial plant height at the beginning of the simulaton. Used for interpolation , ignored if length(height) . Default: 25 \tab m                 \tab Plant                  \cr
- leaffalldoy  \tab number of days until maximum lai is reached - passed to MakeSeasLAI. Default: 279\tab doy               \tab Plant                  \cr
- leaffalldur  \tab number of days until minimum lai is reached - passed to MakeSeasLAI. Default: 58 \tab d                 \tab Plant                  \cr
+ leaffalldoy  \tab number of days until maximum lai is reached - passed to \code{\link[MakeSeasLAI]} Default: 279\tab doy               \tab Plant                  \cr
+ leaffalldur  \tab number of days until minimum lai is reached - passed to \code{\link[MakeSeasLAI]} Default: 58 \tab d                 \tab Plant                  \cr
  sai          \tab steam area index. Default: 1 \tab -                 \tab Plant                  \cr
  sai.ini      \tab steam area index at the end of the simulation. Ignored if length(height) == 1, Default: 1 \tab -                 \tab Plant                  \cr
- shape.leaffall  \tab Shape parameter for leaf fall phase - passed to MakeSeasLAI. Default: 0.3\tab -                  \tab Plant                  \cr
- shape.budburst  \tab shape parameter for leaf growth phase - passed to MakeSeasLAI. Default: 3\tab -                  \tab Plant                  \cr
- shape.optdoy \tab day of year when optimum value is reached - passed to MakeSeasLAI. Default: 210 \tab doy               \tab Plant                  \cr
+ shape.leaffall  \tab Shape parameter for leaf fall phase - passed to \code{\link[MakeSeasLAI]} Default: 0.3\tab -                  \tab Plant                  \cr
+ shape.budburst  \tab shape parameter for leaf growth phase - passed to \code{\link[MakeSeasLAI]} Default: 3\tab -                  \tab Plant                  \cr
+ shape.optdoy \tab day of year when optimum value is reached - passed to \code{\link[MakeSeasLAI]} Default: 210 \tab doy               \tab Plant                  \cr
  winlaifrac   \tab Minimum LAI as a fraction of maxlai. Default: 0 \tab -                  \tab Plant                  \cr
  standprop.table \tab Data.frame with yearly values of vegetation properties with columns 'year','age', 'height', 'maxlai', 'sai', 'densef' \tab                   \tab Plant                  \cr
  cs           \tab Ratio of projected stem area index to canopy height. Default: 0.035 \tab m-1               \tab Plant                  \cr
@@ -102,6 +102,7 @@ Create the list of model parameters
  tl           \tab Lower temperature threshold for stomata closure. Default: 0\tab deg C             \tab Potential Transpiration\cr
  betaroot     \tab Shape parameter for rootlength density depth distribution. Default: 0.97 \tab -                 \tab Roots                  \cr
  maxrootdepth \tab Maximum root depth (positive downward) - passed to MakeRelRootDens. Default: 150 \tab cm                \tab Roots                  \cr
+ rootden.table \tab Data.frame of relative root density depth distribution with columns 'depth' and 'rootden' \tab                   \tab Plant                  \cr
  rstemp       \tab base temperature for snow-rain transition. Default: -0.5 \tab deg C              \tab Snow                   \cr
  ccfac        \tab cold content factor. Default: 0.3 \tab MJ m-2 d-1 K-1    \tab Snow                   \cr
  grdmlt       \tab rate of groundmelt of snowpack. Default: 0.35 \tab mm d-1            \tab Snow                   \cr
@@ -131,3 +132,4 @@ parms <- MakeParam.B90()
 # Include specific parameters
 parms_maxlai <- MakeParam.B90(maxlai = c(4,6,5), height =20)
 }
+

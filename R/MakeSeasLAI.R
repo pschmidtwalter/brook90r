@@ -1,26 +1,24 @@
-
-#' Create daily seasonal plant dynamics sequence (e.g. leaf area index development)
-#' for one year
+#' Construct the seasonal course of leaf area index from parameters
 #'
-#' Creates the seasonal course of leaf area index, based
-#' on minimum lai, maximum lai, budburst and leaffall day of year (doy) and shape
-#' parameters.
+#' A daily sequence of leaf area index is derived from maximum and minimum values,
+#' dates and shape parameters using different methods.
 #'
 #' @param method name of method for generating the sequence. Must be one of "b90", "linear", "Coupmodel"
 #' @param year year to identify leap years
-#' @param maxlai maximum value during summer (not used when method = 'linear')
+#' @param maxlai maximum value during summer
 #' @param winlaifrac minimum lai as fraction of maxlai during winter (not used when method = 'linear')
-#' @param budburst.doy day of year when growth begins (not used when method = 'linear')
-#' @param leaffall.doy day of year when growth cessates (not used when method = 'linear')
-#' @param emerge.dur number of days until maximum value is reached (required when method = "Coupmodel")
-#' @param leaffall.dur number of days until minimum value is reached (required when method = "b90")
+#' @param budburst.doy budburst day of year (not used when method = 'linear')
+#' @param leaffall.doy day of year when leaf fall begins (not used when method = 'linear')
+#' @param emerge.dur number of days from budburst until maximum leaf area index is reached
+#' @param leaffall.dur number of days until minimum leaf are index is reached
 #' @param opt.doy day of year when optimum value is reached (required when method = "Coupmodel")
 #' @param shape.budburst shape parameter for the growth phase (required when method = "Coupmodel")
 #' @param shape.leaffall shape parameter growth cessation (required when method = "Coupmodel")
-#' @param lai.doy vector of integers (required when method = "linear")
-#' @param lai.frac vector of values corresponding to doy.values (required when method = "linear")
+#' @param lai.doy integer vector of days of years
+#' @param lai.frac vector of values of fractional leaf area index corresponding
+#' to lai.doy (required when method = "linear")
 #'
-#' @return Returns a seasonal sequence of length maxdoy
+#' @return  a vector of daily lai values for one year
 #' @export
 MakeSeasLAI <- function(method="b90",
                         year,

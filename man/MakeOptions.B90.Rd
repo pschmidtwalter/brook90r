@@ -7,48 +7,48 @@
 MakeOptions.B90(...)
 }
 \arguments{
-\item{...}{named arguments to be included in return value}
+\item{...}{named values to be included in return value}
 }
 \value{
-returns a list of default model options. Can be used as inicontrol-argument in \code{\link{Run.B90}}.
+Returns a list of default model control options for use as 'options.b90'-argument in \code{\link{Run.B90}}.
 }
 \description{
 Create a list of model control options
 }
 \details{
 \describe{
-  \item{startdate}{Startdate of the simulation.}
-  \item{enddate}{Enddate of the simulation.}
-  \item{fornetrad}{Use global solar radiation (="globrad") or sunshine duration
+  \item{startdate}{startdate of the simulation.}
+  \item{enddate}{snddate of the simulation.}
+  \item{fornetrad}{use global solar radiation (="globrad") or sunshine duration
   hours (="sunhour") for net radiation calculation?}
-  \item{prec.interval}{Number of precipitation intervals (default is 1).
+  \item{prec.interval}{number of precipitation intervals per day (default is 1).
   If prec.interval > 1, a separate file ("in/PRFILE.DAT") has to be provided manually!}
-  \item{richter.prec.corr}{ Correct Precipitation for wind and evaporation losses (not implented yet)}
-  \item{budburst}{Calculate budburst day of year dynamically (="dynamic") or use fixed values (="fixed") defined in parameters (budburstdoy)?}
-  \item{budburst.method}{Name of method for budburst calculation. If
+  \item{richter.prec.corr}{correct precipitation data for wind and evaporation losses (not implented yet)}
+  \item{budburst.method}{name of method for budburst calculation. If
   'constant' or 'fixed', budburst day of year from parameters is used.
   All other methods calculate budburst day of year dynamically from temperatures, and
   the method name is passed to the 'start.method'-argument of  \code{\link[vegperiod]{vegperiod}}.}
-  \item{leaffall.method}{Name of method for leaffall calculation. If
+  \item{leaffall.method}{name of method for leaffall calculation. If
   'constant' or 'fixed', beginning of leaffall (day of year) from parameters is used.
   All other methods calculate budburst day of year dynamically from temperatures, and
   the method name is passed to the 'end.method'-argument of  \code{\link[vegperiod]{vegperiod}}.}
-  \item{standprop.input}{Name of input for longterm (interannual) plant development.
+  \item{standprop.input}{name of input for longterm (interannual) plant development.
   'parameters': yearly values of stand properties height, sai, densef, lai come from
   parameters, 'table':  values come from a table, see 'longtermdev'-argument of \code{\link{Run.B90}.}}
-  \item{standprop.interp}{Interpolation method for stand properties.
+  \item{standprop.interp}{interpolation method for aboveground stand properties.
   'linear' or 'constant', see 'approx.method'-argument of \code{\link{MakeStand}}.}
-  \item{lai.method}{Name of method method for generating daily plant development.
+  \item{lai.method}{name of method for constructing seasonal course leaf area index development from parameters.
   Passed to 'method'-argument of \code{\link{MakeSeasLAI}}. }
-  \item{imodel}{Name of hydraulic parameterization: "CH" for Clapp/Hornberger, "MvG" for Mualem/van Genuchten}
-  \item{rootmodel}{Model name of the root length density depth distribution function. Any of the names accepted by \code{\link{MakeRelRootDens}} are allowed.
-  Assign "soilvar", if the root length density should be taken from the soil-data.frame (colname relrootlength)     }
-  \item{humusroots}{Shall roots be defined for humuslayer? If TRUE, the humus layers will have the same root length density as the uppermost mineral soil layer.}
+  \item{imodel}{name of hydraulic parameterization: "CH" for Clapp/Hornberger, "MvG" for Mualem/van Genuchten}
+  \item{root.method}{method name of the root length density depth distribution function. Any of the names accepted by \code{\link{MakeRelRootDens}} are allowed.
+  Additionally, "soilvar" can be used if the root length density depth distribution is specified in column 'rootden' in the soil-data.frame}
+  \item{humusroots}{shall roots be defined for humuslayer? If TRUE, the humus layers will have the same root length density as the uppermost mineral soil layer.}
 }
 }
 \examples{
 # Default options
 options.b90 <- MakeOptions.B90()
 # Include specific options
-options.b90_dynamic_phenology <- MakeOptions.B90(budburst = 'Menzel', leaffall ='vonWilpert')
+options.b90_dynamic_phenology <- MakeOptions.B90(budburst.method = 'Menzel', leaffall.method ='vonWilpert')
 }
+

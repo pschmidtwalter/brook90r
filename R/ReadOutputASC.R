@@ -1,8 +1,6 @@
-
-
 #' Read LWF-Brook90 output files
 #'
-#' Reads all files in LWF-Brook90 output directory and returns them as a list of data.frames
+#' Reads all files in LWF-Brook90 output directory and returns them as a list of data.tables
 #'
 #' @param outpath directory with LWF-Brook90 outputfiles
 #'

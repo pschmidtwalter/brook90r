@@ -46,3 +46,4 @@ Creates the seasonal course of leaf area index, based
 on minimum lai, maximum lai, budburst and leaffall day of year (doy) and shape
 parameters.
 }
+

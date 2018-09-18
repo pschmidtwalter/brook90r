@@ -3,9 +3,9 @@
 #' @param soilnodes vector of lower soil layer limits,
 #' for which the relative root distribution will be calculated. Topsoil (humus) layers
 #' corespond to negative values.
-#' @param maxrootdepth the maximum rooting depth (m, positive downwards) below which
+#' @param maxrootdepth the maximum rooting depth (m, negative downwards) below which
 #' relative root length density will be set to zero
-#' @param method root distribution model name. Choose "betamodel" to use the model after Gale & Grigal, "table" to supply a table,
+#' @param method method name for the root depth distribution. "betamodel" use the model after Gale & Grigal, "table" to supply a table,
 #' "constant" to get a uniform root distribution with depth. 'table' redistributes layers of root density to the soilnodes
 #' @param beta parameter(s) of the root distribution function
 #' @param relrootden vector with relative root density
@@ -30,16 +30,11 @@ MakeRelRootDens <- function(soilnodes, #cm lower layer limits, positive downward
   method <- match.arg(method, choices = c("betamodel", "table", "constant"))
   maxrootdepth <- soilnodes[which(abs(soilnodes - maxrootdepth) == min(abs(soilnodes-maxrootdepth)))]
 
-
-  if (length(maxrootdepth) > 1) {
-    maxrootdepth <- maxrootdepth[length(maxrootdepth)]}
-
   if (method == "betamodel") {
 
     maxrootdepth <- maxrootdepth * (-100)
 
     soilnodes <- soilnodes * (-100)
-
 
     RLenD <- 1 - (beta ^ seq(1,maxrootdepth))
     RLenD <- c(RLenD[1], diff(RLenD))

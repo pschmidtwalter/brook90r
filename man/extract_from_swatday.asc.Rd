@@ -38,3 +38,4 @@ swati_wide <- extract_from_swatday.asc(output$swatday.asc,
                                        vars = c("swat", "psim", "theta"))
 
 }
+
