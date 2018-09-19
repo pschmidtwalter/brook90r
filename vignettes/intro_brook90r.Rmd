@@ -316,7 +316,7 @@ legend("bottom",horiz = T, bty = "n",inset = -0.3, xpd =T,
 ```
 
 ## Root depth density depth distribution
-The root depth density depth distribution can either be provided in the column `rootden` of the `soil`- argument of `Run.B90()`, or can be derived using the function `MakeRelRootDens()`. In order to use root density as specified in the soil data, the `root.method` element of the `options.b90`-list has to be set to 'soilvar'. Other method names are passed to `MakeRelRootDens()`. Currently, the function provides two methods to assign values of relative root density to a vector of soil depths. The default method 'betamodel' uses the model of Gale & Grigal (-@gale_vertical_1987), which is of the form $y = 1- \beta^d$, where $y$ is the cumulative root fraction down to soil depth $d$ and $\beta$ is the depth coefficient. Larger values of $\beta$ correspond to a greater proportion of roots in deeper soil layers:
+The root depth density depth distribution can either be provided in the column `rootden` of the `soil`- argument of `Run.B90()`, or can be derived using the function `MakeRelRootDens()`. In order to use root density as specified in the soil data, the `root.method` element of the `options.b90`-list has to be set to 'soilvar'. Other method names are passed to `MakeRelRootDens()`. Currently, the function provides four methods to assign values of relative root density to a vector of soil depths. The default method 'betamodel' uses the model of Gale & Grigal (-@gale_vertical_1987), which is of the form $y = 1- \beta^d$, where $y$ is the cumulative root fraction down to soil depth $d$ and $\beta$ is the depth coefficient. Larger values of $\beta$ correspond to a greater proportion of roots in deeper soil layers:
 ```{r, echo = F, fig.height=4, fig.width=4}
 plot(MakeRelRootDens(soilnodes = seq(0,-2, by = -0.01), 
                               method = "betamodel", 
@@ -343,30 +343,42 @@ legend("bottomright",legend = c(expression(paste(beta, "= 0.93")),expression(pas
                                 expression(paste(beta, "= 0.98")),expression(paste(beta, "= 0.99"))),
        lwd = 1.5, pch = NULL, lty = 1:4, bty = "n")
 ```
-For larger values of $\beta$, the root density will reach zero only in very deep soil layer. In order to set the root density to zero at any desired soil depth, the parameter `maxrootdepth` was defined. With this parameter, the root density is set to zero in all soil layers that lie deeper than `maxrootdepth`.
+For larger values of $\beta$, the root density will reach zero only in very deep soil layer. In order to set the root density to zero at any desired soil depth, the parameter `maxrootdepth` was defined. With this parameter, the root density is set to zero in all soil layers that lie deeper than `maxrootdepth`. 
 Within `Run.B90()`, the function is called in the following way:
 ```{r}
-param.b90$maxrootdepth <- -1.5
+param.b90$maxrootdepth <- -1.3
+options.b90$root.method <- "betamodel" 
 roots_beta <- MakeRelRootDens(soilnodes = soil_slb1$lower, 
                               maxrootdepth = param.b90$maxrootdepth,
                               beta = param.b90$betaroot,
-                              method = options.b90$rootmodel)
-plot(roots_beta, soil_slb1$lower, type ="s")
+                              method = options.b90$root.method)
 ```
-The
-A second option to define the root distribution for the soil layers is to provide value pairs of soil depth and root density, that are then interpolated to the given soil depths of soil layers. As an example, we use the table `rootden_slb1` that contains an observed root density depth profile from the Solling Beech Experimental Site.
+A second option to define the root distribution for the soil layers is to provide value pairs of soil depth and root density, that are  interpolated to midpoints of the soil layers. As an example, we use the table `rootden_slb1` that contains an observed root density depth profile from the Solling Beech Experimental Site.
 ```{r}
 options.b90$root.method <- 'table'
-roots_beta <- MakeRelRootDens(soilnodes = soil_slb1$lower, 
-                              maxrootdepth = param.b90$maxrootdepth,
-                              method = options.b90$rootmodel, 
-                              relrootden= rootden_slb1$rootden,
-                              rootdepths=rootden_slb1$depth,
-                              humusroots = options.b90$humusroots)
+roots_table <- MakeRelRootDens(soilnodes = soil_slb1$lower, 
+                              method = options.b90$root.method, 
+                              relrootden = rootden_slb1$rootden,
+                              rootdepths = rootden_slb1$depth)
 ```
-
-
-
+A third option generates a linear root density depth distriution, with the maximum at the uppermost soil layer and a root density of 0 at 'maxrootdepth'. If the parameter 'relrootden' is provided, the first element of the vector is used as the maximum, otherwise the intepolation is made between 0 and 1. The last option returns a uniform root distribution, with the first vector-element of 'relrootden' (if provided) as value for all layers down to 'maxrootdepth'.
+```{r, echo = 1:4, fig.height=4, fig.width=4}
+options.b90$root.method <- 'linear'
+roots_linear <- MakeRelRootDens(soilnodes = soil_slb1$lower, 
+                              maxrootdepth = param.b90$maxrootdepth,
+                              method = options.b90$root.method,
+                              relrootden = 0.2)
+options.b90$root.method <- 'const'
+roots_constant <- MakeRelRootDens(soilnodes = soil_slb1$lower, 
+                              maxrootdepth = param.b90$maxrootdepth,
+                              method = options.b90$root.method,
+                              relrootden = 0.2)
+plot(roots_beta, soil_slb1$lower, type = 's', lwd = 1.5,
+     ylab = "soil depth [m]", xlim = c(0,0.35))
+lines(roots_table/100, soil_slb1$lower, type = 's', lty= 2, lwd = 1.5)
+lines(roots_linear, soil_slb1$lower, type = 's', lty= 3, lwd = 1.5)
+lines(roots_constant, soil_slb1$lower, type = 's', lty= 4, lwd = 1.5)
+```
 
 
 # References

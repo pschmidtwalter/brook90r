@@ -32,4 +32,3 @@ Wessolek, Kaupenjohann and Renger (2009) Bodenphysikalische Kennwerte
                 und Berechnungsverfahren f?r die Praxis. Boden?kologie und Bodengenese 40,
                 Berlin, Germany (Table No. 10)
 }
-

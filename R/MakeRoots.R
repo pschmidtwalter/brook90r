@@ -1,36 +1,36 @@
-#' Generates a root density depth function for the soil nodes
+#' Generates a root density depth function the soil layers' lower depth limits
 #'
-#' @param soilnodes vector of lower soil layer limits,
+#' @param soilnodes vector of lower soil layer depth limits,
 #' for which the relative root distribution will be calculated. Topsoil (humus) layers
 #' corespond to negative values.
 #' @param maxrootdepth the maximum rooting depth (m, negative downwards) below which
 #' relative root length density will be set to zero
-#' @param method method name for the root depth distribution. "betamodel" use the model after Gale & Grigal, "table" to supply a table,
-#' "constant" to get a uniform root distribution with depth. 'table' redistributes layers of root density to the soilnodes
+#' @param method method name for the root depth distribution. 'betamodel' uses the model after Gale & Grigal,
+#' 'table' interpolates the value pairs of 'rootdepths' and 'relrootden' to 'soilnodes'.
+#' 'linear' returns linearly decreasing root densities with the maximum value
+#' (taken from the first vector element of 'relrootden') at the uppermost layer to 0
+#' at 'maxrootdepth'. 'constant' returns a uniform root distribution with depth
+#' corresponding to the first vector element of 'relrootden' and 0 below 'maxrootdepth'.
 #' @param beta parameter(s) of the root distribution function
-#' @param relrootden vector with relative root density
-#' @param rootdepths vector with lower depths limit, corresponding to relative
-#' rootlength-vector
-#' @param humusroots Should there be roots in top soil layers? If TRUE, the relative
-#' rootlength of the topsoil layers will be the same as in the upper mineral soil layer.
+#' @param relrootden vector of relative root densities
+#' @param rootdepths vector of lower depths limit, corresponding to 'relrootden'
 #'
+#'@details soil nodes
 #' @return vector of relative rootlength, corresponding to soilnodes
 #' @export
-MakeRelRootDens <- function(soilnodes, #cm lower layer limits, positive downward
-                            maxrootdepth = min(soilnodes), #cm, positive downward
-                            method = "betamodel", #Depth-Table, Beta
+MakeRelRootDens <- function(soilnodes,
+                            maxrootdepth = min(soilnodes),
+                            method = "betamodel",
                             beta = 0.97, #
-                            relrootden=NULL, # supply when method is "table"
+                            relrootden = NULL,
                             rootdepths=NULL
                             #cum_RLenDmax= 0.95 # maximum cumulative rootlength, at which maximim
 ) {
-
-  #snap max rootdepth to nearest soilnode
-  method <- match.arg(method, choices = c("betamodel", "table", "constant"))
-  maxrootdepth <- soilnodes[which(abs(soilnodes - maxrootdepth) == min(abs(soilnodes-maxrootdepth)))]
+  method <- match.arg(method, choices = c("betamodel", "table", "constant", "linear"))
 
   if (method == "betamodel") {
     # only positive d-values allowed in beta-model:
+    #maxrootdepth <- soilnodes[which(abs(soilnodes - maxrootdepth) == min(abs(soilnodes-maxrootdepth)))]
     maxrootdepth <- maxrootdepth * (-100)
     soilnodes <- soilnodes * (-100)
 
@@ -53,30 +53,26 @@ MakeRelRootDens <- function(soilnodes, #cm lower layer limits, positive downward
   }
 
   if (method == "table") {
-    if (humusroots ) {
-      RelDenFun <- approxfun(x = rootdepths ,y = relrootden,  method = "const",rule = 2:1, yleft = 0, yright = 0)
-      #RelDenFun <- approxfun(x = rootdepths, y = relrootden, method = "linear",rule = 2:1, yright = 0)
-    } else {
-      RelDenFun <- approxfun(x = rootdepths ,y = relrootden,  method = "linear",rule = 1:1, yleft = 0, yright = 0)
-    }
-    rootden <- RelDenFun(soilnodes) * (1/sum(RelDenFun(soilnodes)))
+    RelDenFun <- with(rootden_slb1, approxfun(x = rootdepths, y = relrootden,
+                                              method = "linear", rule = 1:2,  yleft = 0))
+    midpoints <- c(min(soilnodes) + 0.01, soilnodes[1:length(soilnodes)-1]) + (diff(c(min(soilnodes) +0.01, soilnodes))/2)
+    rootden <- RelDenFun(midpoints)
   }
 
   if (method == "constant") {
-    if (humusroots ) {
-      RelDenFun <- approxfun(x = soilnodes, y =c(rep(1,sum(soilnodes <= maxrootdepth)),rep(0,sum(soilnodes > maxrootdepth))) ,
-                             method = "linear",rule = 2:1, yright = 0)
-    } else {
-      RelDenFun <- approxfun(x = soilnodes ,y = c(rep(1,sum(soilnodes <= maxrootdepth)),rep(0, sum(soilnodes > maxrootdepth))),
-                                                  method = "linear",rule = 1:1, yleft = 0, yright = 0 )
-    }
-
-
-
+    if (is.null(relrootden)) {relrootden <- 1}
+    RelDenFun <- approxfun(x = c(max(soilnodes),maxrootdepth), y = c(relrootden[1],relrootden[1]),
+                           method = "constant",rule = 1:2, yleft = 0)
+    rootden <- RelDenFun(soilnodes)
   }
 
+  if (method == "linear") {
+    if (is.null(relrootden)) {relrootden <- 1}
+    RelDenFun <- approxfun(x = c(max(soilnodes),maxrootdepth), y = c(relrootden[1],0), method = "linear",rule = 1:2, yleft = 0)
+    midpoints <- c(min(soilnodes) + 0.01, soilnodes[1:length(soilnodes)-1]) + (diff(c(min(soilnodes) +0.01, soilnodes))/2)
+    rootden <- RelDenFun(midpoints)
+  }
   return(rootden)
-
 }
 
 

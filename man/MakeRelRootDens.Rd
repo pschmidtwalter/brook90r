@@ -2,37 +2,39 @@
 % Please edit documentation in R/MakeRoots.R
 \name{MakeRelRootDens}
 \alias{MakeRelRootDens}
-\title{Generates a root density depth function for the soil nodes}
+\title{Generates a root density depth function the soil layers' lower depth limits}
 \usage{
 MakeRelRootDens(soilnodes, maxrootdepth = min(soilnodes),
   method = "betamodel", beta = 0.97, relrootden = NULL,
-  rootdepths = NULL, humusroots = FALSE)
+  rootdepths = NULL)
 }
 \arguments{
-\item{soilnodes}{vector of lower soil layer limits,
+\item{soilnodes}{vector of lower soil layer depth limits,
 for which the relative root distribution will be calculated. Topsoil (humus) layers
 corespond to negative values.}
 
-\item{maxrootdepth}{the maximum rooting depth (m, positive downwards) below which
+\item{maxrootdepth}{the maximum rooting depth (m, negative downwards) below which
 relative root length density will be set to zero}
 
-\item{method}{root distribution model name. Choose "betamodel" to use the model after Gale & Grigal, "table" to supply a table,
-"constant" to get a uniform root distribution with depth. 'table' redistributes layers of root density to the soilnodes}
+\item{method}{method name for the root depth distribution. 'betamodel' uses the model after Gale & Grigal,
+'table' interpolates the value pairs of 'rootdepths' and 'relrootden' to 'soilnodes'.
+'linear' returns linearly decreasing root densities with the maximum value
+(taken from the first vector element of 'relrootden') at the uppermost layer to 0
+at 'maxrootdepth'. 'constant' returns a uniform root distribution with depth
+corresponding to the first vector element of 'relrootden' and 0 below 'maxrootdepth'.}
 
 \item{beta}{parameter(s) of the root distribution function}
 
-\item{relrootden}{vector with relative root density}
+\item{relrootden}{vector of relative root densities}
 
-\item{rootdepths}{vector with lower depths limit, corresponding to relative
-rootlength-vector}
-
-\item{humusroots}{Should there be roots in top soil layers? If TRUE, the relative
-rootlength of the topsoil layers will be the same as in the upper mineral soil layer.}
+\item{rootdepths}{vector of lower depths limit, corresponding to 'relrootden'}
 }
 \value{
 vector of relative rootlength, corresponding to soilnodes
 }
 \description{
-Generates a root density depth function for the soil nodes
+Generates a root density depth function the soil layers' lower depth limits
 }
-
+\details{
+soil nodes
+}

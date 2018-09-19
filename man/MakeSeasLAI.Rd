@@ -2,8 +2,7 @@
 % Please edit documentation in R/MakeSeasLAI.R
 \name{MakeSeasLAI}
 \alias{MakeSeasLAI}
-\title{Create daily seasonal plant dynamics sequence (e.g. leaf area index development)
-for one year}
+\title{Construct the seasonal course of leaf area index from parameters}
 \usage{
 MakeSeasLAI(method = "b90", year, maxlai, winlaifrac = 0,
   budburst.doy = 121, leaffall.doy = 279, emerge.dur = 28,
@@ -16,34 +15,33 @@ MakeSeasLAI(method = "b90", year, maxlai, winlaifrac = 0,
 
 \item{year}{year to identify leap years}
 
-\item{maxlai}{maximum value during summer (not used when method = 'linear')}
+\item{maxlai}{maximum value during summer}
 
 \item{winlaifrac}{minimum lai as fraction of maxlai during winter (not used when method = 'linear')}
 
-\item{budburst.doy}{day of year when growth begins (not used when method = 'linear')}
+\item{budburst.doy}{budburst day of year (not used when method = 'linear')}
 
-\item{leaffall.doy}{day of year when growth cessates (not used when method = 'linear')}
+\item{leaffall.doy}{day of year when leaf fall begins (not used when method = 'linear')}
 
-\item{emerge.dur}{number of days until maximum value is reached (required when method = "Coupmodel")}
+\item{emerge.dur}{number of days from budburst until maximum leaf area index is reached}
 
-\item{leaffall.dur}{number of days until minimum value is reached (required when method = "b90")}
+\item{leaffall.dur}{number of days until minimum leaf are index is reached}
 
 \item{shape.budburst}{shape parameter for the growth phase (required when method = "Coupmodel")}
 
 \item{shape.leaffall}{shape parameter growth cessation (required when method = "Coupmodel")}
 
-\item{lai.doy}{vector of integers (required when method = "linear")}
+\item{lai.doy}{integer vector of days of years}
 
-\item{lai.frac}{vector of values corresponding to doy.values (required when method = "linear")}
+\item{lai.frac}{vector of values of fractional leaf area index corresponding
+to lai.doy (required when method = "linear")}
 
 \item{opt.doy}{day of year when optimum value is reached (required when method = "Coupmodel")}
 }
 \value{
-Returns a seasonal sequence of length maxdoy
+a vector of daily lai values for one year
 }
 \description{
-Creates the seasonal course of leaf area index, based
-on minimum lai, maximum lai, budburst and leaffall day of year (doy) and shape
-parameters.
+A daily sequence of leaf area index is derived from maximum and minimum values,
+dates and shape parameters using different methods.
 }
-

@@ -22,4 +22,3 @@ by flagging cells with 1. Assign a name to the returned matrix and use it as
 'outputmat'-argument in \code{\link{Run.B90}}. A default output-matrix is returned
 without opening the data-editor when edit = FALSE.
 }
-

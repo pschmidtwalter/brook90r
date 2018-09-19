@@ -11,27 +11,27 @@ Run.B90(project.dir, options.b90, param.b90, climate, soil,
   write.climate.in = TRUE, run.model = TRUE)
 }
 \arguments{
-\item{project.dir}{Directory-name of the project where the input and output files
+\item{project.dir}{directory-name of the project where the input and output files
 are located. Will be created, if not existing.}
 
-\item{options.b90}{Named list of model control options. Use
+\item{options.b90}{named list of model control options. Use
 \code{\link{MakeOptions.B90}} to generate a list with default model control options.}
 
 \item{param.b90}{Named list of model input parameters. Use
 \code{\link{MakeParam.B90}} to generate a list with default model parameters.}
 
-\item{climate}{Data.frame with daily climate data. The names of climate have to
-corrrespond to arguments \emph{dates}, \emph{tmax}, \emph{tmin}, \emph{wind}, \emph{prec}, \emph{vappres},
+\item{climate}{data.frame with daily climate data. The names of climate have to
+correspond to arguments \emph{dates}, \emph{tmax}, \emph{tmin}, \emph{wind}, \emph{prec}, \emph{vappres},
 \emph{globrad}, \emph{sunhours}) of \code{\link{writeClimate.in}}.}
 
-\item{soil}{Data.frame containing the hydraulic properties of the soil layers.
-Each row represents one layer, containing the layer's boundaries and soil hydraulic parameters.
+\item{soil}{data.frame containing the hydraulic properties of the soil layers.
+Each row represents one layer, containing the layers' boundaries and soil hydraulic parameters.
 The columns names for the upper and lower layer boundaries are \emph{upper} and \emph{lower} (m, negative downwards),
 the parameters of the van Genuchten retention functions are \emph{ths}, \emph{thr},
  \emph{alpha} [m-1], \emph{npar}, and the parameters of the Mualem conductivity function
  \emph{ksat} [mm d-1] and \emph{tort}. The volume fraction of stones has to be named \emph{gravel}.}
 
-\item{outputmat}{A [10,5]-matrix flagging the desired model-output. Use
+\item{outputmat}{a [10,5]-matrix flagging the desired model-output. Use
 \code{\link{choose_output.B90}} to generate and edit default output matrix..}
 
 \item{output.log}{Logical or filename where 'stdout' of \code{\link[base]{system2}}-call
@@ -41,24 +41,24 @@ All other names will create a text file containing the model runtime output.}
 
 \item{out.dir}{path where to write the output-files.}
 
-\item{path_b90.exe}{Filename of the executable. The default setting looks for the
+\item{path_b90.exe}{filename of the executable code. The default setting looks for the
 executable 'b90.exe' within 'project.dir'.}
 
-\item{output.param.options}{Append 'param.b90', 'options.b90', 'soil' and daily plant
+\item{output.param.options}{append 'param.b90', 'options.b90', 'soil' and daily plant
 properties ('plant.devt', as derived from parameters and written to 'climate.in') to the result?}
 
-\item{keep.log.on.success}{Keep the file 'output.log' after a successful simulation?
+\item{keep.log.on.success}{keep the file 'output.log' after a successful simulation?
 In case of simulation errors the 'output.log' file (if specified) is kept anyway for inspection purposes.}
 
-\item{keep.outputfiles}{Keep the model .asc output files after running and
+\item{keep.outputfiles}{keep the model .asc output files after running and
 returning the output?}
 
-\item{verbose}{Print messages to the console? Default is TRUE.}
+\item{verbose}{print messages to the console? Default is TRUE.}
 
-\item{write.climate.in}{Should the climate file be written or not to save execution time?
+\item{write.climate.in}{should the climate file be written or not to save execution time?
 Ignored if no 'Climate.in' is found in 'project.dir/in'.}
 
-\item{run.model}{Run the model or only create input files? Default is TRUE.}
+\item{run.model}{run the executable or only create input files? Default is TRUE.}
 }
 \value{
 Returns the model-output from the files found in 'out.dir' as a list of data.frames (data.tables),
@@ -94,4 +94,3 @@ b90.result <- Run.B90(project.dir = "example_run_b90",
                       soil = soil,
                       path_b90.exe = "b90.exe")
 }
-
