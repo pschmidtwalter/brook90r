@@ -17,8 +17,8 @@ Create a list of model control options
 }
 \details{
 \describe{
-  \item{startdate}{startdate of the simulation.}
-  \item{enddate}{snddate of the simulation.}
+  \item{startdate}{start date of the simulation.}
+  \item{enddate}{end date of the simulation.}
   \item{fornetrad}{use global solar radiation (="globrad") or sunshine duration
   hours (="sunhour") for net radiation calculation?}
   \item{prec.interval}{number of precipitation intervals per day (default is 1).

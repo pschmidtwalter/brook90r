@@ -2,7 +2,7 @@
 #'
 #' @param soilnodes vector of lower soil layer depth limits,
 #' for which the relative root distribution will be calculated. Topsoil (humus) layers
-#' corespond to negative values.
+#' correspond to negative values.
 #' @param maxrootdepth the maximum rooting depth (m, negative downwards) below which
 #' relative root length density will be set to zero
 #' @param method method name for the root depth distribution. 'betamodel' uses the model after Gale & Grigal,
@@ -69,7 +69,7 @@ MakeRelRootDens <- function(soilnodes,
   if (method == "linear") {
     if (is.null(relrootden)) {relrootden <- 1}
     RelDenFun <- approxfun(x = c(max(soilnodes),maxrootdepth), y = c(relrootden[1],0), method = "linear",rule = 1:2, yleft = 0)
-    midpoints <- c(min(soilnodes) + 0.01, soilnodes[1:length(soilnodes)-1]) + (diff(c(min(soilnodes) +0.01, soilnodes))/2)
+    midpoints <- c(max(soilnodes) + 0.01, soilnodes[1:length(soilnodes)-1]) + (diff(c(max(soilnodes) +0.01, soilnodes))/2)
     rootden <- RelDenFun(midpoints)
   }
   return(rootden)

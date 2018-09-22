@@ -4,10 +4,10 @@
 \alias{readOutput.B90}
 \title{Read LWF-Brook90 output files}
 \usage{
-readOutput.B90(outpath)
+readOutput.B90(directory)
 }
 \arguments{
-\item{outpath}{directory with LWF-Brook90 outputfiles}
+\item{directory}{directory with LWF-Brook90 .ASC-outputfiles}
 }
 \value{
 a named list containing the data from outputfiles. Each list item  corresponds

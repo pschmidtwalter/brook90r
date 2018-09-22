@@ -4,8 +4,8 @@
 #' @return Returns a list of default model control options for use as 'options.b90'-argument in \code{\link{Run.B90}}.
 #' @details
 #' \describe{
-#'   \item{startdate}{startdate of the simulation.}
-#'   \item{enddate}{snddate of the simulation.}
+#'   \item{startdate}{start date of the simulation.}
+#'   \item{enddate}{end date of the simulation.}
 #'   \item{fornetrad}{use global solar radiation (="globrad") or sunshine duration
 #'   hours (="sunhour") for net radiation calculation?}
 #'   \item{prec.interval}{number of precipitation intervals per day (default is 1).

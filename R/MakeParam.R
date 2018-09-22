@@ -165,7 +165,7 @@ MakeParam.B90 <- function(...) {
     rgroper = 30,
     maxrootdepth = -1.5,
     betaroot = 0.97,
-    betarootmaximumcumrelrootden = 0.95,
+    rootden.table = NULL,
     radex = 0.5,
     glmax = 0.0053,
     glmin = 3e-04,

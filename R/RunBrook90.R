@@ -320,16 +320,26 @@ Run.B90 <- function(project.dir,
       if (verbose == T) {print("Creating constant stand properties from parameters...")}
 
       # yearly variation of parameters
+      # TODO: propblem when length(simyears) =1 und height.end etc.
       if (any(with(param.b90, length(sai) > 1, length(densef) > 1, length(height) > 1))) {
+        if (length(param.b90$height) == 1) {
+          height <- param.b90$height
+        } else { height <- c(param.b90$height, param.b90$height.end)}
+        if (length(param.b90$sai) == 1) {
+          sai <- param.b90$sai
+        } else { sai <- c(param.b90$sai, param.b90$sai.end)}
+        if (length(param.b90$densef) == 1) {
+          densef <- param.b90$densef
+        } else { densef <- c(param.b90$densef, param.b90$densef.end)}
+
+
         standprop_yearly <- data.frame(year = c(simyears, max(simyears) + 1),
                                        age = seq(from = param.b90$age.ini, by = 1,
                                                  length.out = length(simyears) + 1),
-                                       height = c(param.b90$height, param.b90$height.end),
-                                       sai = c(param.b90$sai, param.b90$sai.end),
-                                       densef = c(param.b90$densef, param.b90$densef.end))
-        if (length(param.b90$height) == 1) { standprop_yearly$height <- param.b90$height}
-        if (length(param.b90$sai) == 1) {standprop_yearly$sai <- param.b90$sai}
-        if (length(param.b90$densef) == 1) {standprop_yearly$densef <- param.b90$densef}
+                                       height = height,
+                                       sai = sai,
+                                       densef = densef)
+
 
       } else { # same properties every year
         standprop_yearly <- data.frame(year = simyears,
@@ -409,12 +419,13 @@ Run.B90 <- function(project.dir,
 
   # Make Roots ----------------------------------------------------------------------
   if (options.b90$root.method != "soilvar") {
-    soil$rootden <- MakeRelRootDens(soil$lower * (-100),
-                                          param.b90$maxrootdepth * (-100),
-                                          method = options.b90$rootmodel,
+    soil$rootden <- MakeRelRootDens(soilnodes = soil$lower,
+                                          maxrootdepth = param.b90$maxrootdepth,
+                                          method = options.b90$root.method,
                                           beta = param.b90$betaroot,
-                                          humusroots = options.b90$humusroots
-    )}
+                                    relrootden = param.b90$rootden.tab$rootden,
+                                    rootdepths = param.b90$rootden.tab$depth)
+    }
 
   #  Make soil ----------------------------------------------------------------------
   #  Create materials for writeparam.in from soil

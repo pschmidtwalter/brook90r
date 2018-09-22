@@ -2,24 +2,24 @@
 #'
 #' Reads all files in LWF-Brook90 output directory and returns them as a list of data.tables
 #'
-#' @param outpath directory with LWF-Brook90 outputfiles
+#' @param directory directory with LWF-Brook90 .ASC-outputfiles
 #'
 #' @return a named list containing the data from outputfiles. Each list item  corresponds
 #' to one file.
 #' @export
-readOutput.B90 <- function(outpath){
+readOutput.B90 <- function(directory){
 
-  outfilenames <- c(list.files(outpath,pattern = ".ASC"),
-                    list.files(outpath,pattern = ".PRE"))
+  outfilenames <- c(list.files(directory,pattern = ".ASC"),
+                    list.files(directory,pattern = ".PRE"))
 
 
   for (i in 1:length(outfilenames)) {
 
     # 'normal' reading
     if ( !grepl("SWAT|PSIT|MISCMON\\.ASC|BELO\\.PRE",outfilenames[i])
-        & file.exists(normalizePath( file.path(outpath,outfilenames[i]), mustWork = FALSE))) {
+        & file.exists(normalizePath( file.path(directory,outfilenames[i]), mustWork = FALSE))) {
       assign(tolower(outfilenames[i]),
-             data.table::fread(normalizePath( file.path(outpath,outfilenames[i]), mustWork = F),
+             data.table::fread(normalizePath( file.path(directory,outfilenames[i]), mustWork = F),
                                sep = ";",
                                header = T, showProgress = F)
       )
@@ -28,9 +28,9 @@ readOutput.B90 <- function(outpath){
 
     # 'special' reading: SWAT
     if (grepl("SWAT",outfilenames[i]) &
-        file.exists(normalizePath( file.path(outpath,outfilenames[i]), mustWork = FALSE))) {
+        file.exists(normalizePath( file.path(directory,outfilenames[i]), mustWork = FALSE))) {
       assign(tolower(outfilenames[i]),
-             data.table::fread(normalizePath( file.path(outpath,outfilenames[i]), mustWork = FALSE ),sep = ";",
+             data.table::fread(normalizePath( file.path(directory,outfilenames[i]), mustWork = FALSE ),sep = ";",
                                header = F, skip = 1,showProgress = F)
       )
       if (outfilenames[i] == "SWATDAY.ASC")
@@ -49,9 +49,9 @@ readOutput.B90 <- function(outpath){
 
     # 'special' reading: PSIT
     if (grepl("PSIT",outfilenames[i]) &
-        file.exists(normalizePath( file.path(outpath,outfilenames[i]), mustWork = FALSE))) {
+        file.exists(normalizePath( file.path(directory,outfilenames[i]), mustWork = FALSE))) {
       assign(tolower(outfilenames[i]),
-             data.table::fread(normalizePath( file.path(outpath,outfilenames[i]), mustWork = FALSE),sep = " ",
+             data.table::fread(normalizePath( file.path(directory,outfilenames[i]), mustWork = FALSE),sep = " ",
                                header = F, skip = 2,showProgress = F)
       )
       columN. <- ncol(get(tolower(outfilenames[i])))
@@ -78,9 +78,9 @@ readOutput.B90 <- function(outpath){
 
     # 'special' reading: MISC, BELo
     if (outfilenames[i] == "MISCMON.ASC" &
-        file.exists(normalizePath( file.path(outpath,"MISCMON.ASC"), mustWork = FALSE))) {
+        file.exists(normalizePath( file.path(directory,"MISCMON.ASC"), mustWork = FALSE))) {
       assign(tolower(outfilenames[i]),
-             data.table::data.table(read.table(normalizePath( file.path(outpath, "MISCMON.ASC"), mustWork = FALSE),
+             data.table::data.table(read.table(normalizePath( file.path(directory, "MISCMON.ASC"), mustWork = FALSE),
                                                skip = 1)))
       data.table::setnames(get(tolower(outfilenames[i])),
                paste("V",1:9,sep = ""),
@@ -90,7 +90,7 @@ readOutput.B90 <- function(outpath){
 
     if (outfilenames[i] == "BELO.PRE") {
       assign(tolower(outfilenames[i]),
-             data.table::data.table(read.table(normalizePath( file.path(outpath, "BELO.PRE"), mustWork = FALSE),
+             data.table::data.table(read.table(normalizePath( file.path(directory, "BELO.PRE"), mustWork = FALSE),
                                                header = T))
       )
 

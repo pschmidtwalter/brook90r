@@ -17,8 +17,9 @@ LazyData: true
 RoxygenNote: 6.0.1
 Suggests:
     vegperiod (>= 0.2.1),
-    doSNOW,
     sirad,
+    foreach,
+    doSNOW,
     testthat,
     knitr,
     rmarkdown,
