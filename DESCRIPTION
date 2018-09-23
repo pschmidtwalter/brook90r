@@ -1,6 +1,6 @@
 Package: brook90r
 Title: Run the LWF-BROOK90 hydrological model from within R.
-Version: 0.2.0
+Version: 1.0.1
 Authors@R: person("Paul", "Schmidt-Walter", email = "paul.schmidt-walter@nw-fva.de",
     role = c("aut", "cre"))
 Description: Run the LWF-BROOK90 hydrological model from within R. The central
