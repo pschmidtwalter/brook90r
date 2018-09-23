@@ -72,7 +72,7 @@ b90.results.slb1 <- Run.B90(project.dir = "example_run_b90/",
 Status
 ======
 
-The package works as intended and is fully documented, but needs a better test coverage.
+The package works as intended and is fully documented.
 
 Usage
 =====

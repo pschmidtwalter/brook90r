@@ -77,7 +77,7 @@ b90.results.slb1 <- Run.B90(project.dir = "example_run_b90/",
                             soil = soil,
                             outputmat = output,
                             output.log = "b90.log",
-                            path_b90.exe = "H:/B90/b90.exe")
+                            path_b90.exe = "D:/Arbeit/B90/b90.exe")
 ```
 `Run.B90` thereby creates the project directory (`project.dir`), derives the daily stand properties (densef, height, lai, sai, age) and root distribution from parameters and writes climate, vegetation properties and parameters to the 'climate.in' and 'param.in' files into a folder named 'in' within `project.dir`. It then starts the commandline tool found under `path_b90.exe`, which reads the files in the 'in' folder and stores its output as .asc-files in the specified folder `out.dir` (defaults to 'out/' within `project.dir`). As a last step, `Run.B90` returns the contents of the output files. While running, several  progress messages are printed to the R-console (if `verbose = TRUE`). The commandline-feed of 'b90.exe' itself is by default redirected to the R-console, but can also be discarded (`output.log = FALSE`) or written to a file by passing a filename to the `output.log`-argument of `Run.B90`, as we did in the example above. The returned object `b90.results.slb1` is a list containing the model output (as specified by the `outputmat`-argument and named according to the .asc files in the `out.dir`-folder), along with the options, parameters and derived daily vegetation properties used in the simulation, if desired (`output.param.options = T`). Let us have a look at the `evapday.asc`-item of `b90.results.slb1` containing daily evaporation fluxes:
 
@@ -306,7 +306,7 @@ b90.results.slb1.standtable <- Run.B90(project.dir = "example_run_b90/",
                                        soil = soil,
                                        outputmat = output,
                                        output.log = "b90.log",
-                                       path_b90.exe = "H:/B90/b90.exe")
+                                       path_b90.exe = "D:/Arbeit/B90/b90.exe")
 par(mar=c(4.1,4.1,1.1,4.1))
 with(b90.results.slb1.standtable$plant.devt,{
   plot(dates, lai, 

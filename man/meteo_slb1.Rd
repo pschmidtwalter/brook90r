@@ -22,3 +22,4 @@ meteo_slb1
 A dataset containing daily weather variables for the period 1960-2013
 }
 \keyword{datasets}
+
