@@ -306,57 +306,87 @@ Run.B90 <- function(project.dir,
   if (write.climate.in == TRUE) {
     if (tolower(options.b90$standprop.input) == "table") {
       if (verbose == T) {print("Creating long term stand dynamics from table 'standprop.table'...")}
+
       if (is.null(param.b90$standprop.table) & tolower(options.b90$standprop.input) == "table") {
         stop("Missing parameter: 'standprop.table', required if options.b90$standprop.input = 'table'")}
 
-      standprop_yearly <- data.table(param.b90$standprop.table)
+
+      standprop_daily <- data.table(
+        dates = seq.Date(from = as.Date(paste0(min(simyears),"-01-01")),
+                         to = as.Date(paste0(max(simyears),"-12-31")),
+                         by = "day"),
+        height = approx_standprop(x.years = param.b90$standprop.table$year,
+                                  y = param.b90$standprop.table$height,
+                                  xout.years = simyears,
+                                  approx.method = options.b90$standprop.interp),
+        sai = approx_standprop(x.years = param.b90$standprop.table$year,
+                               y = param.b90$standprop.table$sai,
+                               xout.years = simyears,
+                               approx.method = options.b90$standprop.interp),
+        densef = approx_standprop(x.years = param.b90$standprop.table$year,
+                                  y = param.b90$standprop.table$densef,
+                                  xout.years = simyears,
+                                  approx.method = options.b90$standprop.interp))
+      #interpolate age
+      param.b90$age <- seq(param.b90$standprop.table$age[1] - (param.b90$standprop.table$year[1] - min(simyears)),
+                           by = 1, length.out = length(simyears)+1)
+
+      standprop_daily[, age := approx_standprop(x.years=c(simyears, max(simyears) + 1),
+                                                y = param.b90$age,
+                                                xout.years = simyears,
+                                                approx.method = 'linear')]
+
       # interpolate lai with rule = 2 to extend lai from table to simyears
       param.b90$maxlai <- with(param.b90$standprop.table,
                                approx(x = as.Date(paste0(year,"-01-01")),
                                       y = maxlai,
                                       xout = as.Date(paste0(simyears,"-01-01")),
                                       method = 'constant', rule = 2))$y
+
     } else { # standproperties from parameters
       if (verbose == T) {print("Creating constant stand properties from parameters...")}
 
-      # yearly variation of parameters
-      # TODO: propblem when length(simyears) = 1 with height.end etc.
-      if (any(with(param.b90, length(sai) > 1, length(densef) > 1, length(height) > 1))) {
-        if (length(param.b90$height) == 1) {
-          height <- param.b90$height
-        } else { height <- c(param.b90$height, param.b90$height.end)}
-        if (length(param.b90$sai) == 1) {
-          sai <- param.b90$sai
-        } else { sai <- c(param.b90$sai, param.b90$sai.end)}
-        if (length(param.b90$densef) == 1) {
-          densef <- param.b90$densef
-        } else { densef <- c(param.b90$densef, param.b90$densef.end)}
+      if (options.b90$standprop.interp == "constant") {
+        standprop_daily <- data.table(
+          dates = seq.Date(from = as.Date(paste0(min(simyears),"-01-01")),
+                           to = as.Date(paste0(max(simyears),"-12-31")),
+                           by = "day"),
+          height = approx_standprop(x.years=simyears,
+                                    y = param.b90$height,
+                                    approx.method = options.b90$standprop.interp),
+          sai = approx_standprop(x.years=simyears,
+                                 y = param.b90$sai,
+                                 approx.method = options.b90$standprop.interp),
+          densef = approx_standprop(x.years=simyears,
+                                    y = param.b90$densef,
+                                    approx.method = options.b90$standprop.interp)
+        )
+      } else {
+        standprop_daily <- data.table(
+          dates = seq.Date(from = as.Date(paste0(min(simyears),"-01-01")),
+                           to = as.Date(paste0(max(simyears),"-12-31")),
+                           by = "day"),
+          height = approx_standprop(x.years=c(simyears, max(simyears) + 1),
+                                    y = c(param.b90$height, param.b90$height.end),
+                                    approx.method = options.b90$standprop.interp),
+          sai = approx_standprop(x.years=c(simyears, max(simyears) + 1),
+                                 y = c(param.b90$sai,param.b90$sai.end),
+                                 approx.method = options.b90$standprop.interp),
+          densef = approx_standprop(x.years=c(simyears, max(simyears) + 1),
+                                    y = c(param.b90$densef, param.b90$densef.end),
+                                    approx.method = options.b90$standprop.interp)
+        )
 
-
-        standprop_yearly <- data.frame(year = c(simyears, max(simyears) + 1),
-                                       age = seq(from = param.b90$age.ini, by = 1,
-                                                 length.out = length(simyears) + 1),
-                                       height = height,
-                                       sai = sai,
-                                       densef = densef)
-
-
-      } else { # same properties every year
-        standprop_yearly <- data.frame(year = simyears,
-                                       age = seq(from = param.b90$age.ini, by = 1,
-                                                 length.out = length(simyears)),
-                                       height = param.b90$height,
-                                       sai = param.b90$sai,
-                                       densef = param.b90$densef)
       }
+      #interpolate age
+      standprop_daily[, age :=
+                        approx_standprop(x.years=c(simyears, max(simyears) + 1),
+                                         y = seq(from = param.b90$age.ini, by = 1,
+                                                 length.out = length(simyears) + 1),
+                                         xout.years = simyears,
+                                         approx.method = 'linear'),]
     }
 
-    standprop_daily <- with(standprop_yearly,
-                            data.table(MakeStand(stand.years = year,
-                                                 sai = sai, height = height, densef = densef,
-                                                 age = age,
-                                                 years.out = simyears,
-                                                 approx.method = options.b90$standprop.interp)))
     # constrain to simulation period
     standprop_daily <- standprop_daily[which(dates >= options.b90$startdate
                                              & dates <= options.b90$enddate),]
@@ -420,12 +450,12 @@ Run.B90 <- function(project.dir,
   # Make Roots ----------------------------------------------------------------------
   if (options.b90$root.method != "soilvar") {
     soil$rootden <- MakeRelRootDens(soilnodes = soil$lower,
-                                          maxrootdepth = param.b90$maxrootdepth,
-                                          method = options.b90$root.method,
-                                          beta = param.b90$betaroot,
+                                    maxrootdepth = param.b90$maxrootdepth,
+                                    method = options.b90$root.method,
+                                    beta = param.b90$betaroot,
                                     relrootden = param.b90$rootden.tab$rootden,
                                     rootdepths = param.b90$rootden.tab$depth)
-    }
+  }
 
   #  Make soil ----------------------------------------------------------------------
   #  Create materials for writeparam.in from soil

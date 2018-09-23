@@ -42,4 +42,3 @@ Puhlmann H, von Wilpert K (2011) Testing and development of pedotransfer
                 functions for water retention and hydraulic conductivity of forest soils.
                 Wald?kologie, Landschaftsforschung und Naturschutz 12, pp. 61-71
 }
-

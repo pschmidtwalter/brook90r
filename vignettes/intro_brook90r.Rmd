@@ -77,7 +77,7 @@ b90.results.slb1 <- Run.B90(project.dir = "example_run_b90/",
                             soil = soil,
                             outputmat = output,
                             output.log = "b90.log",
-                            path_b90.exe = "D:/Arbeit/B90/b90.exe")
+                            path_b90.exe = "H:/B90/b90.exe")
 ```
 `Run.B90` thereby creates the project directory (`project.dir`), derives the daily stand properties (densef, height, lai, sai, age) and root distribution from parameters and writes climate, vegetation properties and parameters to the 'climate.in' and 'param.in' files into a folder named 'in' within `project.dir`. It then starts the commandline tool found under `path_b90.exe`, which reads the files in the 'in' folder and stores its output as .asc-files in the specified folder `out.dir` (defaults to 'out/' within `project.dir`). As a last step, `Run.B90` returns the contents of the output files. While running, several  progress messages are printed to the R-console (if `verbose = TRUE`). The commandline-feed of 'b90.exe' itself is by default redirected to the R-console, but can also be discarded (`output.log = FALSE`) or written to a file by passing a filename to the `output.log`-argument of `Run.B90`, as we did in the example above. The returned object `b90.results.slb1` is a list containing the model output (as specified by the `outputmat`-argument and named according to the .asc files in the `out.dir`-folder), along with the options, parameters and derived daily vegetation properties used in the simulation, if desired (`output.param.options = T`). Let us have a look at the `evapday.asc`-item of `b90.results.slb1` containing daily evaporation fluxes:
 
@@ -226,41 +226,49 @@ text(x = as.Date(paste(param.b90$budburstdoy, year(options.b90$startdate):year(o
 Beside the obvious between-year variation of maximum leaf area index, we can also see the effect of the shape parameter for the leaf unfolding phase `shape.budburst`. Values greater 1 result in concave, values below 1 in convex functions, while values of 1 give linear progressions. The budburst day-of-year is varying as specified in the parameters, but can also be estimated using temperature based phenology models. By selecting other settings than the default `options.b90$budburst.method = 'fixed'` and `options.b90$leaffall.method = 'fixed'`, the `vegperiod()` function of the 'vegperiod'-Package is called from within `Run.B90`. `budburstdoy` and/or `leaffalldoy` are then calculated for each year from the climate data using the desired methods. See `vegperiod` for a list of available models. The estimated values for `budburstdoy` and/or `leaffalldoy` can be found in the `param.b90` list element of the results object after the simulation.
 
 ### Other plant properties (height, sai, densef)
-Like the leaf area index parameters and budburst/leaffall-dates, it is also possible to provide vectors of values for stand height, stem area index, and stand density to generate between-year variation of stand characteristics. From the yearly values, daily values are interpolated using the function `MakeStand()`. The `approx.method`- argument of the function defines how to interpolate the yearly values. Within `Run.B90`, the option `options.b90$standprop.interp` is passed to the `approx.method`- argument of `MakeStand()`. The default interpolation method 'constant' results in a yearly changing step function, while 'linear' interpolates the values:
-```{r, echo = 1:7, fig.height=4, fig.width=7}
+Like the leaf area index parameters and budburst/leaffall-dates, it is also possible to provide vectors of values for stand height, stem area index, and stand density to generate between-year variation of stand characteristics. From the yearly values, daily values are interpolated using the function `approx_standprop`. The `approx.method`- argument of the function defines how to interpolate the yearly values. Within `Run.B90`, the option `options.b90$standprop.interp` is passed to the `approx.method`- argument of `approx_standprop`. The default interpolation method 'constant' results in a yearly changing step function, while 'linear' interpolates the values:
+```{r, echo = 1:13, fig.height=4, fig.width=7}
+# constant 'interpolation'
 options.b90$standprop.interp <- 'constant'
 param.b90$height <- c(20,20.8,21.3)
 param.b90$sai <- c(0.5,0.45,0.53)
-stand_c <- MakeStand(stand.years = 2001:2003,
-                     sai = param.b90$sai, 
-                     height = param.b90$height, 
-                     densef = param.b90$densef,
-                     age =param.b90$age.ini, 
-                     approx.method = options.b90$standprop.interp)
+simyears <- year(seq.Date(options.b90$startdate,options.b90$enddate, "year"))
+height_c <- approx_standprop(x.years=simyears,
+                                 y = param.b90$height,
+                                 approx.method = options.b90$standprop.interp)
+sai_c <- approx_standprop(x.years=simyears,
+                                 y = param.b90$sai,
+                                 approx.method = options.b90$standprop.interp)
+
+# linear interpolation       
 options.b90$standprop.interp <- 'linear'
 param.b90$height.end <- 21.6
 param.b90$sai.end <- 0.5
-simyears <- year(seq.Date(options.b90$startdate,options.b90$enddate, "year"))
-stand_l <- MakeStand(stand.years = c(simyears, max(simyears) + 1),
-                     sai = c(param.b90$sai,param.b90$sai.end), 
-                     height = c(param.b90$height, param.b90$height.end), 
-                     densef = param.b90$densef,
-                     age = seq(from = param.b90$age.ini, by = 1,
-                                                 length.out = length(simyears)+1), 
-                     approx.method = options.b90$standprop.interp)
+height_l <- approx_standprop(x.years=c(simyears, max(simyears) + 1),
+                             y = c(param.b90$height, param.b90$height.end),
+                             xout.years = simyears,
+                             approx.method = options.b90$standprop.interp)
+sai_l <- approx_standprop(x.years=c(simyears, max(simyears) + 1),
+                          y = c(param.b90$sai,param.b90$sai.end),
+                          xout.years = simyears,
+                          approx.method = options.b90$standprop.interp)
+
+dates <- seq.Date(from = as.Date(paste0(min(simyears),"-01-01")),
+                           to = as.Date(paste0(max(simyears),"-12-31")),
+                           by = "day")
 
 par(mar=c(4.1,4.1,1.1,4.1))
-plot(stand_c$dates, stand_c$height,
+plot(dates, height_c,
      type = "l", lwd = 2, col = "blue", 
      ylim = c(18,22), ylab = "height [m]", xlab = "")
-lines(stand_l$dates, stand_l$height, 
+lines(dates, height_l, 
       col = "blue", lwd = 2, lty = 2)
 
 par(new = T)
-plot(stand_c$dates, stand_c$sai, 
+plot(dates, sai_c, 
      type = "l", lwd = 2, col = "brown",
      ylim = c(0.4,0.8), yaxt ="n",ylab = "",xlab = "")
-lines(stand_l$dates, stand_l$sai, 
+lines(dates, sai_l, 
      type = "l", lwd = 2, col = "brown",
      lty = 2)
 axis(4, at = seq(0.3,0.8, by = 0.1))
@@ -298,7 +306,7 @@ b90.results.slb1.standtable <- Run.B90(project.dir = "example_run_b90/",
                                        soil = soil,
                                        outputmat = output,
                                        output.log = "b90.log",
-                                       path_b90.exe = "D:/Arbeit/B90/b90.exe")
+                                       path_b90.exe = "H:/B90/b90.exe")
 par(mar=c(4.1,4.1,1.1,4.1))
 with(b90.results.slb1.standtable$plant.devt,{
   plot(dates, lai, 

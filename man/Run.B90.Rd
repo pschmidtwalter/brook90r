@@ -94,4 +94,3 @@ b90.result <- Run.B90(project.dir = "example_run_b90",
                       soil = soil,
                       path_b90.exe = "b90.exe")
 }
-

@@ -60,4 +60,3 @@ Creates the Climate.in file from daily climate data and vegetation properties,
 providing some flexibility with regards to radiation (solar radiation or sunshine hours)
 and precipitation correction
 }
-

@@ -80,4 +80,3 @@ b90.multi <- MultiRun.B90(nRuns = n,
                      output.param.options = F,
                      path_b90.exe = "b90.exe")
 }
-

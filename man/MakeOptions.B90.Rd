@@ -51,4 +51,3 @@ options.b90 <- MakeOptions.B90()
 # Include specific options
 options.b90_dynamic_phenology <- MakeOptions.B90(budburst.method = 'Menzel', leaffall.method ='vonWilpert')
 }
-
