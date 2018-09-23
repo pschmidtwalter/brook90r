@@ -19,7 +19,7 @@
 #'  \emph{alpha} [m-1], \emph{npar}, and the parameters of the Mualem conductivity function
 #'  \emph{ksat} [mm d-1] and \emph{tort}. The volume fraction of stones has to be named \emph{gravel}.
 #' @param outputmat a [10,5]-matrix flagging the desired model-output. Use
-#' \code{\link{choose_output.B90}} to generate and edit default output matrix..
+#' \code{\link{choose_output.B90}} to generate and edit default output matrix.
 #' @param output.log Logical or filename where 'stdout' of \code{\link[base]{system2}}-call
 #' is sent. The default \emph{output.log} = "" sents all command-line model-output to
 #' the R console, \emph{output.log} = FALSE discards stdout.
@@ -49,7 +49,7 @@
 #' param.b90 <- MakeParam.B90()
 #' options.b90 <- MakeOptions.B90()
 #'
-#' Set start and end Dates for the simulation
+#' # Set start and end Dates for the simulation
 #'
 #' options.b90$startdate <- as.Date("2000-01-01")
 #' options.b90$enddate <- as.Date("2004-12-31")
@@ -59,7 +59,7 @@
 #'
 #' soil <- cbind(soil_slb1, hydpar_wessolek_mvg(soil_slb1$texture))
 #'
-#' Run LWF-Brook90
+#' # Run LWF-Brook90
 #' b90.result <- Run.B90(project.dir = "example_run_b90",
 #'                       options.b90 = options.b90,
 #'                       param.b90 = param.b90.b90,
@@ -320,7 +320,7 @@ Run.B90 <- function(project.dir,
       if (verbose == T) {print("Creating constant stand properties from parameters...")}
 
       # yearly variation of parameters
-      # TODO: propblem when length(simyears) =1 und height.end etc.
+      # TODO: propblem when length(simyears) = 1 with height.end etc.
       if (any(with(param.b90, length(sai) > 1, length(densef) > 1, length(height) > 1))) {
         if (length(param.b90$height) == 1) {
           height <- param.b90$height

@@ -3,18 +3,18 @@ Title: Run the LWF-Brook90 hydrological model from within R.
 Version: 0.2.0
 Authors@R: person("Paul", "Schmidt-Walter", email = "paul.schmidt-walter@nw-fva.de",
     role = c("aut", "cre"))
-Description: Run the executable code of LWF-Brook90 forest hydrology model from
-    within R, using climate driving data, soil and model options and parameters.
+Description: Write input files from model control options, parameters, soil and climate data,
+    start the LWF-Brook90 hydrological model (external model code) and return its output files. 
     Aside from simple writing and reading LWF-Brook90 input and output files, many
     useful functions are provided for incorparating stand dynamics and pedotransfer-
     functions to the external model code.
 Depends:
     R (>= 3.2.2),
-    data.table (>= 1.9.6)
+    data.table (>= 1.10.4)
 License: GPL-3
 Encoding: UTF-8
 LazyData: true
-RoxygenNote: 6.0.1
+RoxygenNote: 5.0.1
 Suggests:
     vegperiod (>= 0.2.1),
     sirad,

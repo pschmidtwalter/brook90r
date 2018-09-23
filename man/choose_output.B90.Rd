@@ -2,19 +2,19 @@
 % Please edit documentation in R/choose_output.R
 \name{choose_output.B90}
 \alias{choose_output.B90}
-\title{Choose output for LWF-Brook90}
+\title{Select output for LWF-Brook90}
 \usage{
 choose_output.B90(outputmat = NULL, edit = T)
 }
 \arguments{
 \item{outputmat}{optional [5,10]-matrix, opened for editing.
 If no matrix is passed, a default selection of output values is opened in R's data-editor or returned
-instantly, if edit=FALSE}
+instantly, if edit=FALSE.}
 
 \item{edit}{open R's data-editor ?}
 }
 \value{
-a [5,10]-matrix containing 0 and 1.
+a [5,10]-matrix containing 0 and 1 for use as 'outputmat'-argument in \code{\link{Run.B90}}
 }
 \description{
 Opens the data editor with a [5,10] matrix for selecting the LWF-Brook90-output
@@ -22,3 +22,16 @@ by flagging cells with 1. Assign a name to the returned matrix and use it as
 'outputmat'-argument in \code{\link{Run.B90}}. A default output-matrix is returned
 without opening the data-editor when edit = FALSE.
 }
+\examples{
+
+# opens data editor with default selection
+outmat <- choose_output.B90()
+
+outmat[6,] <- 1
+
+outmat_new <- choose_output.B90(outmat)
+
+outmat <- choose_output.B90(edit = F)
+
+}
+

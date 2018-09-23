@@ -30,3 +30,4 @@ Creates a daily sequence for one year from parameters
 \examples{
 plot(plant.b90(0,5, 121, 20, 270, 50,365))
 }
+

@@ -32,7 +32,7 @@ the parameters of the van Genuchten retention functions are \emph{ths}, \emph{th
  \emph{ksat} [mm d-1] and \emph{tort}. The volume fraction of stones has to be named \emph{gravel}.}
 
 \item{outputmat}{a [10,5]-matrix flagging the desired model-output. Use
-\code{\link{choose_output.B90}} to generate and edit default output matrix..}
+\code{\link{choose_output.B90}} to generate and edit default output matrix.}
 
 \item{output.log}{Logical or filename where 'stdout' of \code{\link[base]{system2}}-call
 is sent. The default \emph{output.log} = "" sents all command-line model-output to
@@ -76,7 +76,7 @@ the results.
 param.b90 <- MakeParam.B90()
 options.b90 <- MakeOptions.B90()
 
-Set start and end Dates for the simulation
+# Set start and end Dates for the simulation
 
 options.b90$startdate <- as.Date("2000-01-01")
 options.b90$enddate <- as.Date("2004-12-31")
@@ -86,7 +86,7 @@ options.b90$enddate <- as.Date("2004-12-31")
 
 soil <- cbind(soil_slb1, hydpar_wessolek_mvg(soil_slb1$texture))
 
-Run LWF-Brook90
+# Run LWF-Brook90
 b90.result <- Run.B90(project.dir = "example_run_b90",
                       options.b90 = options.b90,
                       param.b90 = param.b90.b90,
@@ -94,3 +94,4 @@ b90.result <- Run.B90(project.dir = "example_run_b90",
                       soil = soil,
                       path_b90.exe = "b90.exe")
 }
+

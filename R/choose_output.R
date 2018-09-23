@@ -1,4 +1,4 @@
-#' Choose output for LWF-Brook90
+#' Select output for LWF-Brook90
 #'
 #' Opens the data editor with a [5,10] matrix for selecting the LWF-Brook90-output
 #' by flagging cells with 1. Assign a name to the returned matrix and use it as
@@ -7,10 +7,24 @@
 #'
 #' @param outputmat optional [5,10]-matrix, opened for editing.
 #' If no matrix is passed, a default selection of output values is opened in R's data-editor or returned
-#' instantly, if edit=FALSE
+#' instantly, if edit=FALSE.
 #' @param edit open R's data-editor ?
 #'
-#' @return a [5,10]-matrix containing 0 and 1.
+#' @return a [5,10]-matrix containing 0 and 1 for use as 'outputmat'-argument in \code{\link{Run.B90}}
+#' @examples
+#'
+#' # opens data editor with default selection
+#'outmat <- choose_output.B90()
+#'
+# modify
+#'outmat[6,] <- 1
+#'
+# open modified
+#'outmat_new <- choose_output.B90(outmat)
+#'
+# create default matrix without editing
+#'outmat <- choose_output.B90(edit = F)
+#'
 #' @export
 choose_output.B90 <- function(outputmat = NULL,
                               edit = T) {

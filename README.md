@@ -23,6 +23,7 @@ Load brook90r
 ``` r
 library(brook90r)
 #> Loading required package: data.table
+#> Warning: package 'data.table' was built under R version 3.3.3
 ```
 
 Load sample meteo and soil data
@@ -71,7 +72,7 @@ b90.results.slb1 <- Run.B90(project.dir = "example_run_b90/",
 Status
 ======
 
-The package works as intended and is sufficiently documented, but needs a better test coverage and a detailed user manual (vignette).
+The package works as intended and is fully documented, but needs a better test coverage.
 
 Usage
 =====
@@ -85,14 +86,14 @@ devtools::install_github("pschmidtwalter/brook90r")
 Additionally, you will need to install the *data.table* package. Also important, though not required is Robert Nuske's *vegperiod* package.
 
 ``` r
-install.packages("vegperiod", repos="https://www.nw-fva.de/r-pkgs")
 install.packages("data.table", repos="https://cran.rstudio.com/")
+install.packages("vegperiod", repos="https://www.nw-fva.de/r-pkgs")
 ```
 
 Requirements
 ============
 
-You can use the built-in functions without carrying out any water balance simulations. However, the central function *Run.B90* will only work with the windows commandline tool 'b90.exe' which is not publicly available. The interested user can obtain 'b90.exe' directly from the [Bavarian State Institute of Forestry (LWF)](http://www.lwf.bayern.de/), [Departement Soil and Climate.](https://www.lwf.bayern.de/boden-klima/wasserhaushalt/index.php)
+You can use the package's functions without carrying out any water balance simulations. However, the central function *Run.B90* will only work with the windows commandline tool 'b90.exe' which is not publicly available. The interested user can obtain 'b90.exe' directly from the [Bavarian State Institute of Forestry (LWF)](http://www.lwf.bayern.de/), [Departement Soil and Climate.](https://www.lwf.bayern.de/boden-klima/wasserhaushalt/index.php)
 
 Author
 ======

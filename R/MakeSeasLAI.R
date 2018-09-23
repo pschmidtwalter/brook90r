@@ -4,11 +4,11 @@
 #' dates and shape parameters using different methods.
 #'
 #' @param method name of method for generating the sequence. Must be one of "b90", "linear", "Coupmodel"
-#' @param year year to identify leap years
+#' @param year years to be returned
 #' @param maxlai maximum value during summer
-#' @param winlaifrac minimum lai as fraction of maxlai during winter (not used when method = 'linear')
-#' @param budburst.doy budburst day of year (not used when method = 'linear')
-#' @param leaffall.doy day of year when leaf fall begins (not used when method = 'linear')
+#' @param winlaifrac fraction of maxlai during winter (ignored when method = 'linear')
+#' @param budburst.doy budburst day of year (ignored when method = 'linear')
+#' @param leaffall.doy day of year when leaf fall begins (ignored when method = 'linear')
 #' @param emerge.dur number of days from budburst until maximum leaf area index is reached
 #' @param leaffall.dur number of days until minimum leaf are index is reached
 #' @param opt.doy day of year when optimum value is reached (required when method = "Coupmodel")
@@ -18,7 +18,43 @@
 #' @param lai.frac vector of values of fractional leaf area index corresponding
 #' to lai.doy (required when method = "linear")
 #'
-#' @return  a vector of daily lai values for one year
+#' @return  a vector of daily lai values covering the years specified
+#' @examples
+
+#' # leaf area index for a single year
+#'
+#' param.b90 <- MakeParam.B90()
+#'
+#' plot(MakeSeasLAI(method = "linear",
+#' year = 2001,
+#' maxlai = param.b90$maxlai,
+#' winlaifrac = param.b90$winlaifrac,
+#' budburst.doy = param.b90$budburstdoy,
+#' leaffall.doy = param.b90$leaffalldoy,
+#' emerge.dur = param.b90$emergedur,
+#' leaffall.dur = param.b90$leaffalldur))
+#'
+#' plot(MakeSeasLAI(method = "Coupmodel",
+#'                  year = 2001:2003,
+#'                  maxlai = param.b90$maxlai,
+#'                  winlaifrac = param.b90$winlaifrac,
+#'                  budburst.doy = param.b90$budburstdoy,
+#'                  leaffall.doy = param.b90$leaffalldoy,
+#'                  leaffall.dur = param.b90$leaffalldur,
+#'                  shape.optdoy = 180,
+#'                  shape.budburst = 0.5,
+#'                  shape.leaffall = 5))
+#'
+#' # leaf area index for multiple years, using multiple values
+#' plot(MakeSeasLAI(method = "linear",
+#' year = 2001:2003,
+#' maxlai = c(6,4,5),
+#' winlaifrac = param.b90$winlaifrac,
+#' budburst.doy = param.b90$budburstdoy,
+#' leaffall.doy = param.b90$leaffalldoy,
+#' emerge.dur = param.b90$emergedur,
+#' leaffall.dur = param.b90$leaffalldur))
+#'
 #' @export
 MakeSeasLAI <- function(method="b90",
                         year,

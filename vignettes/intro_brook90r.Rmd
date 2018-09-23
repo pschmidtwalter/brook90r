@@ -14,7 +14,7 @@ This vignette gives a brief introduction to the usage of the *brook90r* R-packag
 
 ***
 
-#Introduction
+# Introduction
 
 LWF-BROOK90 [@hammel_charakterisierung_2001] is a hydrological model to calculate daily evaporation (transpiration, interception, and soil evaporation) and soil water fluxes, along with soil water contents and pressure heads of a soil profile covered with vegetation. It is an upgraded version of the original BROOK90 hydrological model [@federer_sensitivity_2003; @federer_brook_2002], featuring additional parameterizations of the soil water retention and conductivity functions (@van_genuchten_closed-form_1980; @mualem_new_1976), and the option to take interannual variation of aboveground vegetation characteristics into account when calculating evapotranspiration. Originally, LWF-BROOK90 is used together with an MS ACCESS GUI to organize model input, select model options and parameters and run the model. The basic functionality of the GUI is covered by *brook90r*, and with one function call it will:
 
@@ -26,15 +26,12 @@ The model control options thereby let you select different functions for definin
 
 ##Installation {#installation}
 
-Before installing the *brook90r* R-package, be sure to download and install the following packages, as *brook90r* depends on them:
+Before installing the *brook90r* R-package, be sure to download and install the data.table package, as *brook90r* depends on it:
 
 ```{r, eval = F}
 install.packages("data.table", repos="https://cran.rstudio.com/")
 ```
-As *brook90r* is not available on CRAN, you have to install it directly from Github, using the *devtools*-package:
-```{r, eval = F}
-devtools::install_github("pschmidtwalter/brook90r")
-```
+
 Please also install the suggested R-packages to get the full functionality of *brook90r*:
 ```{r, eval = F}
 install.packages("vegperiod", repos="https://www.nw-fva.de/r-pkgs")
@@ -42,16 +39,19 @@ install.packages("sirad", repos="https://cran.rstudio.com/")
 install.packages("foreach", repos="https://cran.rstudio.com/")
 install.packages("doSNOW", repos="https://cran.rstudio.com/")
 ```
-
+Now you can install *brook90r*. The package is not available on CRAN, you have to install it directly from GitHub, using the *devtools*-package:
+```{r, eval = F}
+devtools::install_github(repo = "pschmidtwalter/brook90r")
+```
 Now load the *brook90r* package:
 ```{r, message=FALSE, warning=FALSE, results='hide'}
 library(brook90r)
 ```
 
-##Data
+## Data
 In this vignette, we will use meteorological and soil data from the longterm monitoring beech forest site SLB1 in the Solling mountains, Germany. The datasets are directly available after loading the package. Use `?soil_slb1` and `?meteo_slb1` to see the meaning of the variables and their units.
 
-##Basic usage
+## Basic usage
 The central function to run LWF-BROOK90 from within R is `Run.B90`. Before we use it, we need to set up the required input objects that are passed as arguments. Aside from meteorological and soil data, we need to define lists containing the model control options and model parameters. The list of model options contains basic information about the simulation and which submodels to use (e.g. the start and end dates of the simulation, the phenology model, root length density depth distribution function, etc). The parameter list contains about 100 parameters, of which most are required to run the model, but some only take effect if certain model options are selected (see sections [Model control options](#options). Two functions are defined in brook90r that can be used to generate default lists of model options and parameters:
 
 ```{r}
@@ -77,7 +77,7 @@ b90.results.slb1 <- Run.B90(project.dir = "example_run_b90/",
                             soil = soil,
                             outputmat = output,
                             output.log = "b90.log",
-                            path_b90.exe = "H:/R-Packages/brook90r/b90.exe")
+                            path_b90.exe = "D:/Arbeit/B90/b90.exe")
 ```
 `Run.B90` thereby creates the project directory (`project.dir`), derives the daily stand properties (densef, height, lai, sai, age) and root distribution from parameters and writes climate, vegetation properties and parameters to the 'climate.in' and 'param.in' files into a folder named 'in' within `project.dir`. It then starts the commandline tool found under `path_b90.exe`, which reads the files in the 'in' folder and stores its output as .asc-files in the specified folder `out.dir` (defaults to 'out/' within `project.dir`). As a last step, `Run.B90` returns the contents of the output files. While running, several  progress messages are printed to the R-console (if `verbose = TRUE`). The commandline-feed of 'b90.exe' itself is by default redirected to the R-console, but can also be discarded (`output.log = FALSE`) or written to a file by passing a filename to the `output.log`-argument of `Run.B90`, as we did in the example above. The returned object `b90.results.slb1` is a list containing the model output (as specified by the `outputmat`-argument and named according to the .asc files in the `out.dir`-folder), along with the options, parameters and derived daily vegetation properties used in the simulation, if desired (`output.param.options = T`). Let us have a look at the `evapday.asc`-item of `b90.results.slb1` containing daily evaporation fluxes:
 
@@ -298,7 +298,7 @@ b90.results.slb1.standtable <- Run.B90(project.dir = "example_run_b90/",
                                        soil = soil,
                                        outputmat = output,
                                        output.log = "b90.log",
-                                       path_b90.exe = "H:/R-Packages/brook90r/b90.exe")
+                                       path_b90.exe = "D:/Arbeit/B90/b90.exe")
 par(mar=c(4.1,4.1,1.1,4.1))
 with(b90.results.slb1.standtable$plant.devt,{
   plot(dates, lai, 
@@ -322,6 +322,7 @@ legend("bottom",horiz = T, bty = "n",inset = -0.3, xpd =T,
 
 ## Root density depth distribution
 The root depth density depth distribution can either be provided in the column `rootden` of the `soil`- argument of `Run.B90()`, or can be derived using the function `MakeRelRootDens()`. In order to use root density as specified in the soil data, the `root.method` element of the `options.b90`-list has to be set to 'soilvar'. Other method names are passed to `MakeRelRootDens()`. Currently, the function provides four methods to assign values of relative root density to a vector of soil depths. The default method 'betamodel' uses the model of Gale & Grigal (-@gale_vertical_1987), which is of the form $y = 1- \beta^d$, where $y$ is the cumulative root fraction down to soil depth $d$ and $\beta$ is the depth coefficient. Larger values of $\beta$ correspond to a greater proportion of roots in deeper soil layers:
+
 ```{r, echo = F, fig.height=4, fig.width=4}
 plot(MakeRelRootDens(soilnodes = seq(0,-2, by = -0.01), 
                               method = "betamodel", 
@@ -348,6 +349,7 @@ legend("bottomright",legend = c(expression(paste(beta, "= 0.93")),expression(pas
                                 expression(paste(beta, "= 0.98")),expression(paste(beta, "= 0.99"))),
        lwd = 1.5, pch = NULL, lty = 1:4, bty = "n")
 ```
+
 For larger values of $\beta$, the root density will reach zero only in very deep soil layer. In order to set the root density to zero at any desired soil depth, the parameter `maxrootdepth` was defined. With this parameter, the root density is set to zero in all soil layers that lie deeper than `maxrootdepth`. 
 Within `Run.B90()`, the function is called in the following way:
 ```{r}
@@ -358,7 +360,9 @@ roots_beta <- MakeRelRootDens(soilnodes = soil_slb1$lower,
                               beta = param.b90$betaroot,
                               method = options.b90$root.method)
 ```
+
 A second option to define the root distribution for the soil layers is to provide value pairs of soil depth and root density, that are  interpolated to midpoints of the soil layers. As an example, we use the table `rootden_slb1` that contains an observed root density depth profile from the Solling Beech Experimental Site.
+
 ```{r}
 options.b90$root.method <- 'table'
 roots_table <- MakeRelRootDens(soilnodes = soil_slb1$lower, 
@@ -366,7 +370,9 @@ roots_table <- MakeRelRootDens(soilnodes = soil_slb1$lower,
                               relrootden = rootden_slb1$rootden,
                               rootdepths = rootden_slb1$depth)
 ```
+
 A third option generates a linear root density depth distriution, with the maximum at the uppermost soil layer and a root density of 0 at 'maxrootdepth'. If the parameter 'relrootden' is provided, the first element of the vector is used as the maximum, otherwise the intepolation is made between 0 and 1. The last option returns a uniform root distribution, with the first vector-element of 'relrootden' (if provided) as value for all layers down to 'maxrootdepth'.
+
 ```{r, echo = 1:4, fig.height=4, fig.width=4}
 options.b90$root.method <- 'linear'
 roots_linear <- MakeRelRootDens(soilnodes = soil_slb1$lower, 

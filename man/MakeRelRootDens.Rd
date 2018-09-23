@@ -10,8 +10,7 @@ MakeRelRootDens(soilnodes, maxrootdepth = min(soilnodes),
 }
 \arguments{
 \item{soilnodes}{vector of lower soil layer depth limits,
-for which the relative root distribution will be calculated. Topsoil (humus) layers
-correspond to negative values.}
+for which the relative root distribution will be calculated.}
 
 \item{maxrootdepth}{the maximum rooting depth (m, negative downwards) below which
 relative root length density will be set to zero}
@@ -35,6 +34,22 @@ vector of relative rootlength, corresponding to soilnodes
 \description{
 Generates a root density depth function the soil layers' lower depth limits
 }
-\details{
-soil nodes
+\examples{
+
+MakeRelRootDens(soilnodes = seq(0,-2, by = -0.01),
+method = "betamodel",
+beta = 0.93)
+
+MakeRelRootDens(soilnodes = soil_slb1$lower,
+maxrootdepth = -1.4,
+method = "linear",
+relrootden = 0.2)
+
+MakeRelRootDens(soilnodes = soil_slb1$lower,
+maxrootdepth = -1.4,
+method = "table",
+relrootden = rootden_slb1$rootden,
+rootdepths = rootden_slb1$depth)
+
 }
+
