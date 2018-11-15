@@ -110,7 +110,7 @@ Run.B90 <- function(project.dir,
     if (!requireNamespace("vegperiod", quietly = TRUE)) {
       stop("In 'options.b90' you chose dynamic budburst or leaf fall, for which the
            package \"vegperiod\" is required. Please install it:
-           devtools::install_github('rnuske/vegperiod')")
+           install.packages('vegperiod')")
     }
   }
 

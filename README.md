@@ -98,7 +98,7 @@ important, though not required is Robert Nuske’s *vegperiod* package.
 
 ``` r
 install.packages("data.table", repos="https://cran.rstudio.com/")
-devtools::install_github('rnuske/vegperiod')
+install.packages("vegperiod")
 ```
 
 # Requirements
