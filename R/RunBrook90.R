@@ -108,9 +108,9 @@ Run.B90 <- function(project.dir,
   # Check suggested packages --------------------------------------------------------
   if (!options.b90$budburst.method %in% c("constant", "fixed") || !options.b90$leaffall.method %in% c("constant", "fixed")) {
     if (!requireNamespace("vegperiod", quietly = TRUE)) {
-      stop("In 'options.b90' you chose dynamic buburst or leaf fall, for which the
+      stop("In 'options.b90' you chose dynamic budburst or leaf fall, for which the
            package \"vegperiod\" is required. Please install it:
-           install.packages('vegperiod', repos='https://www.nw-fva.de/r-pkgs')")
+           install.packages('vegperiod')")
     }
   }
 

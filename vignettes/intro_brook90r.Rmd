@@ -34,7 +34,7 @@ install.packages("data.table", repos="https://cran.rstudio.com/")
 
 Please also install the suggested R-packages to get the full functionality of *brook90r*:
 ```{r, eval = F}
-install.packages("vegperiod", repos="https://www.nw-fva.de/r-pkgs")
+install.packages("vegperiod")
 install.packages("sirad", repos="https://cran.rstudio.com/")
 install.packages("foreach", repos="https://cran.rstudio.com/")
 install.packages("doSNOW", repos="https://cran.rstudio.com/")
