@@ -9,15 +9,15 @@ MvG.swc(psi, alpha, n, ThS, ThR, m = 1 - 1/n)
 \arguments{
 \item{psi}{vector of pressure heads}
 
-\item{alpha}{value vG-alpha, unit: reciprocal pressure head}
+\item{alpha}{van Genuchten alpha, unit: reciprocal pressure head}
 
-\item{n}{value of van Genuchten parameter N}
+\item{n}{van Genuchten parameter N}
 
-\item{ThS}{n value of van Genuchten parameter Ths (saturation water content)}
+\item{ThS}{van Genuchten parameter Ths (saturation water content)}
 
-\item{ThR}{n value of van Genuchten parameter Thr residual water content}
+\item{ThR}{van Genuchten parameter Thr (residual water content)}
 
-\item{m}{value of van Genuchten parameter N. Defaults 1-1/n}
+\item{m}{van Genuchten parameter M. Default: 1-1/n}
 }
 \value{
 vector of water contents
