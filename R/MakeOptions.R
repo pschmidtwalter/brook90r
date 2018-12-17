@@ -29,7 +29,6 @@
 #'   \item{imodel}{name of hydraulic parameterization: "CH" for Clapp/Hornberger, "MvG" for Mualem/van Genuchten}
 #'   \item{root.method}{method name of the root length density depth distribution function. Any of the names accepted by \code{\link{MakeRelRootDens}} are allowed.
 #'   Additionally, "soilvar" can be used if the root length density depth distribution is specified in column 'rootden' in the soil-data.frame}
-#'   \item{humusroots}{shall roots be defined for humuslayer? If TRUE, the humus layers will have the same root length density as the uppermost mineral soil layer.}
 #' }
 #' @examples
 #' # Default options
@@ -49,9 +48,8 @@ MakeOptions.B90 <- function(...) {
                standprop.interp = "constant",
                lai.method = "b90", #any of the names accepted by 'method'-argument of MakeSeasLAI()
                imodel = "MvG", # the parameterization of rentention & conductivity function. CH = Clapp-Hornberger, MvG: Mualem van Genuchten
-               root.method = "betamodel", #any of the names accepted by the MakeRoots()
-               humusroots = FALSE #parameter of MakeRoots()
-  )
+               root.method = "betamodel" #any of the names accepted by the MakeRoots()
+               )
   dots <- list(...)
 
   if (length(dots) > 0 ) {

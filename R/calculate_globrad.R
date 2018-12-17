@@ -22,8 +22,8 @@ CalcGlobRad <- function(doy, SunHour, lat,
 
   latrad <- pi/180 * lat
 
-  exterr.DayL <- data.frame(DayLength = dayLength(latrad, i = doy),
-                            ExtraTerrestrialSolarRadiationDaily = exd(latrad, i = doy))
+  exterr.DayL <- data.frame(DayLength = sirad:::dayLength(latrad, i = doy),
+                            ExtraTerrestrialSolarRadiationDaily = sirad:::exd(latrad, i = doy))
 
 
   return( (a0 + b0 * SunHour / exterr.DayL$DayLength) * exterr.DayL$ExtraTerrestrialSolarRadiationDaily )
