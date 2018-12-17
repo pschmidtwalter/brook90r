@@ -11,7 +11,7 @@ knitr::opts_chunk$set(
   fig.path = "README-"
 )
 ```
-brook90r: run the LWF-BROOK90 hydrological model from within R
+brook90r: Run the LWF-BROOK90 hydrological model from within R.
 
 # Motivation
 In hydrology, many R-packages exist that deal with pre- and post-processing of input data and results of hydrological process models. In addition, many ready-to-use algorithms exist in R providing automatic calibration, sensitivity analysis, and parallelisation techniques. In order to make the vast resources of R directly available to the 1D-SVAT model [LWF-BROOK90](https://www.lwf.bayern.de/boden-klima/wasserhaushalt/index.php), *brook90r* was developed to serve as an interface to the LWF-BROOK90 executable commandline program.
@@ -26,30 +26,30 @@ The model control options thereby let you select different functions for definin
 
 # Example
 Load brook90r
-```{r}
+```{r, eval = F}
 library(brook90r)
 ```
 
 Load sample meteo and soil data
-```{r}
+```{r, eval = F}
 data("meteo_slb1")
 data("soil_slb1")
 ```
 
 Set up lists containing default model control options and model parameters
-```{r}
+```{r, eval = F}
 param.b90 <- MakeParam.B90()
 options.b90 <- MakeOptions.B90()
 ```
 
 Set new start and end dates in model control options
-```{r}
+```{r, eval = F}
 options.b90$startdate <- as.Date("2002-01-01")
 options.b90$enddate <- as.Date("2004-12-31")
 ```
 
 Derive soil hydraulic properties from soil physical properties using a pedotransfer function
-```{r}
+```{r, eval = F}
 soil <- cbind(soil_slb1, hydpar_puh2(clay = soil_slb1$clay,
                                      silt = soil_slb1$silt,
                                      sand = soil_slb1$sand,
@@ -64,12 +64,11 @@ b90.results.slb1 <- Run.B90(project.dir = "example_run_b90/",
                             options.b90 = options.b90,
                             soil = soil,
                             climate = meteo_slb1,
-                            path_b90.exe = "b90.exe"
-                            )
+                            path_b90.exe = "b90.exe")
 ```
 
 # Status
-The package works as intended and is fully documented, but needs a better test coverage.
+The package works as intended and is fully documented.
 
 # Usage
 The package is not on CRAN, so please use the devtools-package to install directly from github.com:
@@ -79,7 +78,7 @@ devtools::install_github("pschmidtwalter/brook90r")
 Additionally, you will need to install the *data.table* package. Also important, though not required is Robert Nuske's *vegperiod* package.
 ```{r, eval=FALSE}
 install.packages("data.table", repos="https://cran.rstudio.com/")
-install.packages("vegperiod", repos="https://www.nw-fva.de/r-pkgs")
+install.packages("vegperiod")
 ```
 
 # Requirements

@@ -22,3 +22,4 @@ Creates a daily sequence for one year from doy/value pairs.
 \examples{
 plot(plant.linear(c(110,200,250,280), c(0,0.8,1,0)), 365)
 }
+

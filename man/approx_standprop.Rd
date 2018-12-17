@@ -31,3 +31,4 @@ constant values for all dates within \code{xout.years >= max(x.years)} or \code{
 If a single value is passed via y, then no interpolation is made and the value is simply repeated with
 length of Dates within xout.years.
 }
+
