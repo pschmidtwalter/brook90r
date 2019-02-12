@@ -1,10 +1,6 @@
 Package: brook90r
-<<<<<<< HEAD
 Title: Run the LWF-Brook90 hydrological model from within R.
-=======
-Title: Run the LWF-BROOK90 hydrological model from within R.
->>>>>>> ee729b1c5bd71069269d00e06692c22982606a10
-Version: 1.0.1
+Version: 1.1.1
 Authors@R: person("Paul", "Schmidt-Walter", email = "paul.schmidt-walter@nw-fva.de",
     role = c("aut", "cre"))
 Description: Run the LWF-BROOK90 hydrological model from within R. The central
@@ -19,7 +15,7 @@ Depends:
 License: GPL-3
 Encoding: UTF-8
 LazyData: true
-RoxygenNote: 5.0.1
+RoxygenNote: 6.1.1
 Suggests:
     vegperiod (>= 0.2.1),
     sirad,

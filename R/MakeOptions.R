@@ -23,7 +23,11 @@
 #'   'parameters': yearly values of stand properties height, sai, densef, lai come from
 #'   parameters, 'table':  values come from a table, see 'longtermdev'-argument of \code{\link{Run.B90}.}}
 #'   \item{standprop.interp}{interpolation method for aboveground stand properties.
-#'   'linear' or 'constant', see 'approx.method'-argument of \code{\link{MakeStand}}.}
+#'   'linear' or 'constant', see 'approx.method'-argument of \code{\link{approx_standprop}}.}
+#'   \item{standprop.use_growthperiod}{Should yearly changes of stand properties (growth)
+#'   only take place during the growth period? If TRUE, linear interpolation of height, sai, densef and age are made from budburst until leaffall.
+#'   During winter values are constant. Beginning and end of the growth period are taken from parameters budburstdoy and leaffalldoy.
+#'   See 'use_growthperiod'-argument of \code{\link{approx_standprop}}.}
 #'   \item{lai.method}{name of method for constructing seasonal course leaf area index development from parameters.
 #'   Passed to 'method'-argument of \code{\link{MakeSeasLAI}}. }
 #'   \item{imodel}{name of hydraulic parameterization: "CH" for Clapp/Hornberger, "MvG" for Mualem/van Genuchten}
@@ -45,11 +49,13 @@ MakeOptions.B90 <- function(...) {
                budburst.method = "fixed", #any of the names accepted by 'start.method'-argument of vegperiod::vegperiod()
                leaffall.method = "fixed", #any of the names accepted by 'start.method'-argument of vegperiod::vegperiod()
                standprop.input = "parameters", #table
-               standprop.interp = "constant",
+               standprop.interp = "constant", #linear
+               standprop.use_growthperiod = FALSE, #linear
                lai.method = "b90", #any of the names accepted by 'method'-argument of MakeSeasLAI()
-               imodel = "MvG", # the parameterization of rentention & conductivity function. CH = Clapp-Hornberger, MvG: Mualem van Genuchten
+               imodel = "MvG", # the parameterization of retention & conductivity function. CH = Clapp-Hornberger, MvG: Mualem van Genuchten
                root.method = "betamodel" #any of the names accepted by the MakeRoots()
                )
+
   dots <- list(...)
 
   if (length(dots) > 0 ) {

@@ -6,9 +6,10 @@
 \usage{
 Run.B90(project.dir, options.b90, param.b90, climate, soil,
   outputmat = choose_output.B90(edit = FALSE), output.log = "",
-  out.dir = "out/", path_b90.exe = "b90.exe", output.param.options = TRUE,
-  keep.log.on.success = TRUE, keep.outputfiles = TRUE, verbose = TRUE,
-  write.climate.in = TRUE, run.model = TRUE)
+  out.dir = "out/", path_b90.exe = "b90.exe",
+  output.param.options = TRUE, keep.log.on.success = TRUE,
+  keep.outputfiles = TRUE, verbose = TRUE, write.climate.in = TRUE,
+  run.model = TRUE)
 }
 \arguments{
 \item{project.dir}{directory-name of the project where the input and output files
@@ -94,4 +95,3 @@ b90.result <- Run.B90(project.dir = "example_run_b90",
                       soil = soil,
                       path_b90.exe = "b90.exe")
 }
-

@@ -63,19 +63,21 @@
 #'  budburstdoy  \tab Budburst day of year - passed to \code{\link{MakeSeasLAI}}. Default: 121\tab doy                  \tab Plant                  \cr
 #'  emergedur    \tab Leaf growth duration until maxlai is reached.. Default: 28\tab d                 \tab Plant                  \cr
 #'  height       \tab plant height. Default: 25 \tab m                 \tab Plant                  \cr
-#'  height.end   \tab initial plant height at the beginning of the simulaton. Used for interpolation , ignored if length(height) . Default: 25 \tab m                 \tab Plant                  \cr
+#'  height.ini   \tab initial plant height at the beginning of the simulaton. Used for interpolation , ignored if length(height) . Default: 25 \tab m                 \tab Plant                  \cr
 #'  leaffalldoy  \tab number of days until maximum lai is reached - passed to \code{\link{MakeSeasLAI}} Default: 279\tab doy               \tab Plant                  \cr
 #'  leaffalldur  \tab number of days until minimum lai is reached - passed to \code{\link{MakeSeasLAI}} Default: 58 \tab d                 \tab Plant                  \cr
 #'  sai          \tab steam area index. Default: 1 \tab -                 \tab Plant                  \cr
-#'  sai.end      \tab steam area index at the end of the simulation. Ignored if length(height) == 1, Default: 1 \tab -                 \tab Plant                  \cr
+#'  sai.ini      \tab steam area index at the end of the simulation. Ignored if length(height) == 1, Default: 1 \tab -                 \tab Plant                  \cr
 #'  shape.leaffall  \tab Shape parameter for leaf fall phase - passed to \code{\link{MakeSeasLAI}} Default: 0.3\tab -                  \tab Plant                  \cr
 #'  shape.budburst  \tab shape parameter for leaf growth phase - passed to \code{\link{MakeSeasLAI}} Default: 3\tab -                  \tab Plant                  \cr
 #'  shape.optdoy \tab day of year when optimum value is reached - passed to \code{\link{MakeSeasLAI}} Default: 210 \tab doy               \tab Plant                  \cr
+#'  lai.doy \tab day of year values for lai-interpolation - passed to \code{\link{MakeSeasLAI}} \tab doy               \tab Plant                  \cr
+#'  lai.frac \tab fractional lai values for lai interpolation, corresponding to lai.doy - passed to \code{\link{MakeSeasLAI}} Default: 210 \tab doy               \tab Plant                  \cr
 #'  winlaifrac   \tab Minimum LAI as a fraction of maxlai. Default: 0 \tab -                  \tab Plant                  \cr
 #'  standprop.table \tab Data.frame with yearly values of vegetation properties with columns 'year','age', 'height', 'maxlai', 'sai', 'densef' \tab                   \tab Plant                  \cr
 #'  cs           \tab Ratio of projected stem area index to canopy height. Default: 0.035 \tab m-1\tab Plant\cr
 #'  densef       \tab Density factor for MaxLAI, CS, RtLen, RPlant, not <.001, 1 for typical stand. Default: 1\tab -                  \tab Plant                  \cr
-#'  densef.end   \tab density factor (see densef) at the end of the simulation. Ignored if length(densef) == 1. Default: 1\tab -                  \tab Plant\cr
+#'  densef.ini   \tab density factor (see densef) at the end of the simulation. Ignored if length(densef) == 1. Default: 1\tab -                  \tab Plant\cr
 #'  maxlai       \tab Maximum projected leaf area index - passed to \code{\link{MakeSeasLAI}} Default: 5 \tab - \tab Plant                  \cr
 #'  radex        \tab Extinction coefficient for solar radiation and net radiation in the canopy. Default: 0.5\tab -                  \tab Potential Transpiration \cr
 #'  cvpd         \tab Vapour pressure deficit at which leaf conductance is halved. Default: 2\tab kPa               \tab Potential Transpiration\cr
@@ -123,11 +125,11 @@ MakeParam.B90 <- function(...) {
   param <- list(
     maxlai = 5,
     sai = 1,
-    sai.end = 1,
+    sai.ini = 1,
     height = 25,
-    height.end = 25,
+    height.ini = 25,
     densef = 1,
-    densef.end = 1,
+    densef.ini = 1,
     age.ini = 100,
     standprop.table = NULL,
     winlaifrac = 0,
@@ -139,8 +141,8 @@ MakeParam.B90 <- function(...) {
     shape.optdoy = 210,
     emergedur = 28,
     leaffalldur = 58,
-    lai.doy =c(1,121,150,250,280,320,365),
-    lai.val = c(0,0,0.75,1,0.8,0,0),
+    lai.doy = c(1,121,150,250,280,320,365),
+    lai.frac = c(0,0,0.75,1,0.8,0,0),
     alb = 0.2,
     albsn = 0.5,
     ksnvp = 0.3,
@@ -233,7 +235,7 @@ MakeParam.B90 <- function(...) {
 
   dots <- list(...)
 
-  if (length(dots) >0 ) {
+  if (length(dots) > 0 ) {
     if (length(dots[which(names(dots) %in% names(param))]) < length(dots)) {
       warning(paste("Not all arguments found in list! Check names:",
                     names(dots[which(!names(dots) %in% names(param))])

@@ -77,7 +77,7 @@ devtools::install_github("pschmidtwalter/brook90r")
 ```
 Additionally, you will need to install the *data.table* package. Also important, though not required is Robert Nuske's *vegperiod* package.
 ```{r, eval=FALSE}
-install.packages("data.table", repos="https://cran.rstudio.com/")
+install.packages("data.table")
 install.packages("vegperiod")
 ```
 

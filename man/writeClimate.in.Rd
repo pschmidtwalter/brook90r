@@ -6,8 +6,8 @@
 \usage{
 writeClimate.in(dates, tmax, tmin, vappres, wind, prec, globrad, sunhours,
   densef, height, lai, sai, age, latitude, mesfl = rep(0, length(dates)),
-  filename = "in/Climate.in", use.sunhours = F, richter.prec.corr = F,
-  prec.int = 1, snow.ini = 0, gwat.ini = 0)
+  filename = "in/Climate.in", use.sunhours = F,
+  richter.prec.corr = F, prec.int = 1, snow.ini = 0, gwat.ini = 0)
 }
 \arguments{
 \item{dates}{date sequence with daily resolution.}
@@ -60,4 +60,3 @@ Creates the Climate.in file from daily climate data and vegetation properties,
 providing some flexibility with regards to radiation (solar radiation or sunshine hours)
 and precipitation correction
 }
-

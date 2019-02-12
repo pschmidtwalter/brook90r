@@ -1,4 +1,20 @@
-brook90r v0.2.0 (Release date: 2018-09-05)
+brook90r v1.1.1 (Release date: 2019-02-12)
+==============
+
+Changes:
+
+  * Changed arguments of approx_standprop-function for interpolating stand properties.
+     The function now also takes dates (doy) of budburst and leaffall as defined in param.b90,
+     if options.b90$standprop.use_growthperiod = T. In this case, the yearly linear changes
+     in stand properties (growth) are accomplished during the growing season.
+     This also affects the age-variable in the Climate.in-file, which is used to calculate
+     vertical and lateral root growth: Age remains constant during winter, and increases
+     linearly by one year between budburst and leaffall, so that root growth takes place
+     during the growing season only.
+
+
+
+brook90r v1.0.1 (Release date: 2018-09-05)
 ==============
 
   Changes:

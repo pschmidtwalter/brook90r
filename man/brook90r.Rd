@@ -14,4 +14,3 @@ and inter-annual variation of stand height and stem area index variation.
 Additionally, a set of pedotransfer functions is provided to derive hydraulic
 parameters from soil physical properties. For an introduction to the basic usage see \code{vignette('intro_brook90r')}.
 }
-

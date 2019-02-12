@@ -308,109 +308,107 @@ Run.B90 <- function(project.dir,
       if (verbose == T) {print("Creating long term stand dynamics from table 'standprop.table'...")}
 
       if (is.null(param.b90$standprop.table) & tolower(options.b90$standprop.input) == "table") {
-        stop("Missing parameter: 'standprop.table', required if options.b90$standprop.input = 'table'")}
-
-
-      standprop_daily <- data.table(
-        dates = seq.Date(from = as.Date(paste0(min(simyears),"-01-01")),
-                         to = as.Date(paste0(max(simyears),"-12-31")),
-                         by = "day"),
-        height = approx_standprop(x.years = param.b90$standprop.table$year,
-                                  y = param.b90$standprop.table$height,
-                                  xout.years = simyears,
-                                  approx.method = options.b90$standprop.interp),
-        sai = approx_standprop(x.years = param.b90$standprop.table$year,
-                               y = param.b90$standprop.table$sai,
-                               xout.years = simyears,
-                               approx.method = options.b90$standprop.interp),
-        densef = approx_standprop(x.years = param.b90$standprop.table$year,
-                                  y = param.b90$standprop.table$densef,
-                                  xout.years = simyears,
-                                  approx.method = options.b90$standprop.interp))
-      #interpolate age
-      param.b90$age <- seq(param.b90$standprop.table$age[1] - (param.b90$standprop.table$year[1] - min(simyears)),
-                           by = 1, length.out = length(simyears)+1)
-
-      standprop_daily[, age := approx_standprop(x.years=c(simyears, max(simyears) + 1),
-                                                y = param.b90$age,
-                                                xout.years = simyears,
-                                                approx.method = 'linear')]
-
-      # interpolate lai with rule = 2 to extend lai from table to simyears
-      param.b90$maxlai <- with(param.b90$standprop.table,
-                               approx(x = as.Date(paste0(year,"-01-01")),
-                                      y = maxlai,
-                                      xout = as.Date(paste0(simyears,"-01-01")),
-                                      method = 'constant', rule = 2))$y
-
-    } else { # standproperties from parameters
-      if (verbose == T) {print("Creating constant stand properties from parameters...")}
-
-      if (options.b90$standprop.interp == "constant") {
-        standprop_daily <- data.table(
-          dates = seq.Date(from = as.Date(paste0(min(simyears),"-01-01")),
-                           to = as.Date(paste0(max(simyears),"-12-31")),
-                           by = "day"),
-          height = approx_standprop(x.years=simyears,
-                                    y = param.b90$height,
-                                    approx.method = options.b90$standprop.interp),
-          sai = approx_standprop(x.years=simyears,
-                                 y = param.b90$sai,
-                                 approx.method = options.b90$standprop.interp),
-          densef = approx_standprop(x.years=simyears,
-                                    y = param.b90$densef,
-                                    approx.method = options.b90$standprop.interp)
-        )
-      } else {
-        standprop_daily <- data.table(
-          dates = seq.Date(from = as.Date(paste0(min(simyears),"-01-01")),
-                           to = as.Date(paste0(max(simyears),"-12-31")),
-                           by = "day"),
-          height = approx_standprop(x.years=c(simyears, max(simyears) + 1),
-                                    y = c(param.b90$height, param.b90$height.end),
-                                    approx.method = options.b90$standprop.interp),
-          sai = approx_standprop(x.years=c(simyears, max(simyears) + 1),
-                                 y = c(param.b90$sai,param.b90$sai.end),
-                                 approx.method = options.b90$standprop.interp),
-          densef = approx_standprop(x.years=c(simyears, max(simyears) + 1),
-                                    y = c(param.b90$densef, param.b90$densef.end),
-                                    approx.method = options.b90$standprop.interp)
-        )
-
+        stop("param.b90$standprop.table is missing. Required if options.b90$standprop.input = 'table'!")
       }
-      #interpolate age
-      standprop_daily[, age :=
-                        approx_standprop(x.years=c(simyears, max(simyears) + 1),
-                                         y = seq(from = param.b90$age.ini, by = 1,
-                                                 length.out = length(simyears) + 1),
-                                         xout.years = simyears,
-                                         approx.method = 'linear'),]
+
+      if (!any(simyears %in% param.b90$standprop.table$year)) {
+        stop("Simulation does not cover any of the years in param.b90$standprop.table")
+      }
+
+      # transfer table to parameters
+      param.b90$height <- approx(x = as.Date(paste0(param.b90$standprop.table$year,"-12-31")),
+                                 y = param.b90$standprop.table$height,
+                                 xout = as.Date(c(paste0(simyears[1],"-01-01"),paste0(simyears,"-12-31"))),
+                                 method = 'constant', rule = 2)$y
+      param.b90$height.ini <- param.b90$height[1]
+      param.b90$height <- param.b90$height[-1]
+
+      param.b90$sai <- approx(x = as.Date(paste0(param.b90$standprop.table$year,"-12-31")),
+                              y = param.b90$standprop.table$sai,
+                              xout = as.Date(c(paste0(simyears[1],"-01-01"),paste0(simyears,"-12-31"))),
+                              method = 'constant', rule = 2)$y
+      param.b90$sai.ini <- param.b90$sai[1]
+      param.b90$sai <- param.b90$sai[-1]
+
+      param.b90$densef <- approx(x = as.Date(paste0(param.b90$standprop.table$year,"-12-31")),
+                                 y = param.b90$standprop.table$densef,
+                                 xout = as.Date(c(paste0(simyears[1],"-01-01"),paste0(simyears,"-12-31"))),
+                                 method = 'constant', rule = 2)$y
+
+      param.b90$densef.ini <- param.b90$densef[1]
+      param.b90$densef <- param.b90$densef[-1]
+
+      param.b90$maxlai <- approx(x = as.Date(paste0(param.b90$standprop.table$year,"-01-01")),
+                                 y = param.b90$standprop.table$maxlai,
+                                 xout = as.Date(paste0(simyears,"-01-01")),
+                                 method = 'constant', rule = 2)$y
+
+      #extend or constrain age from table for simyears
+      param.b90$age <- seq(param.b90$standprop.table$age[1] - (param.b90$standprop.table$year[1] - min(simyears)),
+                           by = 1, length.out = length(simyears))
+      #recalculate age.ini
+      param.b90$age.ini <- param.b90$age[1] - 1
+
+    } else { if (verbose == T) {print("Creating constant stand properties from parameters...")}
+
+      # derive age from age.ini for simyears
+      param.b90$age <- seq(from = param.b90$age.ini+1,
+                           by = 1, length.out = length(simyears))
+
     }
+
+    # interpolate yearly values to daily values
+    standprop_daily <- data.table(
+      dates = seq.Date(from = as.Date(paste0(min(simyears),"-01-01")),
+                       to = as.Date(paste0(max(simyears),"-12-31")),
+                       by = "day"),
+      age = approx_standprop(x.years = simyears,
+                             y = param.b90$age,
+                             y.ini = param.b90$age.ini,
+                             use_growthperiod = options.b90$standprop.use_growthperiod,
+                             startdoy = param.b90$budburstdoy,
+                             enddoy = param.b90$leaffalldoy,
+                             approx.method = "linear"),
+      height = approx_standprop(x.years = simyears,
+                                y = param.b90$height,
+                                y.ini = param.b90$height.ini,
+                                use_growthperiod = options.b90$standprop.use_growthperiod,
+                                startdoy = param.b90$budburstdoy,
+                                enddoy = param.b90$leaffalldoy,
+                                approx.method = options.b90$standprop.interp),
+      sai = approx_standprop(x.years = simyears,
+                             y = param.b90$sai,
+                             y.ini = param.b90$sai.ini,
+                             use_growthperiod = options.b90$standprop.use_growthperiod,
+                             startdoy = param.b90$budburstdoy,
+                             enddoy = param.b90$leaffalldoy,
+                             approx.method = options.b90$standprop.interp),
+      densef = approx_standprop(x.years = simyears,
+                                y = param.b90$densef,
+                                y.ini = param.b90$densef.ini,
+                                use_growthperiod = options.b90$standprop.use_growthperiod,
+                                startdoy = param.b90$budburstdoy,
+                                enddoy = param.b90$leaffalldoy,
+                                approx.method = options.b90$standprop.interp)
+    )
+
+    # daily leaf area index: make data.table to create leaf area index by year.
+    standprop_daily[, lai := MakeSeasLAI(simyears,
+                                         method = options.b90$lai.method,
+                                         maxlai = param.b90$maxlai,
+                                         winlaifrac = param.b90$winlaifrac,
+                                         budburst.doy = param.b90$budburstdoy,
+                                         leaffall.doy = param.b90$leaffalldoy,
+                                         emerge.dur = param.b90$emergedur,
+                                         leaffall.dur = param.b90$leaffalldur,
+                                         shape.budburst = param.b90$shape.budburst,
+                                         shape.leaffall = param.b90$shape.leaffall,
+                                         shape.optdoy = param.b90$shape.optdoy,
+                                         lai.doy = param.b90$lai.doy,
+                                         lai.frac = param.b90$lai.frac)]
 
     # constrain to simulation period
     standprop_daily <- standprop_daily[which(dates >= options.b90$startdate
-                                             & dates <= options.b90$enddate),]
-
-    # daily leaf area index: make data.table to create leaf area index by year.
-
-    laidaily <- data.table(lai = MakeSeasLAI(simyears,
-                                             method = options.b90$lai.method,
-                                             maxlai = param.b90$maxlai,
-                                             winlaifrac = param.b90$winlaifrac,
-                                             budburst.doy = param.b90$budburstdoy,
-                                             leaffall.doy = param.b90$leaffalldoy,
-                                             emerge.dur = param.b90$emergedur,
-                                             leaffall.dur = param.b90$leaffalldur,
-                                             shape.budburst = param.b90$shape.budburst,
-                                             shape.leaffall = param.b90$shape.leaffall,
-                                             shape.optdoy = param.b90$shape.optdoy,
-                                             lai.doy = param.b90$lai.doy,
-                                             lai.frac = param.b90$lai.frac))
-
-    # constrain to simulation period
-    laidaily[,dates := seq.Date(as.Date(paste0(min(simyears),"-01-01")),
-                                as.Date(paste0(max(simyears),"-12-31")), by = "day")]
-    laidaily <- laidaily[which(dates >= options.b90$startdate
                                & dates <= options.b90$enddate),]
 
     if (verbose == T) {
@@ -424,7 +422,7 @@ Run.B90 <- function(project.dir,
            writeClimate.in(dates = dates, tmax = tmax, tmin = tmin, vappres = vappres,
                            wind = wind, prec = prec, globrad = globrad, sunhours = NULL,
                            densef = standprop_daily$densef, height = standprop_daily$height,
-                           lai = laidaily$lai, sai = standprop_daily$sai, age = standprop_daily$age,
+                           lai = standprop_daily$lai, sai = standprop_daily$sai, age = standprop_daily$age,
                            latitude = param.b90$coords_y, use.sunhours = F,
                            filename = file.path(getwd(),"in/Climate.in"),
                            richter.prec.corr = options.b90$richter.prec.corr, prec.int = options.b90$prec.interval,
@@ -436,7 +434,7 @@ Run.B90 <- function(project.dir,
            writeClimate.in(dates = dates, tmax = tmax, tmin = tmin, vappres = vappres,
                            wind = wind, prec = prec, sunhours = sunhours, globrad = NULL,
                            densef = standprop_daily$densef, height = standprop_daily$height,
-                           lai = laidaily$lai, sai = standprop_daily$sai, age = standprop_daily$age,
+                           lai = standprop_daily$lai, sai = standprop_daily$sai, age = standprop_daily$age,
                            latitude = param.b90$coords_y, use.sunhours = T,
                            filename = file.path(getwd(),"in/Climate.in"),
                            richter.prec.corr = options.b90$richter.prec.corr, prec.int = options.b90$prec.interval,
@@ -554,7 +552,7 @@ Run.B90 <- function(project.dir,
       # append input parameters
       if (output.param.options == TRUE) {
         simres$plant.devt <- data.table(standprop_daily)
-        simres$plant.devt$lai <- laidaily$lai
+        simres$plant.devt$lai <- standprop_daily$lai
         simres$param.b90 <- param.b90
         simres$options.b90 <- options.b90
         simres$soil <- soil

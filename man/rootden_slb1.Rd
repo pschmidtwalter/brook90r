@@ -16,4 +16,3 @@ rootden_slb1
 A dataset containing the number of fine roots per decimeter soil depth
 }
 \keyword{datasets}
-

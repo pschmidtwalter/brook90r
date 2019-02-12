@@ -52,4 +52,3 @@ relrootden = rootden_slb1$rootden,
 rootdepths = rootden_slb1$depth)
 
 }
-

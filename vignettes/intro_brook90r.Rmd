@@ -2,7 +2,10 @@
 title: "Introduction to brook90r"
 author: "Paul Schmidt-Walter"
 date: "`r Sys.Date()`"
-output: rmarkdown::html_vignette
+output: 
+  prettydoc::html_pretty:
+    theme: cayman
+    highlight: github
 bibliography: vignette_brook90r.bib
 vignette: >
   %\VignetteIndexEntry{Introduction to brook90r}
@@ -68,7 +71,7 @@ Before we run the simulation, we need to select the output variables and their t
 ```{r}
 output <- choose_output.B90()
 ```
-Now we are ready to start the simulation using the central function `Run.B90` and save the returned simulation results in an object:
+Now we are ready to start the simulation using the central function `Run.B90`:
 ```{r, results='hide'}
 b90.results.slb1 <- Run.B90(project.dir = "example_run_b90/",
                             options.b90 = options.b90,
@@ -77,7 +80,7 @@ b90.results.slb1 <- Run.B90(project.dir = "example_run_b90/",
                             soil = soil,
                             outputmat = output,
                             output.log = "b90.log",
-                            path_b90.exe = "D:/Arbeit/B90/b90.exe")
+                            path_b90.exe = "H:/B90/b90.exe")
 ```
 `Run.B90` thereby creates the project directory (`project.dir`), derives the daily stand properties (densef, height, lai, sai, age) and root distribution from parameters and writes climate, vegetation properties and parameters to the 'climate.in' and 'param.in' files into a folder named 'in' within `project.dir`. It then starts the commandline tool found under `path_b90.exe`, which reads the files in the 'in' folder and stores its output as .asc-files in the specified folder `out.dir` (defaults to 'out/' within `project.dir`). As a last step, `Run.B90` returns the contents of the output files. While running, several  progress messages are printed to the R-console (if `verbose = TRUE`). The commandline-feed of 'b90.exe' itself is by default redirected to the R-console, but can also be discarded (`output.log = FALSE`) or written to a file by passing a filename to the `output.log`-argument of `Run.B90`, as we did in the example above. The returned object `b90.results.slb1` is a list containing the model output (as specified by the `outputmat`-argument and named according to the .asc files in the `out.dir`-folder), along with the options, parameters and derived daily vegetation properties used in the simulation, if desired (`output.param.options = T`). Let us have a look at the `evapday.asc`-item of `b90.results.slb1` containing daily evaporation fluxes:
 
@@ -99,7 +102,7 @@ swat100cm <- b90.results.slb1$swatday.asc[nl <= 14,
 ```
 Now we can plot the soil water storage along with transpiration:
 
-```{r, fig.height=4, fig.width=7, echo =F}
+```{r, fig.height=4, fig.width=7, echo =F, fig.cap="Simulation results for sample data"}
 par(mar=c(4.1,4.1,1.1,4.1))
 plot(b90.results.slb1$evapday.asc$dates, 
      b90.results.slb1$evapday.asc$tran, type ='l',
@@ -127,7 +130,7 @@ Aside from the basic technical information, the options control the basic shape 
 
 ### Intra-annual variation of leaf area index
 
-In the simulation, we used the default parameters representing a deciduous forest stand, without leafs in winter and maximum leaf area index in summer. The maximum leaf area index is defined by the parameter `param.b90$maxlai`, the minimum value in winter `param.b90$winlaifrac` is internally calculated as a fraction of `param.b90$maxlai`. 
+In the simulation, we used the default parameters representing a deciduous forest stand, without leafs in winter and maximum leaf area index in summer. The maximum leaf area index is defined by the parameter `param.b90$maxlai`, the minimum value in winter is internally calculated as a fraction (`param.b90$winlaifrac`) of `param.b90$maxlai`. 
 The basic shape of the intra-annual leaf area index dynamics can be selected by the option `options.b90$lai.method`. The default setting `'b90'` is also implemented in the original LWF-BROOK90 GUI and makes use of the parameters `budburstdoy`, `leaffalldoy`, `emergedur` and `leaffalldur`, that define the dates of budburst and leaffall, and the durations of leaf unfolding and leaf shedding until `maxlai`, and  respectively `winlaifrac` are reached. Within `Run.B90()`, the parameters are passed to `MakeSeasLAI` that constructs the daily timeseries of leaf area index development for a single year:
 
 ```{r}
@@ -141,7 +144,8 @@ LAI_b90 <-  MakeSeasLAI(method = options.b90$lai.method,
                         leaffall.dur = param.b90$leaffalldur)
 ```
 
-`MakeSeasLAI()` also provides other shape functions, that use additional parameters. For example, the model control option `options.b90$lai.method = 'linear'` uses value pairs of day-of-year and leaf area index as fraction of `maxlai` passed from parameters `param.b90$lai.doy` and `param.b90$lai.frac`. The doy/value-pairs are then used to interpolate the intra-annual course of leaf area index to a daily time series.
+`MakeSeasLAI()` also provides other shape functions, that require additional parameters. For example, the model control option `options.b90$lai.method = 'linear'` uses value pairs of day-of-year and leaf area index as fraction of `maxlai` passed from parameters `param.b90$lai.doy` and `param.b90$lai.frac`. The doy/value-pairs are then used to interpolate the intra-annual course of leaf area index to a daily time series.
+
 ```{r}
 options.b90$lai.method <- "linear"
 param.b90$lai.doy <- c(1,110,117,135,175,220,250,290,365)
@@ -153,7 +157,7 @@ LAI_linear <-  MakeSeasLAI(method = options.b90$lai.method,
                            lai.frac = param.b90$lai.frac)
 ```
 
-A third shape-option for the intra-annual variation of leaf area index is called 'Coupmodel' and uses a spline interpolation as implemented in the 'Coupmodel' [@jansson_coupled_2004]. With `option.b90$lai.method ='Coupmodel`, form parameters for leaf unfolding and leaf fall (`shape.budburst`, `shape.leaffall`), and the date when leaf area is at its maximum (`shape.optdoy`) come into action.
+A third shape-option for the intra-annual variation of leaf area index is called 'Coupmodel' and uses the interpolation method as implemented in the 'Coupmodel' [@jansson_coupled_2004]. With `option.b90$lai.method ='Coupmodel`, form parameters for leaf unfolding and leaf fall (`shape.budburst`, `shape.leaffall`), and the date when leaf area is at its maximum (`shape.optdoy`) come into action.
 ```{r}
 options.b90$lai.method <- "Coupmodel"
 param.b90$shape.budburst <- 0.5
@@ -168,8 +172,10 @@ LAI_coupmodel <-  MakeSeasLAI(method = options.b90$lai.method,
                               shape.leaffall = param.b90$shape.leaffall,
                               shape.optdoy = param.b90$shape.optdoy)
 ```
+
 A plot of all three methods shows the roles of the different parameters:
-```{r, echo = F, fig.height=4, fig.width=7,fig.cap = "Methods featured by MakeSeasLAI()" }
+
+```{r, echo = F, fig.height=4, fig.width=7, fig.cap = "Methods featured by MakeSeasLAI()" }
 par(xpd = TRUE, mar = c(5.1,4.1,2.1,2.1))
 
 plot(LAI_b90, type = "n", xlab = "doy", ylab = "lai [m²/m²]", ylim = c(0,6))
@@ -201,7 +207,7 @@ legend("topleft",c("'b90'","'linear'", "'Coupmodel'"), pch = NULL, lwd =2, col =
 
 ### Inter-annual variation of leaf area index 
 By passing a single value via `param.b90$maxlai` we used the same maximum leaf area index for each year of the simulation period. In order to incorporate between-year variation of the leaf area index, we can simply assign vectors of values for each year of the simulation period to any of the parameters used by function `MakeSeasLAI()`. In the following example, we pass three values for maxlai and shape.optdoy, to get different seasonal courses of leaf area index for the three years of the simulation period. Additionally, we add variation to the dates of budburst, by assigning a vector of values to the parameter `budburstdoy`.
-```{r,echo = 1:5, results = 'hide',fig.height=4, fig.width=7}
+```{r,echo = 1:5, results = 'hide',fig.height=4, fig.width=7, fig.cap = "Options and parameters affecting interannual variation of leaf area index."}
 param.b90$maxlai <- c(4,6,5)
 param.b90$shape.optdoy <- c(210,180,240)
 param.b90$shape.budburst <- c(3,1,0.3)
@@ -226,60 +232,61 @@ text(x = as.Date(paste(param.b90$budburstdoy, year(options.b90$startdate):year(o
 Beside the obvious between-year variation of maximum leaf area index, we can also see the effect of the shape parameter for the leaf unfolding phase `shape.budburst`. Values greater 1 result in concave, values below 1 in convex functions, while values of 1 give linear progressions. The budburst day-of-year is varying as specified in the parameters, but can also be estimated using temperature based phenology models. By selecting other settings than the default `options.b90$budburst.method = 'fixed'` and `options.b90$leaffall.method = 'fixed'`, the `vegperiod()` function of the 'vegperiod'-Package is called from within `Run.B90`. `budburstdoy` and/or `leaffalldoy` are then calculated for each year from the climate data using the desired methods. See `vegperiod` for a list of available models. The estimated values for `budburstdoy` and/or `leaffalldoy` can be found in the `param.b90` list element of the results object after the simulation.
 
 ### Other plant properties (height, sai, densef)
-Like the leaf area index parameters and budburst/leaffall-dates, it is also possible to provide vectors of values for stand height, stem area index, and stand density to generate between-year variation of stand characteristics. From the yearly values, daily values are interpolated using the function `approx_standprop`. The `approx.method`- argument of the function defines how to interpolate the yearly values. Within `Run.B90`, the option `options.b90$standprop.interp` is passed to the `approx.method`- argument of `approx_standprop`. The default interpolation method 'constant' results in a yearly changing step function, while 'linear' interpolates the values:
-```{r, echo = 1:13, fig.height=4, fig.width=7}
+Like the leaf area index parameters and budburst/leaffall-dates, it is also possible to provide vectors of values for stand height, stem area index, and stand density to generate between-year variation of stand characteristics. From the yearly values, daily values are interpolated using the function `approx_standprop`. The `approx.method`- argument of the function defines how to interpolate the yearly values passed by `y`. Within `Run.B90`, the option `options.b90$standprop.interp` is passed to the `approx.method`- argument of `approx_standprop`. The default interpolation method 'constant' results in a yearly changing step function, while 'linear' interpolates the values:
+```{r}
 # constant 'interpolation'
 options.b90$standprop.interp <- 'constant'
-param.b90$height <- c(20,20.8,21.3)
-param.b90$sai <- c(0.5,0.45,0.53)
+param.b90$height <- c(20.2,20.8,21.3)
 simyears <- year(seq.Date(options.b90$startdate,options.b90$enddate, "year"))
 height_c <- approx_standprop(x.years=simyears,
                                  y = param.b90$height,
                                  approx.method = options.b90$standprop.interp)
-sai_c <- approx_standprop(x.years=simyears,
-                                 y = param.b90$sai,
-                                 approx.method = options.b90$standprop.interp)
 
 # linear interpolation       
 options.b90$standprop.interp <- 'linear'
-param.b90$height.end <- 21.6
-param.b90$sai.end <- 0.5
-height_l <- approx_standprop(x.years=c(simyears, max(simyears) + 1),
-                             y = c(param.b90$height, param.b90$height.end),
-                             xout.years = simyears,
+param.b90$height.ini <- 19.1
+height_l <- approx_standprop(x.years=simyears,
+                             y = param.b90$height,
+                             y.ini = param.b90$height.ini,
                              approx.method = options.b90$standprop.interp)
-sai_l <- approx_standprop(x.years=c(simyears, max(simyears) + 1),
-                          y = c(param.b90$sai,param.b90$sai.end),
-                          xout.years = simyears,
-                          approx.method = options.b90$standprop.interp)
+```
+For linear interpolation, additional parameters `height.ini`, `sai.ini`, `densef.ini` have to be provided to `Run.B90` via the `param.b90`-argument. These parameters define the values at the beginning of the simulation, to which the value of the first year is interpolated to. By default, the yearly values are interpreted to be valid at December 31st of the respective years, so that the interpolated timeseries are linearly increasing or decreasing during the whole year. In order to constrain the interpolation to the growth period only, the option `options.b90$standprop.use_growthperiod` was introduced, which requires the arguments startdoy and enddoy, when set to TRUE. Then, values decrease or increase between budburst and leaffall only, and remain constant during winter.
+```{r}
+options.b90$standprop.use_growthperiod <- TRUE
+height_l_gp <- approx_standprop(x.years = simyears,
+                             y = param.b90$height,
+                             y.ini = param.b90$height.ini,
+                             use_growthperiod = options.b90$standprop.use_growthperiod,
+                             startdoy = param.b90$budburstdoy,
+                             enddoy = param.b90$leaffalldoy,
+                             approx.method = options.b90$standprop.interp)
+```
+A plot reveals the differences between the interpolated timeseries of stand height using the different options and parameters
 
+```{r,echo = F, fig.height=4, fig.width=7, fig.cap="Interpolated stand height derived from parameters using approx_standprop()"}
 dates <- seq.Date(from = as.Date(paste0(min(simyears),"-01-01")),
                            to = as.Date(paste0(max(simyears),"-12-31")),
                            by = "day")
-
 par(mar=c(4.1,4.1,1.1,4.1))
 plot(dates, height_c,
-     type = "l", lwd = 2, col = "blue", 
-     ylim = c(18,22), ylab = "height [m]", xlab = "")
+     type = "l", lwd = 2, col = "black", 
+     ylim = c(19,22), ylab = "height [m]", xlab = "", xpd = T)
 lines(dates, height_l, 
-      col = "blue", lwd = 2, lty = 2)
-
-par(new = T)
-plot(dates, sai_c, 
-     type = "l", lwd = 2, col = "brown",
-     ylim = c(0.4,0.8), yaxt ="n",ylab = "",xlab = "")
-lines(dates, sai_l, 
-     type = "l", lwd = 2, col = "brown",
-     lty = 2)
-axis(4, at = seq(0.3,0.8, by = 0.1))
-mtext("sai [m²/m²]", side = 4, line =3)
-legend("topleft", legend = c("height const.", "height linear", "sai const.", "sai linear"), 
-       col  = c("blue","blue", "brown", "brown"), lty = c(1,2), lwd = 2, pch = NULL,
+      col = "blue", lwd = 2)
+lines(dates, height_l_gp, 
+      col = "green", lwd = 2)
+legend("topleft", legend = c("approx.method = 'constant'", "approx.method = 'linear'", "approx.method = 'linear', use_growthperiod = TRUE"), 
+       col  = c("black", "blue", "green"),  lwd = 2, pch = NULL,
        bty = "n")
-
-
+arrows( x0 = as.Date(paste(param.b90$budburstdoy, simyears),format = "%j %Y"),
+     y0 = c(param.b90$height.in,param.b90$height[1:2])-0.5, y1 = c(param.b90$height.in,param.b90$height[1:2])-0.1, length = 0.15, code = 2, xpd =T)
+text(x = as.Date(paste(param.b90$budburstdoy, simyears), format = "%j %Y"),
+     y = c(param.b90$height.in,param.b90$height[1:2])-0.7, paste("doy", param.b90$budburstdoy), xpd = T)
+arrows( x0 = as.Date(paste(param.b90$leaffalldoy, simyears),format = "%j %Y"),
+     y0 = param.b90$height-0.5, y1 = param.b90$height-0.1, length = 0.15, code = 2, xpd =T)
+text(x = as.Date(paste(param.b90$leaffalldoy, simyears), format = "%j %Y"),
+     y = param.b90$height-0.7, paste("doy", param.b90$leaffalldoy), xpd = T)
 ```
-With the 'linear' interpolation, the yearly values are interpreted to be valid at January 1st of the respective years, and additional parameters `height.end`, `sai.end`, `densef.end` have to be provided to `Run.B90` via the `param.b90`-argument. The parameters define the values at the end of the simulation, to which the value of the last year is interpolated to.
 
 Another option for incorporating between-year variation of plant properties is to provide a table with yearly values of 'height', 'maxlai', 'sai', 'densef' and 'age'  via the list element `standprop.table` of the `param.b90`-argument of `Run.B90`. To take effect, the option `options.b90$standprop.input` has to be set to 'table'. In this case, the values passed via parameters `height`, `sai`, `densef` and `age.ini` are ignored. As `maxlai` is also provided via the table, the `maxlai` value from parameters is ignored as well, while the other parameters that affect intra-annual leaf area development (e.g., `shape.budburst`) are still active.
 For demonstration purposes we use the table `standprop_slb1`, that contains observed stand data of the Solling Beech Experimental site from 1966 to 2014, along with estimated leaf and stem area index from allometric functions.
@@ -290,7 +297,6 @@ options.b90$enddate <- as.Date("1999-12-31")
 
 #set up options for table input 
 options.b90$standprop.input <- 'table'
-options.b90$standprop.interp <- "const"
 param.b90$standprop.table <- standprop_slb1
 
 # Set up dynamic budburst and leaf fall
@@ -306,7 +312,7 @@ b90.results.slb1.standtable <- Run.B90(project.dir = "example_run_b90/",
                                        soil = soil,
                                        outputmat = output,
                                        output.log = "b90.log",
-                                       path_b90.exe = "D:/Arbeit/B90/b90.exe")
+                                       path_b90.exe = "H:/B90/b90.exe")
 par(mar=c(4.1,4.1,1.1,4.1))
 with(b90.results.slb1.standtable$plant.devt,{
   plot(dates, lai, 
@@ -379,7 +385,7 @@ roots_table <- MakeRelRootDens(soilnodes = soil_slb1$lower,
                               rootdepths = rootden_slb1$depth)
 ```
 
-A third option generates a linear root density depth distriution, with the maximum at the uppermost soil layer and a root density of 0 at 'maxrootdepth'. If the parameter 'relrootden' is provided, the first element of the vector is used as the maximum, otherwise the intepolation is made between 0 and 1. The last option returns a uniform root distribution, with the first vector-element of 'relrootden' (if provided) as value for all layers down to 'maxrootdepth'.
+A third option generates a linear root density depth distriution, with the maximum at the uppermost soil layer and a root density of 0 at 'maxrootdepth'. If the parameter 'relrootden' is provided, the first element of the vector is used as the maximum, otherwise the interpolation is made between 0 and 1. The last option returns a uniform root distribution, with the first vector-element of 'relrootden' (if provided) as value for all layers down to 'maxrootdepth'.
 
 ```{r, echo = 1:4, fig.height=4, fig.width=4}
 options.b90$root.method <- 'linear'

@@ -36,13 +36,16 @@ Create a list of model control options
   'parameters': yearly values of stand properties height, sai, densef, lai come from
   parameters, 'table':  values come from a table, see 'longtermdev'-argument of \code{\link{Run.B90}.}}
   \item{standprop.interp}{interpolation method for aboveground stand properties.
-  'linear' or 'constant', see 'approx.method'-argument of \code{\link{MakeStand}}.}
+  'linear' or 'constant', see 'approx.method'-argument of \code{\link{approx_standprop}}.}
+  \item{standprop.use_growthperiod}{Should yearly changes of stand properties (growth)
+  only take place during the growth period? If TRUE, linear interpolation of height, sai, densef and age are made from budburst until leaffall.
+  During winter values are constant. Beginning and end of the growth period are taken from parameters budburstdoy and leaffalldoy.
+  See 'use_growthperiod'-argument of \code{\link{approx_standprop}}.}
   \item{lai.method}{name of method for constructing seasonal course leaf area index development from parameters.
   Passed to 'method'-argument of \code{\link{MakeSeasLAI}}. }
   \item{imodel}{name of hydraulic parameterization: "CH" for Clapp/Hornberger, "MvG" for Mualem/van Genuchten}
   \item{root.method}{method name of the root length density depth distribution function. Any of the names accepted by \code{\link{MakeRelRootDens}} are allowed.
   Additionally, "soilvar" can be used if the root length density depth distribution is specified in column 'rootden' in the soil-data.frame}
-  \item{humusroots}{shall roots be defined for humuslayer? If TRUE, the humus layers will have the same root length density as the uppermost mineral soil layer.}
 }
 }
 \examples{
@@ -51,4 +54,3 @@ options.b90 <- MakeOptions.B90()
 # Include specific options
 options.b90_dynamic_phenology <- MakeOptions.B90(budburst.method = 'Menzel', leaffall.method ='vonWilpert')
 }
-
