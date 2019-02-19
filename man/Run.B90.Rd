@@ -6,15 +6,10 @@
 \usage{
 Run.B90(project.dir, options.b90, param.b90, climate, soil,
   outputmat = choose_output.B90(edit = FALSE), output.log = "",
-  out.dir = "out/", path_b90.exe = "b90.exe",
-  output.param.options = TRUE, keep.log.on.success = TRUE,
-  keep.outputfiles = TRUE, verbose = TRUE, write.climate.in = TRUE,
-  run.model = TRUE)
+  out.dir = "out/", output.param.options = TRUE,
+  keep.outputfiles = TRUE, verbose = TRUE)
 }
 \arguments{
-\item{project.dir}{directory-name of the project where the input and output files
-are located. Will be created, if not existing.}
-
 \item{options.b90}{named list of model control options. Use
 \code{\link{MakeOptions.B90}} to generate a list with default model control options.}
 
@@ -42,19 +37,19 @@ All other names will create a text file containing the model runtime output.}
 
 \item{out.dir}{path where to write the output-files.}
 
-\item{path_b90.exe}{filename of the executable code. The default setting looks for the
-executable 'b90.exe' within 'project.dir'.}
-
 \item{output.param.options}{append 'param.b90', 'options.b90', 'soil' and daily plant
 properties ('plant.devt', as derived from parameters and written to 'climate.in') to the result?}
-
-\item{keep.log.on.success}{keep the file 'output.log' after a successful simulation?
-In case of simulation errors the 'output.log' file (if specified) is kept anyway for inspection purposes.}
 
 \item{keep.outputfiles}{keep the model .asc output files after running and
 returning the output?}
 
 \item{verbose}{print messages to the console? Default is TRUE.}
+
+\item{path_b90.exe}{filename of the executable code. The default setting looks for the
+executable 'b90.exe' within 'project.dir'.}
+
+\item{keep.log.on.success}{keep the file 'output.log' after a successful simulation?
+In case of simulation errors the 'output.log' file (if specified) is kept anyway for inspection purposes.}
 
 \item{write.climate.in}{should the climate file be written or not to save execution time?
 Ignored if no 'Climate.in' is found in 'project.dir/in'.}
@@ -69,6 +64,8 @@ along with the execution time of the simulation, and input-parameters and option
 Takes all necessary information needed to run the LWF-Brook90 hydrological model,
 writes input files, starts the external executable via a system-call and returns
 the results.
+#' @param project.dir directory-name of the project where the input and output files
+are located. Will be created, if not existing.
 }
 \examples{
 
