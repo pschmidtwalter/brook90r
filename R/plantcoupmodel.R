@@ -24,13 +24,13 @@ plant.coupmodel <- function(minval,
                             shape.decr,
                             maxdoy) {
 
-  inddays <- c(1,doy.incr,doy.max,doy.min,maxdoy)
+  inddays <- as.integer(c(1,doy.incr,doy.max,doy.min,maxdoy))
   values <- c(minval, minval,maxval,minval,minval)
 
   forms <- c(1,shape.incr,shape.decr,1)
 
-  ind <- c(rep(1, doy.incr), rep(2, doy.max-doy.incr),
-              rep(3, doy.min-doy.max), rep(4,maxdoy-doy.min))
+  ind <- c(rep(1, doy.incr), rep(2, doy.max-doy.incr + 1),
+              rep(3, doy.min-doy.max + 1), rep(4,maxdoy-doy.min))
 
   doy <- 1:maxdoy
 
