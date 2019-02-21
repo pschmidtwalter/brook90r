@@ -2,7 +2,7 @@
 % Please edit documentation in R/param_to_rbrook90.R
 \name{param_to_rbrook90}
 \alias{param_to_rbrook90}
-\title{Writes the LWF-Brook90 input file Param.in}
+\title{Creates the parameter vector for r_brook90}
 \usage{
 param_to_rbrook90(options.b90, param.b90, n_soillays, n_materials)
 }
@@ -16,9 +16,8 @@ param_to_rbrook90(options.b90, param.b90, n_soillays, n_materials)
 \item{n_materials}{number of soil materials}
 }
 \value{
-a numerical vector holding all parameters required by PFILE.INC
-in the right order.
+a numerical vector
 }
 \description{
-Creates the Param.in file for the LWF-Brook90 executable
+The parameter-vector for r_brook90 is created from the lists of model controls options, parameters, and soil.
 }

@@ -8,7 +8,7 @@
 #' @param n_soillays number of model soil layers.
 #' @param n_materials number of soil materials
 #'
-#' @return a numerical vector
+#' @return a numerical vector with the parameters in the right order for r_brook90
 #' @export
 param_to_rbrook90 <- function(options.b90,
                               param.b90,
