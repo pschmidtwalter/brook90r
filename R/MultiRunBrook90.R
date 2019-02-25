@@ -6,10 +6,11 @@
 #'
 #' @param nRuns Number of single runs
 #' @param param_var data.frame of variable input parameters with realisations for each single run.
-#' @param param_const Named list of constant model input parameters to use in all single runs.
+#' @param param.b90 Named list of constant model input parameters to use in all single runs.
 #' @param options.b90 Named list of constant model control options passed to \code{\link[Run.B90]{Run.B90}}
 #' @param soil data.frame with soil properties passed to \code{\link[Run.B90]{Run.B90}}
 #' @param climate data.frame with climate data passed to \code{\link[Run.B90]{Run.B90}}
+#' @param param_var_names names of the parameters in param_var to be replaced in param.b90
 #' @param multirun.dir The directory where to create the subdirectories for the the single runs.
 #' @param singlerun_names character vector with the names of the single runs. Used for creating
 #' the subdirectories and for naming the returned list of singlerun results.
@@ -55,16 +56,15 @@
 #'                      multirun.dir = "MultiRuns",
 #'                      keep.subdirs = FALSE,
 #'                      singlerun_names = paste0("result.",1:n),
-#'                      cores = 2,
-#'                      output.log = F,
-#'                      output.param.options = F,
-#'                      path_b90.exe = "b90.exe")
+#'                      cores = 3
+#'                      )
 MultiRun.B90 <- function(nRuns,
                          param_var,
-                         param_const,
+                         param.b90,
                          options.b90,
                          soil,
                          climate,
+                         param_var_names = names(param_var),
                          multirun.dir = "MultiRuns",
                          keep.subdirs = FALSE,
                          singlerun_names = paste0("RunNo",1:nRuns),
@@ -72,19 +72,20 @@ MultiRun.B90 <- function(nRuns,
                          showProgress = TRUE,
                          ...){
 
-  names(param_var) <- tolower(names(param_var))
+  param_var <- as.data.frame(param_var)
+  names(param_var) <- param_var_names
 
   if (!requireNamespace("doSNOW", quietly = TRUE)) {
     stop("Package \"doSNOW\" needed for this function to work. Please install it.")
   }
 
-  if (!all(names(param_var) %in% names(param_const))) {
+  if (!all(names(param_var) %in% names(param.b90))) {
     warning("Not all names of 'param_var' were found in 'param_const'!")
   }
 
   if (nrow(param_var) > nRuns) {
     warning(paste("Number of rows in 'param_var' is greater than 'nRuns'.
-            Only the first 'nRuns' =", nRuns, "rows of 'param_var' will be used in the Multirun!"))
+                  Only the first 'nRuns' =", nRuns, "rows of 'param_var' will be used in the Multirun!"))
   }
   if (nrow(param_var) < nRuns) {
     stop("The number of paramter sets is lower than 'nRun'.
@@ -107,6 +108,7 @@ MultiRun.B90 <- function(nRuns,
 
   # define local %dopar%, to not load foreach package (listed only under 'suggests')
   `%dopar%` <- foreach::`%dopar%`
+  #`%do%` <- foreach::`%do%`
 
   progress <- function(nRuns) setTxtProgressBar(pb, nRuns)
 
@@ -125,26 +127,24 @@ MultiRun.B90 <- function(nRuns,
 
   # foreach-Loop --------------------------------------------------------------------
   results <- foreach::foreach(i = seq_along(singlerun_names),
-                    .errorhandling = "pass",
-                    .options.snow = opts) %dopar% {
+                              .errorhandling = "pass",
+                              .options.snow = opts) %dopar% {
 
-                      param_const[match(names(param_var),names(param_const))] <- param_var[i,]
+                                param.b90[match(names(param_var),names(param.b90))] <- param_var[i,]
 
-                      res <- Run.B90(project.dir = file.path(multirun.dir, singlerun_names[i]),
-                        param.b90 = param_const,
-                        options.b90 = options.b90,
-                        climate = climate,
-                        soil = soil,
-                        ...)
+                                res <- Run.B90(project.dir = file.path(multirun.dir, singlerun_names[i]),
+                                               param.b90 = param.b90,
+                                               options.b90 = options.b90,
+                                               climate = climate,
+                                               soil = soil,
+                                               ...)
 
-                      if (!keep.subdirs) {
-                        unlink(file.path(multirun.dir, singlerun_names[i]), recursive = TRUE)
-                      }
+                                if (!keep.subdirs) {
+                                  unlink(file.path(multirun.dir, singlerun_names[i]), recursive = TRUE)
+                                }
 
-                      return(res)
-
-                    }
+                                return(res)
+                              }
   names(results) <- singlerun_names
-
   return(results)
-}
+  }
