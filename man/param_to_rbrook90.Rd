@@ -16,7 +16,7 @@ param_to_rbrook90(options.b90, param.b90, n_soillays, n_materials)
 \item{n_materials}{number of soil materials}
 }
 \value{
-a numerical vector
+a numerical vector with the parameters in the right order for r_brook90
 }
 \description{
 The parameter-vector for r_brook90 is created from the lists of model controls options, parameters, and soil.

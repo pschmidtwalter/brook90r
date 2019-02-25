@@ -144,7 +144,7 @@ Run.B90 <- function(project.dir,
   project.dir <- normalizePath(project.dir, mustWork = FALSE)
 
   if (!dir.exists(project.dir)) {
-    if (verbose == TRUE) {print("Creating project-directory...")}
+    if (verbose == TRUE) {message("Creating project-directory...")}
     tryCatch( {
       dir.create(project.dir)
     }, warning = function(wrn){
@@ -358,7 +358,7 @@ Run.B90 <- function(project.dir,
                               approx.method = options.b90$standprop.interp)
   )
 
-  # daily leaf area index: create by year
+  # daily leaf area index from parameters
   standprop_daily[, lai := MakeSeasLAI(simyears,
                                        method = options.b90$lai.method,
                                        maxlai = param.b90$maxlai,
@@ -478,7 +478,8 @@ Run.B90 <- function(project.dir,
   }
 
   # Read output files -----------------------------------------------------------
-  simres <- lapply(list.files(out.dir, pattern = ".csv", full.names = T), fread)
+  simres <- lapply(list.files(out.dir, pattern = ".csv", full.names = T), fread, stringsAsFactors = F)
+  names(simres) <- list.files(out.dir, pattern = ".csv")
 
   # append input parameters
   if (output.param.options == TRUE) {
@@ -489,7 +490,7 @@ Run.B90 <- function(project.dir,
   }
 
   #remove output
-  if (!keep.outputfiles) { try(file.remove(list.files(options.b90$out.dir, pattern = ".ASC", full.names = T))) }
+  if (!keep.outputfiles) { try(file.remove(list.files(options.b90$out.dir, pattern = ".csv", full.names = T))) }
   #remove log-file (only if simulation had no errors)
   # if (output.log != "" & output.log != FALSE & keep.log.on.success == F) {
   #   try(file.remove(output.log))
