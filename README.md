@@ -3,8 +3,7 @@
 
 -----
 
-**This package is deprecated. Please use the new R package
-[LWFBrook90R](https://github.com/pschmidtwalter/LWFBrook90R) instead.**
+# **This package is deprecated. Please use the new R package [LWFBrook90R](https://github.com/pschmidtwalter/LWFBrook90R) instead.**
 
 -----
 
