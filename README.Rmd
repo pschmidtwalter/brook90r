@@ -11,6 +11,14 @@ knitr::opts_chunk$set(
   fig.path = "README-"
 )
 ```
+
+
+***
+
+**This package is deprecated. Please use the new R package [LWFBrook90R](https://github.com/pschmidtwalter/LWFBrook90R) instead.**
+
+***
+
 brook90r: Run the LWF-BROOK90 hydrological model from within R.
 
 # Motivation
